@@ -1,0 +1,8 @@
+title: Princeton Robot Planning and Learning
+baseurl: ""
+url: "https://princeton-robot-planning-and-learning.github.io/"
+
+theme: minima
+
+plugins:
+  - jekyll-feed
