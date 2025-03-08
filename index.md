@@ -13,5 +13,5 @@ title: Home
 </section>
 
 <section class="content-section">
-  <p>We are the <b>Princeton Robot Planning and Learning (PRPL)</b> group. Our mission is to develop generalist robots that learn and plan to help people.</p>
+  <p>We are the <b>Princeton Robot Planning and Learning (PRPL)</b> group. Our mission is to develop generalist robots that learn and plan to help people. PRPL is led by <a href="https://tomsilver.github.io/">Professor Tom Silver</a>.</p>
 </section>
