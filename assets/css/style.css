@@ -91,6 +91,28 @@ main {
     object-fit: contain;
 }
 
+/* Footer Styles */
+.site-footer {
+    background-color: rgb(51,25,75);
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 16px;
+    color: rgb(217,193,250);
+}
+
 /* Mobile Responsive Styles */
 @media screen and (max-width: 1200px) {
     nav {
