@@ -6,13 +6,22 @@
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'PrincetonMonticelloFont';
+    src: url('../fonts/PrincetonMonticelloDisplay-Regular.woff2') format('woff2'),
+         url('../fonts/PrincetonMonticelloDisplay-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
-    font-family: 'CaslonFont', sans-serif;
+    font-family: 'PrincetonMonticelloFont', sans-serif;
     margin: 0;
     padding: 0;
 }
 
 nav {
+    font-family: 'CaslonFont', sans-serif;
     background-color: rgb(51,25,75);
     color: white;
     padding: 10px 120px;
