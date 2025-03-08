@@ -113,6 +113,67 @@ main {
     color: rgb(217,193,250);
 }
 
+/* People Page Styles */
+.people-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    margin: 30px 0;
+}
+
+.person {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.person-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 15px;
+    border: 3px solid rgb(51,25,75);
+}
+
+.person-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.person-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+}
+
+.person-info p {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.person-info a {
+    color: rgb(51,25,75);
+    text-decoration: none;
+}
+
+.person-info a:hover {
+    text-decoration: underline;
+}
+
+/* Principal Investigator specific styling */
+.pi-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.pi-container .person {
+    max-width: 300px;
+}
+
 /* Mobile Responsive Styles */
 @media screen and (max-width: 1200px) {
     nav {
