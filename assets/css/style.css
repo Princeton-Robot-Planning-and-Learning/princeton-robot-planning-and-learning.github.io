@@ -1,5 +1,13 @@
+@font-face {
+    font-family: 'CaslonFont';
+    src: url('../fonts/CaslonDoricCondensed-Bold.woff2') format('woff2'),
+         url('../fonts/CaslonDoricCondensed-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'CaslonFont', sans-serif;
     margin: 0;
     padding: 0;
 }
@@ -7,15 +15,17 @@ body {
 nav {
     background-color: rgb(51,25,75);
     color: white;
-    padding: 10px 20px;
+    padding: 10px 120px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* Pushes items to edges */
+    font-size: 24px;
 }
 
 .nav-container {
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .logo img {
@@ -27,6 +37,7 @@ nav {
     padding: 0;
     margin: 0;
     display: flex;
+    margin-left: auto; /* Pushes links to the right */
 }
 
 .nav-links li {
@@ -34,10 +45,10 @@ nav {
 }
 
 .nav-links a {
-    color: white;
+    color: rgb(217,193,250);
     text-decoration: none;
 }
 
 main {
-    padding: 20px;
+    padding: 10px 120px;
 }
