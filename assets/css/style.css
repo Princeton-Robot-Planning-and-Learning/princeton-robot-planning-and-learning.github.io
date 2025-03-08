@@ -24,7 +24,7 @@ nav {
     font-family: 'CaslonFont', sans-serif;
     background-color: rgb(51,25,75);
     color: white;
-    padding: 10px 120px;
+    padding: 10px 300px;
     display: flex;
     align-items: center;
     justify-content: space-between; /* Pushes items to edges */
@@ -59,12 +59,38 @@ nav {
 }
 
 main {
-    padding: 10px 120px;
     text-align: center;
+    padding: 0;
+}
+
+.video-section {
+    background-color: silver;
+    padding: 0;
+    width: 100%;
+}
+
+.content-section {
+    background-color: white;
+    padding: 30px 120px;
+    font-size: 24px;
+}
+
+.video-container {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding: 0 20px;
+    overflow: hidden;
+}
+
+.video-container video {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 /* Mobile Responsive Styles */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1200px) {
     nav {
         padding: 10px 20px;
     }
@@ -92,5 +118,9 @@ main {
     
     main {
         padding: 10px 20px;
+    }
+    
+    .content-section {
+        padding: 30px 20px;
     }
 }
