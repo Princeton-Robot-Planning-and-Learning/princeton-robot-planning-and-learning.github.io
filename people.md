@@ -20,6 +20,7 @@ title: People
   </div>
 
   <h2>PhD Students</h2>
+  Coming soon.
   <div class="people-grid">
     <!-- Template for PhD students -->
     <!-- 
@@ -36,6 +37,7 @@ title: People
   </div>
 
   <h2>Undergraduates</h2>
+  Coming soon.
   <div class="people-grid">
     <!-- Template for undergraduates -->
     <!-- 
