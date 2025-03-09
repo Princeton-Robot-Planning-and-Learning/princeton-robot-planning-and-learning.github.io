@@ -53,7 +53,7 @@ title: People
     -->
     <div class="person">
       <div class="person-image">
-        <img src="{{ '/assets/images/team/isabel-liu.jpg' | relative_url }}" alt="Isabel Liu">
+        <img src="{{ '/assets/images/team/isabel-liu.png' | relative_url }}" alt="Isabel Liu">
       </div>
       <div class="person-info">
         <h3><a href="#">Isabel Liu</a></h3>
