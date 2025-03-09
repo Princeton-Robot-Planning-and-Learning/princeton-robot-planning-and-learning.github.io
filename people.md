@@ -37,7 +37,6 @@ title: People
   </div>
 
   <h2>Undergraduates</h2>
-  Coming soon.
   <div class="people-grid">
     <!-- Template for undergraduates -->
     <!-- 
