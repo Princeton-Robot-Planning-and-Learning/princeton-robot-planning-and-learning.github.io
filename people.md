@@ -51,5 +51,14 @@ title: People
       </div>
     </div>
     -->
+    <div class="person">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/isabel-liu.jpg' | relative_url }}" alt="Isabel Liu">
+      </div>
+      <div class="person-info">
+        <h3><a href="#">Isabel Liu</a></h3>
+        <p>Class of 2026, Computer Science</p>
+      </div>
+    </div>
   </div>
 </section>
