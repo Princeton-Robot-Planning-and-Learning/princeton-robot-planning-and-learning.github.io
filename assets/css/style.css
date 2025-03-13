@@ -16,6 +16,9 @@
     font-display: swap;
 }
 
+/* Import Lato font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
 /* Skip link for keyboard users */
 .skip-link {
     position: absolute;
@@ -109,7 +112,7 @@ main {
 }
 
 .video-section {
-    background-color: silver;
+    background-color: white;
     padding: 0;
     width: 100%;
 }
@@ -120,6 +123,7 @@ main {
     font-size: 24px;
     max-width: 1200px;
     margin: 0 auto;
+    font-family: 'Lato', sans-serif;
 }
 
 .content-section h2 {
@@ -131,7 +135,7 @@ main {
 .video-container {
     margin: 0 auto;
     max-width: 1200px;
-    padding: 0 20px;
+    padding: 10px 20px;
     overflow: hidden;
 }
 
@@ -140,6 +144,7 @@ main {
     width: 100%;
     height: auto;
     object-fit: contain;
+    border: 2px solid black;
 }
 
 /* Footer Styles */
