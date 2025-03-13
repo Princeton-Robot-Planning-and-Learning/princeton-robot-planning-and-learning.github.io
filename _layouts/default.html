@@ -6,10 +6,11 @@
     <title>PRPL: {{ page.title }}</title>
     <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
     <link rel="icon" type="image/x-icon" href="{{ '/assets/images/favicon.ico' | relative_url }}">
+    <meta name="description" content="Princeton Robot Planning and Learning (PRPL) group, led by Professor Tom Silver, develops generalist robots that learn and plan to help people.">
 </head>
 <body>
     {% include navbar.html %}
-    <main>
+    <main id="main-content" role="main">
         {{ content }}
     </main>
     {% include footer.html %}

@@ -4,6 +4,7 @@
          url('../fonts/CaslonDoricCondensed-Bold.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
@@ -12,12 +13,48 @@
          url('../fonts/PrincetonMonticelloDisplay-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
+    font-display: swap;
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: rgb(51,25,75);
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+.visually-hidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
 }
 
 body {
     font-family: 'PrincetonMonticelloFont', sans-serif;
     margin: 0;
     padding: 0;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Focus styles for all interactive elements */
+a:focus, button:focus {
+    outline: 3px solid #00b0ff;
+    outline-offset: 2px;
 }
 
 nav {
@@ -54,8 +91,16 @@ nav {
 }
 
 .nav-links a {
-    color: rgb(217,193,250);
+    color: white; /* Improved contrast from rgb(217,193,250) */
     text-decoration: none;
+    padding: 5px;
+    display: inline-block;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+    text-decoration: underline;
+    color: rgb(217,193,250);
 }
 
 main {
@@ -116,7 +161,7 @@ main {
 .site-footer p {
     margin: 0;
     font-size: 16px;
-    color: rgb(217,193,250);
+    color: white; /* Improved contrast from rgb(217,193,250) */
 }
 
 /* People Page Styles */
@@ -165,9 +210,11 @@ main {
 .person-info a {
     color: rgb(51,25,75);
     text-decoration: none;
+    font-weight: bold;
 }
 
-.person-info a:hover {
+.person-info a:hover,
+.person-info a:focus {
     text-decoration: underline;
 }
 
@@ -197,11 +244,16 @@ main {
     top: 20px;
 }
 
+.mobile-toggle:focus {
+    outline: 3px solid #00b0ff;
+    outline-offset: 2px;
+}
+
 .mobile-toggle span {
     display: block;
     height: 3px;
     width: 100%;
-    background-color: rgb(217,193,250);
+    background-color: white; /* Improved contrast */
     border-radius: 3px;
 }
 
