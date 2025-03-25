@@ -35,7 +35,8 @@ title: Papers I Like
         const paperDiv = document.createElement('div');
         paperDiv.classList.add('paper');
         paperDiv.innerHTML = `
-          <h3>${paper.title} (${paper.reference})</h3>
+          <h3>${paper.title}</h3>
+          <h4>${paper.reference}</h4>
           <p>${paper.explanation}</p>
           <p><strong>Link:</strong> <a href="${paper.link}" target="_blank">${paper.link}</a></p>
           <p><strong>Date Posted:</strong> ${paper.datePosted}</p>
