@@ -1,0 +1,15 @@
+[{
+    "title": "Finding options that minimize planning time",
+    "reference": "Jinnai et al., ICML 2019",
+    "explanation": "This paper has a unique & compelling answer to the question: how should we discover high-level action abstractions (and why)?",
+    "link": "https://proceedings.mlr.press/v97/jinnai19a/jinnai19a.pdf",
+    "datePosted": "2025-07-14"
+},
+{
+    "title": "Pengi: an implementation of a theory of activity",
+    "reference": "Agre & Chapman, 1987",
+    "explanation": "This paper points to a kind of improvisational decision-making that I still don't think we've figured out. Also has a great critique of planning.",
+    "link": "https://cdn.aaai.org/AAAI/1987/AAAI87-048.pdf",
+    "datePosted": "2025-07-07"
+}
+]
