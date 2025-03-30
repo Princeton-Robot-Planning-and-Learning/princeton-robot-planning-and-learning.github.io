@@ -1,0 +1,276 @@
+<?xml version="1.0" ?>
+<rss version="2.0">
+  <channel>
+    <title>Papers I Like (PRPL Lab, Tom Silver)</title>
+    <link>https://prpl.group/papers-i-like.xml</link>
+    <description>Curated papers with notes</description>
+    <language>en-us</language>
+    <item>
+      <title>Impossibly Good Experts and How to Follow Them</title>
+      <link>https://openreview.net/pdf?id=sciA_xgYofB</link>
+      <description>A very well written paper that will be especially interesting if you're using teacher-student training in your work.</description>
+      <author>Walsman et al., ICLR 2023</author>
+      <pubDate>Sun, 30 Mar 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Gaussian Process Implicit Surfaces for Shape Estimation and Grasping</title>
+      <link>https://argmin.lis.tu-berlin.de/papers/11-dragiev-ICRA.pdf</link>
+      <description>Useful if you're thinking about implicit representations for manipulation. Also +1 for uncertainty quantification.</description>
+      <author>Dragiev et al., ICRA 2011</author>
+      <pubDate>Sun, 23 Mar 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Simple Random Search of Static Linear Policies is Competitive for RL</title>
+      <link>https://proceedings.neurips.cc/paper/2018/hash/7634ea65a4e6d9041cfd3f7de18e334a-Abstract.html</link>
+      <description>&quot;Simple baselines should be established before moving forward to more complex [ones].&quot; Generally agree!</description>
+      <author>Mania et al., NeurIPS 2018</author>
+      <pubDate>Sun, 16 Mar 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>A Tour of Reinforcement Learning: The View from Continuous Control</title>
+      <link>https://arxiv.org/abs/1806.09460</link>
+      <description>Pairs well with the PaperILiked last week -- another good bridge between RL and control theory.</description>
+      <author>Recht, 2018</author>
+      <pubDate>Sun, 09 Mar 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Model Predictive Control and Reinforcement Learning: A Unified Framework Based on Dynamic Programming</title>
+      <link>https://arxiv.org/abs/2406.00592</link>
+      <description>If you know 1 of {RL, controls} and want to understand the other, this is a good starting point.</description>
+      <author>Bertsekas, 2024</author>
+      <pubDate>Sun, 02 Mar 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>The Structure of Scientific Revolutions</title>
+      <link>https://www.lri.fr/~mbl/Stanford/CS477/papers/Kuhn-SSR-2ndEd.pdf</link>
+      <description>Zooming way, way out and thinking about what we're all doing here. (I'll get back to robots &amp; AI next week.)</description>
+      <author>Kuhn, 1962</author>
+      <pubDate>Sun, 23 Feb 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning Reusable Manipulation Strategies</title>
+      <link>https://arxiv.org/pdf/2311.03293</link>
+      <description>This paper is my favorite recent account of how robots can learn &amp; dramatically generalize &quot;tricks&quot; or &quot;mechanisms&quot; from very little data.</description>
+      <author>Mao et al., CoRL 2023</author>
+      <pubDate>Sun, 16 Feb 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>The Child as Hacker</title>
+      <link>https://www.cell.com/action/showPdf?pii=S1364-6613%2820%2930174-1</link>
+      <description>I like the emphasis not only on code &amp; program synthesis, but also on intrinsic motivation to guide open-ended learning.</description>
+      <author>Rule et al., Trends in CogSci 2020</author>
+      <pubDate>Sun, 09 Feb 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Is More Autonomy Always Better?</title>
+      <link>https://dl.acm.org/doi/pdf/10.1145/3319502.3374818</link>
+      <description>Across AI+robotics, we should ask: How can give users more autonomy *options*? (
+eq How can we maximize autonomy?)</description>
+      <author>Bhattacharjee et al., HRI 2020</author>
+      <pubDate>Sun, 02 Feb 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Adapting Robot Behavior to User Preferences in Assistive Scenarios</title>
+      <link>https://www.iri.upc.edu/files/academic/thesis/103-Thesis.pdf</link>
+      <description>Learning to personalize physically assistive robots with hierarchical planning in the mix!</description>
+      <author>Camprodon, PhD Thesis 2020</author>
+      <pubDate>Sun, 26 Jan 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Sampling-Based Methods for Motion Planning with Constraints</title>
+      <link>https://www.kavrakilab.org/publications/kingston2018sampling-based-methods-for-motion-planning.pdf</link>
+      <description>Our field needs more surveys like this -- helpful &amp; accessible. See also Berenson's &quot;Obeying Constraints During Motion Planning.&quot;</description>
+      <author>Kingston et al., ARCRAS 2018</author>
+      <pubDate>Sun, 19 Jan 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>'Just In Time' Representations for Mental Simulation in Intuitive Physics</title>
+      <link>https://chentoast.github.io/papers/phys_repr-cogsci-2023.pdf</link>
+      <description>Inspiring for those of us who are trying to get robots to generate just-in-time abstractions for planning &amp; reasoning.</description>
+      <author>Chen et al., CogSci 2023</author>
+      <pubDate>Sun, 12 Jan 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>ShapeCoder: Discovering Abstractions for Visual Programs from Unstructured Primitives</title>
+      <link>https://arxiv.org/pdf/2305.05661</link>
+      <description>Fans of DreamCoder will enjoy, especially those thinking about program synthesis in continuous domains.</description>
+      <author>Jones et al., SIGGRAPH 2023</author>
+      <pubDate>Sun, 05 Jan 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Feature Guided Search for Creative Problem Solving Through Tool Construction</title>
+      <link>https://arxiv.org/pdf/2008.10685</link>
+      <description>Part of a very fun project on &quot;MacGyvering&quot; with a robot (https://ece.gatech.edu/news/2023/12/formula-creativity).</description>
+      <author>Nair &amp; Chernova, 2020</author>
+      <pubDate>Sun, 29 Dec 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Qualitative Simulation</title>
+      <link>https://web.eecs.umich.edu/~kuipers/papers/Kuipers-aij-86-els.pdf</link>
+      <description>This is a classic -- anyone thinking about robots/agents that reason and plan at multiple levels of abstraction, especially in physical systems, will enjoy.</description>
+      <author>Kuipers, 1986</author>
+      <pubDate>Sun, 22 Dec 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Using Source Code to Solve Control Problems</title>
+      <link>https://dspace.mit.edu/bitstream/handle/1721.1/153777/hernandezcano-leohc-sm-eecs-2024-thesis.pdf?sequence=1&amp;isAllowed=y</link>
+      <description>If an agent has a programmatic world model, it should use that structure to make better and faster decisions.</description>
+      <author>Hernandez Cano, MIT master's thesis, 2024</author>
+      <pubDate>Sun, 15 Dec 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Language and Culture Internalisation for Human-Like Autotelic AI</title>
+      <link>https://arxiv.org/pdf/2206.01134</link>
+      <description>Makes a very interesting case for social interaction and culture as major drivers for the emergence of intelligent agents.</description>
+      <author>Colas et al., Nature MI 2022</author>
+      <pubDate>Sun, 08 Dec 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning with 3D Rotations, a Hitchhiker's Guide to SO(3)</title>
+      <link>https://arxiv.org/pdf/2404.11735</link>
+      <description>This is quickly becoming one of the papers I most often share. Useful, systematic, and nicely written.</description>
+      <author>Geist et al., ICML 2024</author>
+      <pubDate>Sun, 01 Dec 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Robots for Humanity: In-Home Deployment of Stretch RE2</title>
+      <link>https://dl.acm.org/doi/abs/10.1145/3610978.3641114</link>
+      <description>This is probably the most inspiring robot video/demo that I've ever seen: https://www.youtube.com/watch?v=K2U7wwEMLDU</description>
+      <author>Ranganeni et al., HRI 2024</author>
+      <pubDate>Sun, 24 Nov 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>AdaptSim: Task-Driven Simulation Adaptation for Sim-to-Real Transfer</title>
+      <link>https://arxiv.org/pdf/2302.04903</link>
+      <description>Simulators need not be realistic---they just need to be useful for downstream decision-making!</description>
+      <author>Ren et al., CoRL 2023</author>
+      <pubDate>Sun, 17 Nov 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>A Survey on Hierarchical Planning – One Abstract Idea, Many Concrete Realizations</title>
+      <link>https://www.ijcai.org/proceedings/2019/0875.pdf</link>
+      <description>This has the best short intro to Hierarchical Task Networks and related formalisms that I have seen.</description>
+      <author>Bercher et al., IJCAI 2019</author>
+      <pubDate>Sun, 10 Nov 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>REPeat: A Real2Sim2Real Approach for Pre-acquisition of Soft Food Items in Robot-assisted Feeding</title>
+      <link>https://arxiv.org/pdf/2410.10017</link>
+      <description>This is the kind of rich, messy manipulation &amp; planning that our robots need.</description>
+      <author>Ha*, Ye* et al., IROS 2024</author>
+      <pubDate>Sun, 03 Nov 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Uncertainty Quantification for Neurosymbolic Programs via Compositional Conformal Prediction</title>
+      <link>https://arxiv.org/pdf/2405.15912</link>
+      <description>Very creative synthesis of ideas. I would love to see applications to robot planning.</description>
+      <author>Ramalingam et al., 2024</author>
+      <pubDate>Sun, 27 Oct 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning Sequential Acquisition Policies for Robot-Assisted Feeding</title>
+      <link>https://arxiv.org/pdf/2309.05197</link>
+      <description>I really admire this: it's cool from a general AI/robotics perspective *and* focused on an important application.</description>
+      <author>Sundaresan et al., 2023</author>
+      <pubDate>Sun, 20 Oct 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Bayesian Policy Search with Policy Priors</title>
+      <link>https://web.stanford.edu/~ngoodman/papers/WingateEtAl-PolicyPrios.pdf</link>
+      <description>If &quot;learning to learn&quot;, &quot;planning as inference&quot;, or &quot;hierarchical Bayesian&quot; gets your attention, you'll enjoy this paper. Also, #SnakesOnAPlane.</description>
+      <author>Wingate et al., 2011</author>
+      <pubDate>Sun, 13 Oct 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Planning for Learning Object Properties</title>
+      <link>https://arxiv.org/pdf/2301.06054</link>
+      <description>A very nice instance of using planning to learn (to get better at planning). Real robot results too!</description>
+      <author>Lamanna et al., AAAI 2023</author>
+      <pubDate>Sun, 06 Oct 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Towards a Unified Theory of State Abstraction for MDPs</title>
+      <link>https://thomasjwalsh.net/pub/aima06Towards.pdf</link>
+      <description>This is my go-to reference for state abstractions. Table 1 is especially helpful.</description>
+      <author>Li, Walsh &amp; Littman, 2006</author>
+      <pubDate>Sun, 29 Sep 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Semantically Grounded Learning from Unstructured Demonstrations</title>
+      <link>https://people.cs.umass.edu/~sniekum/pubs/NiekumDissertation.pdf</link>
+      <description>A must-read if you're thinking about developing robots that learn (and generalize!) from demonstrations.</description>
+      <author>Niekum (Dissertation), 2012</author>
+      <pubDate>Sun, 22 Sep 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning to Rank for Synthesizing Planning Heuristics</title>
+      <link>https://arxiv.org/pdf/1608.01302</link>
+      <description>Heuristics are estimated costs-to-go, so we should train them that way, right? Not necessarily!</description>
+      <author>Garrett et al., 2016</author>
+      <pubDate>Sun, 15 Sep 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning Inadmissible Heuristics During Search</title>
+      <link>https://www.cs.unh.edu/~ruml/papers/hhat-icaps-11.pdf</link>
+      <description>It's cool and surprising that we can learn to get better at search, during search itself, before even finding a solution.</description>
+      <author>Thayer, Dionne &amp; Ruml, 2011</author>
+      <pubDate>Sun, 08 Sep 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning Tasks From A Single Demonstration</title>
+      <link>https://www.cs.cmu.edu/~cga/papers/cga-icra97alt.pdf</link>
+      <description>A title ahead of its time! My favorite part, though, is the thorough &amp; thoughtful discussion section.</description>
+      <author>Atkeson &amp; Schaal, 1997</author>
+      <pubDate>Sun, 01 Sep 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>CORN: Contact-based Object Representation for Nonprehensile Manipulation of General Unseen Objects</title>
+      <link>https://arxiv.org/pdf/2403.10760</link>
+      <description>The real nonprehensile manipulation videos are pretty remarkable.</description>
+      <author>Cho et al., ICLR 2024</author>
+      <pubDate>Sun, 25 Aug 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Inductive Logic Programming At 30: A New Introduction</title>
+      <link>https://arxiv.org/pdf/2008.07912</link>
+      <description>When I first started reading about ILP, I really wanted an explanation in modern ML terms. This does that &amp; a lot more!</description>
+      <author>Cropper &amp; Dumancic, JAIR 2022</author>
+      <pubDate>Sun, 18 Aug 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning by Analogy: Formulating and Generalizing Plans from Past Experience</title>
+      <link>https://apps.dtic.mil/sti/tr/pdf/ADA120124.pdf</link>
+      <description>Ambitious and ahead of its time. Analogical reasoning is under-utilized in modern AI, imo.</description>
+      <author>Carbonell, 1982</author>
+      <pubDate>Sun, 11 Aug 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Discovery of Complex Behaviors through Contact-Invariant Optimization</title>
+      <link>https://roboti.us/lab/papers/MordatchSIGGRAPH12.pdf</link>
+      <description>The behaviors synthesized are still among the coolest I've ever seen. An elegant idea, too.</description>
+      <author>Mordatch et al., 2012</author>
+      <pubDate>Sun, 04 Aug 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Learning Symbolic Models of Stochastic Domains</title>
+      <link>https://people.csail.mit.edu/lpk/papers/zpk.pdf</link>
+      <description>This was hugely influential in my PhD. The scope is incredible (you think they're done; then they add concept learning!)</description>
+      <author>Pasula, Zettlemoyer, Kaelbling, JAIR 2005</author>
+      <pubDate>Sun, 21 Jul 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Finding Options that Minimize Planning Time</title>
+      <link>https://proceedings.mlr.press/v97/jinnai19a/jinnai19a.pdf</link>
+      <description>This paper has a unique &amp; compelling answer to the question: how should we discover high-level action abstractions (and why)?</description>
+      <author>Jinnai et al., ICML 2019</author>
+      <pubDate>Sun, 14 Jul 2024 17:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Pengi: An Implementation of a Theory of Activity</title>
+      <link>https://cdn.aaai.org/AAAI/1987/AAAI87-048.pdf</link>
+      <description>This paper points to a kind of improvisational decision-making that I still don't think we've figured out. Also has a great critique of planning.</description>
+      <author>Agre &amp; Chapman, 1987</author>
+      <pubDate>Sun, 07 Jul 2024 17:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
