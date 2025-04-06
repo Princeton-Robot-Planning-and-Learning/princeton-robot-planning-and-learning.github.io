@@ -6,6 +6,13 @@
     <description>Curated papers with notes</description>
     <language>en-us</language>
     <item>
+      <title>Control-Limited Differential Dynamic Programming</title>
+      <link>https://www.roboti.us/lab/papers/TassaICRA14.pdf</link>
+      <description>This paper has an extremely clear and concise overview of trajectory optimization for robotics, especially DDP.</description>
+      <author>Tassa et al., ICRA 2014</author>
+      <pubDate>Sun, 06 Apr 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
       <title>Impossibly Good Experts and How to Follow Them</title>
       <link>https://openreview.net/pdf?id=sciA_xgYofB</link>
       <description>A very well written paper that will be especially interesting if you're using teacher-student training in your work.</description>
