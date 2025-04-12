@@ -6,6 +6,13 @@
     <description>Curated papers with notes</description>
     <language>en-us</language>
     <item>
+      <title>Online Algorithms for POMDPs with Continuous State, Action, and Observation Spaces</title>
+      <link>https://arxiv.org/abs/1709.06196</link>
+      <description>POMDPs are hard to understand and hard to solve. This paper helps with both!</description>
+      <author>Sunberg &amp; Kochenderfer, ICAPS 2018</author>
+      <pubDate>Sun, 13 Apr 2025 17:00:00 GMT</pubDate>
+    </item>
+    <item>
       <title>Control-Limited Differential Dynamic Programming</title>
       <link>https://www.roboti.us/lab/papers/TassaICRA14.pdf</link>
       <description>This paper has an extremely clear and concise overview of trajectory optimization for robotics, especially DDP.</description>
