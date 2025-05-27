@@ -26,7 +26,7 @@ title: People
     <!-- 
     <div class="person" role="article">
       <div class="person-image">
-        <img src="{{ '/assets/images/team/student-name.jpg' | relative_url }}" alt="Student Name portrait">
+        <img src="{{ '/assets/images/team/student-name.png' | relative_url }}" alt="Student Name portrait">
       </div>
       <div class="person-info">
         <h3><a href="https://student-website.com" aria-label="Student Name's personal website">Student Name</a></h3>
