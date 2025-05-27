@@ -60,4 +60,13 @@ title: People
       </div>
     </div>
   </div>
+  <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/abby-girma.jpg' | relative_url }}" alt="Abby Girma portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://www.linkedin.com/in/a-girma/" aria-label="Student Name's personal website">Student Name</a></h3>
+        <p>Class of 2026, Electrical and Computer Engineering</p>
+      </div>
+    </div>
 </section>
