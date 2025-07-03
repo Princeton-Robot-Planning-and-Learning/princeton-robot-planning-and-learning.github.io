@@ -20,7 +20,7 @@ title: People
   </div>
 
   <h2 id="postdoc-heading">Postdoctoral Researchers</h2>
-  <div class="postodc-container" aria-labelledby="postdoc-heading">
+  <div class="postdoc-container" aria-labelledby="postdoc-heading">
     <div class="person" role="article">
       <div class="person-image">
         <img src="{{ '/assets/images/team/yixuan-huang.png' | relative_url }}" alt="Yixuan Huang portrait">

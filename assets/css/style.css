@@ -234,6 +234,18 @@ main {
     max-width: 300px;
 }
 
+/* Postdoc specific styling */
+.postdoc-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.postdoc-container .person {
+    max-width: 300px;
+}
+
+
 .mobile-toggle {
     display: none;
     background: none;
