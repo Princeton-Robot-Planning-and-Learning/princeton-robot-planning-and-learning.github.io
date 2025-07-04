@@ -19,6 +19,19 @@ title: People
     </div>
   </div>
 
+  <h2 id="postdoc-heading">Postdoctoral Researchers</h2>
+  <div class="postdoc-container" aria-labelledby="postdoc-heading">
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/yixuan-huang.png' | relative_url }}" alt="Yixuan Huang portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://yixuanhuang98.github.io/" aria-label="Yixuan Huang's personal website">Yixuan Huang</a></h3>
+        <p>Postdoc, ECE</p>
+      </div>
+    </div>
+  </div>
+
   <h2 id="phd-heading">PhD Students</h2>
   <p>Coming soon.</p>
   <div class="people-grid" aria-labelledby="phd-heading">
