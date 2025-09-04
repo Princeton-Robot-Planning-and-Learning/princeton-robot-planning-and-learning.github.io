@@ -81,5 +81,15 @@ title: People
         <p>Class of 2026, Electrical and Computer Engineering</p>
       </div>
     </div>
+    f
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/richard-zhou.jpg' | relative_url }}" alt="Richard Zhou portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://www.linkedin.com/in/richard-zhou-67b168251/" aria-label="Richard Zhou">Richard Zhou</a></h3>
+        <p>Class of 2026, Electrical and Computer Engineering</p>
+      </div>
+    </div>
   </div>
 </section>
