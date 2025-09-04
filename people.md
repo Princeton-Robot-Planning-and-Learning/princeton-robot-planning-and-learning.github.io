@@ -81,5 +81,14 @@ title: People
         <p>Class of 2026, Electrical and Computer Engineering</p>
       </div>
     </div>
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/skywalker-li.png' | relative_url }}" alt="Skywalker Li portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://www.linkedin.com/in/skywalkerli/" aria-label="Skywalker Li">Skywalker Li</a></h3>
+        <p>Class of 2026, Electrical and Computer Engineering</p>
+      </div>
+    </div>
   </div>
 </section>
