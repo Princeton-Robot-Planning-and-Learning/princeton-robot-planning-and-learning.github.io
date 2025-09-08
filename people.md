@@ -33,20 +33,17 @@ title: People
   </div>
 
   <h2 id="phd-heading">PhD Students</h2>
-  <p>Coming soon.</p>
+
   <div class="people-grid" aria-labelledby="phd-heading">
-    <!-- Template for PhD students -->
-    <!-- 
     <div class="person" role="article">
       <div class="person-image">
-        <img src="{{ '/assets/images/team/student-name.png' | relative_url }}" alt="Student Name portrait">
+        <img src="{{ '/assets/images/team/zahra-bashir.jpg' | relative_url }}" alt="Zahra Bashir portrait">
       </div>
       <div class="person-info">
-        <h3><a href="https://student-website.com" aria-label="Student Name's personal website">Student Name</a></h3>
-        <p>Research focus</p>
+        <h3><a href="https://zahraabashir.github.io" aria-label="Zahra Bashir's personal website">Zahra Bashir</a></h3>
+        <p>PhD, ECE</p>
       </div>
     </div>
-    -->
   </div>
 
   <h2 id="undergrad-heading">Undergraduates</h2>
