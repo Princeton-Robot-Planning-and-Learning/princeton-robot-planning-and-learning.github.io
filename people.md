@@ -49,6 +49,31 @@ title: People
     -->
   </div>
 
+  <h2 id="phd-heading">Master's Students</h2>
+  <div class="people-grid" aria-labelledby="phd-heading">
+    <!-- Template for PhD students -->
+    <!-- 
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/student-name.png' | relative_url }}" alt="Student Name portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://student-website.com" aria-label="Student Name's personal website">Student Name</a></h3>
+        <p>Research focus</p>
+      </div>
+    </div>
+    -->
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/joseph-xu.jpg' | relative_url }}" alt="Joseph Xu portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://www.linkedin.com/in/joseph-xu/" aria-label="Joseph Xu">Joseph Xu</a></h3>
+        <p>ECE M.Eng</p>
+      </div>
+    </div>
+  </div>
+
   <h2 id="undergrad-heading">Undergraduates</h2>
   <div class="people-grid" aria-labelledby="undergrad-heading">
     <!-- Template for undergraduates -->
