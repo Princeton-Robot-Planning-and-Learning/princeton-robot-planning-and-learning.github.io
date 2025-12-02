@@ -15,6 +15,8 @@ title: People
       <div class="person-info">
         <h3><a href="https://tomsilver.github.io/" aria-label="Tom Silver's personal website">Tom Silver</a></h3>
         <p>Assistant Professor, ECE</p>
+        <p>Core Faculty, Robotics</p>
+        <p>Associated Faculty, Center for Statistics and Machine Learning</p>
       </div>
     </div>
   </div>
@@ -80,7 +82,7 @@ title: People
     </div>
     <div class="person" role="article">
       <div class="person-image">
-        <img src="{{ '/assets/images/team/skywalker-li.png' | relative_url }}" alt="Skywalker Li portrait">
+        <img src="{{ '/assets/images/team/skywalker-li.jpg' | relative_url }}" alt="Skywalker Li portrait">
       </div>
       <div class="person-info">
         <h3><a href="https://www.linkedin.com/in/skywalkerli/" aria-label="Skywalker Li">Skywalker Li</a></h3>
