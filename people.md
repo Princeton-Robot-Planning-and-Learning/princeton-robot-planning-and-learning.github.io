@@ -89,5 +89,14 @@ title: People
         <p>Class of 2026, Electrical and Computer Engineering</p>
       </div>
     </div>
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/akash-bhowmick.png' | relative_url }}" alt="Akash Bhowmick portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://www.linkedin.com/in/akash-bhowmick1/" aria-label="Akash Bhowmick's personal website">Akash Bhowmick</a></h3>
+        <p>Class of 2027, Electrical and Computer Engineering</p>
+      </div>
+    </div>
   </div>
 </section>
