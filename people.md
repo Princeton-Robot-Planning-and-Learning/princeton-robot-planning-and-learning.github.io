@@ -46,6 +46,15 @@ title: People
         <p>PhD, ECE</p>
       </div>
     </div>
+    <div class="person" role="article">
+      <div class="person-image">
+        <img src="{{ '/assets/images/team/yixun-hu.jpg' | relative_url }}" alt="Yixun Hu portrait">
+      </div>
+      <div class="person-info">
+        <h3><a href="https://yixun-hu.github.io" aria-label="Yixun Hu's personal website">Yixun Hu</a></h3>
+        <p>PhD, ECE</p>
+      </div>
+    </div>
   </div>
 
   <h2 id="undergrad-heading">Undergraduates</h2>
