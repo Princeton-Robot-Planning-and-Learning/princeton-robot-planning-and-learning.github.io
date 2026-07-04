@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "_site"
-EXCLUDE = {".git", ".github", "_site", "scripts", "redirects.txt"}
+EXCLUDE = {".git", ".github", "_site", "scripts", "redirects.txt", "README.md"}
 
 STUB = """<!DOCTYPE html>
 <html lang="en">
