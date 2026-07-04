@@ -1,0 +1,9 @@
+# Redirects, materialized at deploy time by scripts/build_site.py.
+# Format: <source path> <destination url>, one per line.
+#
+# HTML-page sources become meta-refresh stubs. Non-HTML sources (e.g. .pdf)
+# cannot redirect on GitHub Pages, so they are served as a copy of a local
+# destination file instead.
+
+/prbench-site/ https://prpl.group/kinder-site/
+/tamp-learning-survey.pdf /papers/tamp-learning-survey.pdf
