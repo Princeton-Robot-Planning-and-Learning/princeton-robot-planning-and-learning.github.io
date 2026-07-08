@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Exercise 4 · Timing Between Button Presses</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Exercise 4</span>
+  <h1>Timing Between Button Presses</h1>
+  <p class="subtitle">Timer capture snapshots a running count the instant an
+  event happens. This exercise also contains the hardest bug in the
+  tutorial.</p>
+</div>
+
+<main class="container">
+
+<div class="callout car">
+  <span class="callout-label">On the car</span>
+  <p>Speed sensing is this exercise verbatim: a magnet passes the Hall sensor
+  instead of a thumb pressing SW3, the timer captures the count, and the time
+  between captures gives wheel speed. Even the debounce fix at the end may
+  reappear; the Hall sensor input can need the same treatment.</p>
+</div>
+
+<section>
+  <h2>Steps</h2>
+  <p>Continue in the same project. The plan: SW2 resets a free-running count
+  (in hardware, via a wire), SW3 captures it and your code displays the
+  elapsed time.</p>
+  <ol class="steps">
+    <li>
+      <strong>Add the Timer</strong>
+      <p>Place a <em>Timer</em> (Digital → Functions), name it
+      <code>Timer</code>. Configure: implementation <strong>UDB</strong>,
+      resolution <strong>16-bit</strong>, <strong>Period = Max</strong>
+      (65535), <strong>Capture mode = Rising Edge</strong>,
+      <strong>interrupt On Capture</strong>. (The tutorial recommends 32-bit
+      timers for real projects; you'll see why below.)</p>
+      <figure class="media check" data-img="ex4-check-timer-config.png"
+              data-alt="Timer configuration dialog: UDB, 16-bit, period 65535, capture rising edge, interrupt on capture">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Timer configuration dialog with all five settings visible</span>
+          <span class="ph-file">save as <code>assets/img/ex4-check-timer-config.png</code></span>
+        </div>
+        <figcaption>Your Timer dialog should match: UDB, 16-bit, period
+        65535, capture on rising edge, interrupt on capture.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Clock it</strong>
+      <p>Fan out the existing 10&nbsp;kHz clock: wire it to the timer's
+      <code>clock</code> input as well as the PWM's. A clock can drive many
+      blocks.</p>
+    </li>
+    <li>
+      <strong>Add the capture button</strong>
+      <p>New <em>Digital Input Pin</em> named <code>Button2</code>,
+      <strong>Drive mode = Resistive Pull Up</strong>, assigned to
+      <span class="pin">P15[5]</span> (push button <strong>SW3</strong>).
+      Wire it to the timer's <code>capture</code> input.</p>
+    </li>
+    <li>
+      <strong>Wire the reset</strong>
+      <p>Branch the SW2 signal (after the NOT gate) to the timer's
+      <code>reset</code> input. Make sure the branch point shows a
+      <strong>junction dot</strong> — see the schematic checklist below.</p>
+    </li>
+    <li>
+      <strong>Add the capture interrupt</strong>
+      <p>New <em>Interrupt</em> component named <code>Counter_Interrupt</code>
+      wired to the timer's <code>interrupt</code> output, with
+      <strong>InterruptType = Rising Edge</strong>.</p>
+      <figure class="media check" data-img="ex4-schematic.png"
+              data-alt="Full Exercise 4 schematic with timer, capture button, reset branch, and both interrupts">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: full Exercise 4 schematic — timer with clock/capture/reset wiring, both interrupt chains, junction dot on the reset branch</span>
+          <span class="ph-file">save as <code>assets/img/ex4-schematic.png</code></span>
+        </div>
+        <figcaption>Your schematic should match: 10&nbsp;kHz clock fanned out
+        to PWM and Timer, Button2 → capture, the SW2 chain branching to reset
+        with a junction dot, and Counter_Interrupt on the timer's interrupt
+        output.</figcaption>
+      </figure>
+      <div class="callout gotcha">
+        <span class="callout-label">Patch to the official tutorial</span>
+        <p>The tutorial doesn't specify the interrupt type. Set <strong>Rising
+        Edge</strong> explicitly: a "Level" interrupt without a
+        status-register read in the ISR re-fires endlessly and the program
+        appears to hang.</p>
+      </div>
+    </li>
+    <li>
+      <strong>Write the capture ISR</strong>
+      <p>Add <code>#include &lt;stdio.h&gt;</code> at the top of
+      <code>main.c</code> for <code>sprintf</code>, start the timer in the
+      init section (<code>Timer_Start();</code> plus the
+      <code>Counter_Interrupt_Start()</code> /
+      <code>_SetVector()</code> pair), and add:</p>
+      <pre><code>CY_ISR(counter_inter)
+{
+    Timer_ReadStatusRegister();   /* clears sticky interrupt flags — do this FIRST */
+    uint16 capture = Timer_ReadCapture();
+
+    char strbuf[32];
+    sprintf(strbuf, "ms: %u", (65535u - capture) / 10u);
+    LCD_ClearDisplay();
+    LCD_Position(0u, 0u);
+    LCD_PrintString(strbuf);
+}</code></pre>
+      <div class="callout gotcha">
+        <span class="callout-label">Patch to the official tutorial</span>
+        <p>The tutorial's ISR omits <code>Timer_ReadStatusRegister()</code>.
+        Reading it clears the timer's sticky interrupt flags; without it, the
+        interrupt can wedge. Keep it as the first line.</p>
+      </div>
+    </li>
+    <li>
+      <strong>Keep both ISRs</strong>
+      <p>The Exercise 2/3 ISR (<code>inter</code>, on SW2) and this one
+      (<code>counter_inter</code>, on SW3) coexist. Each Interrupt component
+      gets its own <code>CY_ISR</code> function plus its own
+      <code>_Start()</code> and <code>_SetVector()</code> calls. Don't delete
+      the first ISR when adding the second.</p>
+      <div class="check-inline">
+        <span class="check-bar">Code check — your whole main.c</span>
+        <pre><code>#include "project.h"
+#include &lt;stdio.h&gt;
+
+CY_ISR(inter)
+{
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Button Pressed");
+
+    if (PWM_ReadCompare() == 0u) { PWM_WriteCompare(200u); }
+    else                         { PWM_WriteCompare(0u);   }
+}
+
+CY_ISR(counter_inter)
+{
+    Timer_ReadStatusRegister();
+    uint16 capture = Timer_ReadCapture();
+
+    char strbuf[32];
+    sprintf(strbuf, "ms: %u", (65535u - capture) / 10u);
+    LCD_ClearDisplay();
+    LCD_Position(0u, 0u);
+    LCD_PrintString(strbuf);
+}
+
+int main(void)
+{
+    CyGlobalIntEnable;
+
+    LCD_Start();
+    PWM_Start();
+    Timer_Start();
+
+    Button_Interrupt_Start();
+    Button_Interrupt_SetVector(inter);
+    Counter_Interrupt_Start();
+    Counter_Interrupt_SetVector(counter_inter);
+
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Hello World");
+
+    for(;;)
+    {
+    }
+}</code></pre>
+      </div>
+    </li>
+    <li>
+      <strong>Build, program, test</strong>
+      <p>Press SW2 (reset), wait a few seconds, press SW3, and the elapsed
+      time appears. Vary the pause and check the number follows it.</p>
+      <figure class="media check" data-img="ex4-check-lcd-ms.jpg"
+              data-alt="Board LCD displaying a millisecond interval">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: LCD showing a captured interval (e.g. ms: 3120)</span>
+          <span class="ph-file">save as <code>assets/img/ex4-check-lcd-ms.jpg</code></span>
+        </div>
+        <figcaption>After SW2, a 3-second pause, and SW3, your LCD should
+        read roughly ms: 3000.</figcaption>
+      </figure>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>Three facts the tutorial leaves out</h2>
+  <p>All three came up in practice while building this walkthrough.</p>
+
+  <details class="deeper">
+    <summary><span class="tag">Fact 1</span> The UDB timer counts <em>down</em></summary>
+    <div class="body">
+      <p>It starts at the period (65535) and decrements, so a longer pause
+      gives a <em>smaller</em> capture value. Elapsed ticks =
+      65535&nbsp;−&nbsp;capture, and at 10&nbsp;kHz, milliseconds =
+      (65535&nbsp;−&nbsp;capture)&nbsp;/&nbsp;10 — that's why the ISR above
+      does that arithmetic. The tutorial's own screenshot shows raw
+      down-counts without comment, which is confusing if you expect counts
+      to go up.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Fact 2</span> 16 bits at 10 kHz wraps every 6.55 seconds</summary>
+    <div class="body">
+      <p>A 16-bit counter has 65536 states; at 10,000 ticks per second it
+      exhausts them in about 6.55&nbsp;s and wraps around. Pause longer than
+      that and the displayed time is the true time modulo 6.55&nbsp;s: a
+      wrong answer that looks fine.</p>
+      <p>This is the same modular arithmetic behind integer overflow in your
+      programming courses, and it's why the tutorial recommends 32-bit
+      timers for real projects: 2<sup>32</sup> ticks at 10&nbsp;kHz is almost
+      five days. Try a 10-second pause to see it happen.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Fact 3</span> Capture fires when you <em>release</em> SW3</summary>
+    <div class="body">
+      <p>The pin idles high (pull-up), goes low while pressed, and rises on
+      release. Capture is set to rising edge, so the snapshot happens at
+      release. For casual testing the difference is small; for precise
+      measurements it matters which edge you're timing.</p>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2>The bug: every interval read ~1000 ms</h2>
+  <p>Real symptom from building this walkthrough: no matter how long the
+  pause between SW2 and SW3, the display showed roughly 1000&nbsp;ms. It is
+  worth retracing because each step is a technique you will reuse.</p>
+  <ol>
+    <li>
+      <strong>Question the measurement before the instrument.</strong> First
+      hypothesis: the "pause" being varied wasn't the gap being measured.
+      People press SW2-then-SW3 with a very consistent rhythm (~1&nbsp;s) and
+      vary the pause <em>between trials</em>. Controlled test: fast /
+      3-mississippi / 5-mississippi trials, expecting ordering and rough
+      proportionality (~300 / ~3000 / ~5000&nbsp;ms). The readings stayed
+      ~1000&nbsp;ms — hypothesis rejected, and now the symptom is precise.
+    </li>
+    <li>
+      <strong>Sweep the configs.</strong> This turned up two real (if
+      secondary) issues: <code>Button2</code> had to be set to
+      <strong>Resistive Pull Up</strong> — a floating input generates
+      spurious capture edges, and <code>Counter_Interrupt</code> was
+      confirmed Rising Edge, with <code>Timer_ReadStatusRegister()</code>
+      added to the ISR.
+    </li>
+    <li>
+      <strong>Photo-review the schematic</strong> against a checklist:
+      <ul>
+        <li>Junction <strong>dots</strong> where branches start (the reset
+        branch off the NOT-gate output needs one).</li>
+        <li>Wires <em>crossing without dots</em> are correct non-connections
+        — a dot there would short two nets, and the build fails with a
+        multiple-driver error.</li>
+        <li>Pin annotations readable next to each pin symbol — this check is
+        what caught the P1[6]/P6[1] transposition back in Exercise 2.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>The actual culprit: switch bounce + capture FIFO staleness.</strong>
+      The UDB timer's capture register is a small FIFO. A bouncy SW3 release
+      queues several captures within milliseconds, and
+      <code>Timer_ReadCapture()</code> returns the <em>oldest</em> entry, so
+      every trial displayed a leftover value from a <em>previous</em> press
+      cluster. The ~1000&nbsp;ms was the rhythm of the previous trial rather
+      than the current pause.
+    </li>
+    <li>
+      <strong>The fix: a Debouncer component on Button2</strong>, clocked by a
+      new <strong>100 Hz</strong> clock (<code>Clock_Slow</code>). Wiring:
+      <code>Button2</code> → Debouncer <code>d</code>, Debouncer
+      <code>q</code> → Timer <code>capture</code>, <code>Clock_Slow</code> →
+      Debouncer clock. Debouncing SW2 too is optional and wasn't needed.
+      <div class="callout gotcha">
+        <span class="callout-label">Why a new 100 Hz clock</span>
+        <p>Do <em>not</em> reuse the 10&nbsp;kHz clock. The Debouncer requires
+        the input stable for a couple of its clock periods: at 10&nbsp;kHz
+        that's ~0.2&nbsp;ms, and bounce sails through. At 100&nbsp;Hz it
+        demands ~20&nbsp;ms of stability, which real bounce cannot
+        produce.</p>
+      </div>
+      <figure class="media check" data-img="ex4-debouncer.png"
+              data-alt="Schematic detail: Button2 through Debouncer to timer capture, clocked at 100 Hz">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Debouncer wiring detail (Button2 → d, q → capture, Clock_Slow → clock)</span>
+          <span class="ph-file">save as <code>assets/img/ex4-debouncer.png</code></span>
+        </div>
+        <figcaption>Your fixed capture path should match: Button2 →
+        Debouncer <code>d</code>, <code>q</code> → Timer capture, with
+        Clock_Slow (100&nbsp;Hz) on the Debouncer clock.</figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> What bounce is, physically</summary>
+    <div class="body">
+      <p>A button is two pieces of springy metal. On contact they literally
+      bounce — striking, separating, and re-striking for a few milliseconds
+      before settling. The pin voltage during that window is a burst of
+      edges, and hardware fast enough to see microseconds (interrupts, timer
+      captures) sees every one of them as a distinct event.</p>
+      <p>In Exercise 3 bounce was cosmetic (a double-toggled LED); here it
+      corrupted data. The Debouncer, a small state machine that requires the
+      input to hold steady for ~20&nbsp;ms before accepting the change, fixes
+      it in hardware. Treat any mechanical or noisy edge on the car with the
+      same suspicion.</p>
+    </div>
+  </details>
+</section>
+
+<div class="checkpoint">
+  <span class="callout-label">Checkpoint</span>
+  <p>The displayed interval tracks your actual pause across fast /
+  3-second / 5-second trials, resets on SW2, and survives repeated presses
+  without going stale. You've used hardware capture, converted down-counts to
+  milliseconds, seen 16-bit rollover, and debounced a real input.</p>
+</div>
+
+<div class="pager">
+  <a href="ex3.html"><span class="dir">← Back</span>Exercise 3: PWM</a>
+  <a href="ex5.html" class="next"><span class="dir">Next</span>Exercise 5: UART + radio →</a>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>

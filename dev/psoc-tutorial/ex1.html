@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Exercise 1 · Hello World on the LCD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Exercise 1</span>
+  <h1>Hello World on the LCD</h1>
+  <p class="subtitle">One schematic component and three lines of C. The
+  edit–build–program loop here is the one you will repeat all semester.</p>
+</div>
+
+<main class="container">
+
+<div class="callout car">
+  <span class="callout-label">On the car</span>
+  <p>The LCD is your fastest debugging tool all semester: printing a sensor
+  reading or a PID term to the screen is often quicker than setting up
+  telemetry. Getting fluent with it now pays off at every milestone.</p>
+</div>
+
+<section>
+  <h2>Steps</h2>
+  <ol class="steps">
+    <li>
+      <strong>Create the project</strong>
+      <p>File → New → Project (the Start Page's "Create New Project" does the
+      same). Choose a <em>Design</em> project, target device family
+      <strong>PSoC 5LP</strong>, part <strong>CY8C5868AXI-LP035</strong>
+      (read the part number directly off the chip), and the
+      <strong>Empty Schematic</strong> template. Name it and finish.</p>
+      <figure class="media check" data-img="ex1-new-project.png"
+              data-alt="New Project dialog with PSoC 5LP and CY8C5868AXI-LP035 selected">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: New Project dialog with the device family and part selected</span>
+          <span class="ph-file">save as <code>assets/img/ex1-new-project.png</code></span>
+        </div>
+        <figcaption>Your dialog should match this before you click Finish:
+        family PSoC 5LP, part CY8C5868AXI-LP035, template Empty
+        Schematic.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Place the LCD component</strong>
+      <p>In the Component Catalog, open Display → <strong>Character LCD</strong>
+      and drag it onto <code>TopDesign.cysch</code>. Double-click it and rename
+      it to <code>LCD</code>.</p>
+      <figure class="media check" data-img="ex1-check-schematic.png"
+              data-alt="TopDesign canvas with a single Character LCD component named LCD">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: TopDesign canvas with the renamed LCD component</span>
+          <span class="ph-file">save as <code>assets/img/ex1-check-schematic.png</code></span>
+        </div>
+        <figcaption>Your schematic should show one Character LCD component
+        named <code>LCD</code> and nothing else.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Assign the pins</strong>
+      <p>Open Design Wide Resources → Pins and set
+      <code>LCD:LCDPort</code> = <span class="pin">P2[6:0]</span>. Port 2 is
+      printed on the board silkscreen next to the LCD connector.</p>
+      <figure class="media check" data-img="ex1-check-pins.png"
+              data-alt="Pins tab with LCD:LCDPort assigned to P2[6:0]">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Pins tab with LCD:LCDPort on P2[6:0]</span>
+          <span class="ph-file">save as <code>assets/img/ex1-check-pins.png</code></span>
+        </div>
+        <figcaption>Your Pins tab should show <code>LCD:LCDPort</code> on
+        <span class="pin">P2[6:0]</span>.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Write the code</strong>
+      <p>Open <code>main.c</code>. All three lines go in the
+      <strong>initialization section</strong> — after
+      <code>CyGlobalIntEnable;</code>, <em>before</em> the <code>for(;;)</code>
+      loop:</p>
+      <pre><code>LCD_Start();
+LCD_Position(0u, 0u);
+LCD_PrintString("Hello World");</code></pre>
+      <div class="check-inline">
+        <span class="check-bar">Code check — your whole main.c</span>
+        <pre><code>#include "project.h"
+
+int main(void)
+{
+    CyGlobalIntEnable; /* Enable global interrupts. */
+
+    LCD_Start();
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Hello World");
+
+    for(;;)
+    {
+    }
+}</code></pre>
+      </div>
+    </li>
+    <li>
+      <strong>Build and program</strong>
+      <p>Build (<kbd>Shift</kbd>+<kbd>F6</kbd>) until you see
+      "Build Succeeded", then Debug → Program. On "Successfully programmed"
+      the board resets itself and runs your code.</p>
+      <figure class="media check" data-img="ex1-check-lcd-hello.jpg"
+              data-alt="Board LCD displaying Hello World">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: the LCD showing Hello World</span>
+          <span class="ph-file">save as <code>assets/img/ex1-check-lcd-hello.jpg</code></span>
+        </div>
+        <figcaption>Your LCD should read Hello World. If it's blank, see the
+        gotcha below.</figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <div class="callout gotcha">
+    <span class="callout-label">Gotcha</span>
+    <p>Blank LCD after a successful program? Before you touch the code, turn
+    the <strong>contrast trimpot</strong> next to the LCD. It is the most
+    common false alarm in this exercise —
+    <a href="board.html">see it on the board</a>.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What just happened</h2>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Why an infinite loop instead of returning from main?</summary>
+    <div class="body">
+      <p>Programs you've written for an OS do their work and return, and the
+      OS takes back over. Here there is no OS and nowhere to return to, so
+      every embedded program ends in an intentional infinite loop:
+      <code>for(;;)</code>.</p>
+      <p>The same structure organizes all your car firmware:
+      code before the loop runs once (initialization), code inside the loop
+      runs forever (continuous work). Later, interrupts will do the
+      time-critical work and the loop can even sit empty.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Where did <code>LCD_Start()</code> come from?</summary>
+    <div class="body">
+      <p>You never wrote it; the Build step generated it. When PSoC Creator
+      builds your project it synthesizes the schematic into hardware
+      configuration and emits a C API for every component, named after the
+      component: name the block <code>LCD</code> and you get
+      <code>LCD_Start()</code>; rename the block and the whole API renames.</p>
+      <p>This is also why <code>#include "project.h"</code> shows a red X
+      before your first build: the file doesn't exist until Build generates
+      it. Build once and the error disappears.</p>
+      <p>The generated functions write to memory-mapped registers:
+      peripheral control presented as memory addresses, the same mechanism
+      you saw (or will see) in computer architecture. The API saves you from
+      looking up the addresses.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> The build output is worth reading</summary>
+    <div class="body">
+      <p>The build log ends with flash and RAM usage percentages. Flash holds
+      your program (persistent, written by the programmer); RAM holds your
+      variables (volatile, tiny — kilobytes, not gigabytes). On a desktop you
+      almost never think about this; on a microcontroller running out of RAM
+      is a real failure mode. Glance at these numbers as your car firmware
+      grows.</p>
+    </div>
+  </details>
+</section>
+
+<div class="checkpoint">
+  <span class="callout-label">Checkpoint</span>
+  <p>The LCD shows <strong>Hello World</strong>. You've been through the full
+  loop: schematic → pin assignment → C code → build → program → running
+  hardware. Every exercise from here on is that loop with more interesting
+  hardware.</p>
+</div>
+
+<div class="pager">
+  <a href="board.html"><span class="dir">← Back</span>The Board</a>
+  <a href="ex2.html" class="next"><span class="dir">Next</span>Exercise 2: Button interrupts →</a>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>

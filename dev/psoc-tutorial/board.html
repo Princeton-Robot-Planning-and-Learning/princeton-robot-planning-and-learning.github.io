@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ECE 302 · PSoC 5 Tutorial — The Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+<script src="assets/js/board-data.js" defer></script>
+<script src="assets/js/board.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Interactive reference</span>
+  <h1>The Board</h1>
+  <p class="subtitle">Click (or tab to) any highlighted part to see what it is,
+  how the tutorial uses it, and answers to the questions everyone asks about it.</p>
+</div>
+
+<main class="container wide">
+
+<section>
+  <div class="callout draft" id="stylized-note">
+    <span class="callout-label">Placeholder drawing</span>
+    <p>This is a stylized layout, not a photo — part positions are
+    approximate. Drop a top-down photo of the dev kit in as
+    <code>assets/img/board-photo.jpg</code> and it will replace the drawing
+    automatically; then adjust hotspot coordinates in
+    <code>assets/js/board-data.js</code> to match.</p>
+  </div>
+
+  <div class="board-layout">
+    <svg id="board-svg" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg">
+      <g id="board-drawing">
+        <!-- Stylized CY8CKIT-050 stand-in, kinder-blockly palette -->
+        <rect x="15" y="15" width="970" height="610" fill="#1a0a3d" stroke="#7c3aed" stroke-width="3"/>
+        <!-- LCD (kept green: it really is a green LCD, and it fits the retro look) -->
+        <rect x="70" y="50" width="360" height="90" fill="#0d2b12" stroke="#166534" stroke-width="3"/>
+        <text x="250" y="102" text-anchor="middle" font-family="Silkscreen, monospace" font-size="20" fill="#6ee7a0">HELLO WORLD</text>
+        <!-- trimpot -->
+        <circle cx="480" cy="95" r="12" fill="#0f0525" stroke="#9160ee" stroke-width="2"/>
+        <line x1="480" y1="87" x2="480" y2="103" stroke="#b883fa" stroke-width="2"/>
+        <!-- chip -->
+        <rect x="435" y="265" width="130" height="130" fill="#0f0525" stroke="#9160ee" stroke-width="3"/>
+        <text x="500" y="325" text-anchor="middle" font-family="monospace" font-size="12" fill="#b883fa">CY8C5868</text>
+        <text x="500" y="342" text-anchor="middle" font-family="monospace" font-size="12" fill="#b883fa">AXI-LP035</text>
+        <!-- buttons -->
+        <circle cx="700" cy="430" r="14" fill="#0f0525" stroke="#8a80b0" stroke-width="2"/>
+        <circle cx="775" cy="430" r="14" fill="#0f0525" stroke="#8a80b0" stroke-width="2"/>
+        <circle cx="850" cy="430" r="14" fill="#2a0a0a" stroke="#991b1b" stroke-width="2"/>
+        <text x="700" y="466" text-anchor="middle" font-size="11" font-family="monospace" fill="#8a80b0">SW2</text>
+        <text x="775" y="466" text-anchor="middle" font-size="11" font-family="monospace" fill="#8a80b0">SW3</text>
+        <text x="850" y="466" text-anchor="middle" font-size="11" font-family="monospace" fill="#f87171">RST</text>
+        <!-- LED -->
+        <circle cx="700" cy="510" r="8" fill="#ffd60a" stroke="#a88a00" stroke-width="2"/>
+        <text x="700" y="536" text-anchor="middle" font-size="11" font-family="monospace" fill="#8a80b0">LED4</text>
+        <!-- GPIO headers -->
+        <g fill="#0f0525" stroke="#7c3aed" stroke-width="1.5">
+          <rect x="490" y="500" width="160" height="14"/>
+          <rect x="490" y="530" width="160" height="14"/>
+          <rect x="490" y="560" width="160" height="14"/>
+        </g>
+        <!-- programmer zone -->
+        <rect x="55" y="480" width="225" height="45" fill="#0f0525" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="167" y="507" text-anchor="middle" font-size="12" font-family="monospace" fill="#8a80b0">DVKProg programmer</text>
+        <!-- USB + barrel -->
+        <rect x="55" y="565" width="75" height="40" fill="#0f0525" stroke="#8a80b0" stroke-width="2"/>
+        <text x="92" y="590" text-anchor="middle" font-size="10" font-family="monospace" fill="#8a80b0">USB</text>
+        <rect x="165" y="565" width="50" height="40" fill="#000" stroke="#8a80b0" stroke-width="2"/>
+        <rect x="885" y="55" width="75" height="40" fill="#0f0525" stroke="#8a80b0" stroke-width="2"/>
+        <text x="922" y="80" text-anchor="middle" font-size="10" font-family="monospace" fill="#8a80b0">USB</text>
+      </g>
+    </svg>
+
+    <aside id="board-panel">
+      <h3>Pick a part</h3>
+      <p class="panel-hint">Click any dashed region on the board. Each part's
+      panel includes expandable answers to common student questions.</p>
+    </aside>
+  </div>
+</section>
+
+<section class="container">
+  <h2>Pin assignments used in this tutorial</h2>
+  <div class="table-wrapper">
+    <table class="nice">
+      <thead>
+        <tr><th>Board part</th><th>PSoC pin</th><th>First used</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Character LCD</td><td><span class="pin">P2[6:0]</span></td><td><a href="ex1.html">Exercise 1</a></td><td>Port 2 is on the silkscreen next to the LCD connector</td></tr>
+        <tr><td>Push button SW2</td><td><span class="pin">P6[1]</span></td><td><a href="ex2.html">Exercise 2</a></td><td>Not P1[6] — the transposition builds fine and silently fails</td></tr>
+        <tr><td>LED4</td><td><span class="pin">P6[3]</span></td><td><a href="ex3.html">Exercise 3</a></td><td></td></tr>
+        <tr><td>Push button SW3</td><td><span class="pin">P15[5]</span></td><td><a href="ex4.html">Exercise 4</a></td><td>Timer capture input; needs the Debouncer</td></tr>
+        <tr><td>UART Rx (XBee "IN")</td><td><span class="pin">P6[0]</span></td><td><a href="ex5.html">Exercise 5</a></td><td>IN/OUT labels are from the car's perspective — see Exercise 5</td></tr>
+        <tr><td>UART Tx (XBee "OUT")</td><td><span class="pin">P6[6]</span></td><td><a href="ex5.html">Exercise 5</a></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <a href="index.html"><span class="dir">← Back</span>Start Here</a>
+    <a href="ex1.html" class="next"><span class="dir">Next</span>Exercise 1: Hello World →</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>
