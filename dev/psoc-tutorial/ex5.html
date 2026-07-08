@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Exercise 5 · UART + XBee Telemetry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Exercise 5</span>
+  <h1>UART + XBee Telemetry</h1>
+  <p class="subtitle">Send timer measurements over a radio link to a PC. The
+  car's telemetry and tuning tools are built on this link.</p>
+</div>
+
+<main class="container">
+
+<div class="callout draft">
+  <span class="callout-label">Draft</span>
+  <p>The firmware half of this page is verified on hardware; the radio hookup
+  half is written from the tutorial and Radd's guidance but not yet re-tested
+  end-to-end. Treat the wiring steps as correct but report surprises.</p>
+</div>
+
+<div class="callout car">
+  <span class="callout-label">On the car</span>
+  <p>The LCD can't help you at 4 ft/s across the room. The XBee link streams
+  live data (speed, PID terms, camera timing) from the moving car to a
+  bench PC, and later carries commands back. The pyserial script at the end
+  of this exercise is the starting point for that tooling.</p>
+</div>
+
+<section>
+  <h2>Part A — Firmware</h2>
+  <ol class="steps">
+    <li>
+      <strong>Add the UART component</strong>
+      <p>Place a <em>UART</em> (Communications), name it <code>UART</code>,
+      mode <strong>Full Duplex</strong>, baud <strong>115200</strong>,
+      defaults otherwise. It auto-creates <code>Rx_1</code> and
+      <code>Tx_1</code> pins in the schematic.</p>
+      <figure class="media check" data-img="ex5-check-uart-schematic.png"
+              data-alt="Schematic with UART component and auto-created Rx_1 and Tx_1 pins">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: UART component with its Rx_1 and Tx_1 pins</span>
+          <span class="ph-file">save as <code>assets/img/ex5-check-uart-schematic.png</code></span>
+        </div>
+        <figcaption>Your schematic should now include the UART block with
+        <code>Rx_1</code> and <code>Tx_1</code> pins attached.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Assign the pins</strong>
+      <p><code>Rx_1</code> = <span class="pin">P6[0]</span>,
+      <code>Tx_1</code> = <span class="pin">P6[6]</span>. These follow Radd's
+      labeling convention for the XBee carrier; the reasoning (and the trap
+      it avoids) is in Part B.</p>
+      <figure class="media check" data-img="ex5-check-pins.png"
+              data-alt="Pins tab with Rx_1 on P6[0] and Tx_1 on P6[6]">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Pins tab with Rx_1 = P6[0] and Tx_1 = P6[6]</span>
+          <span class="ph-file">save as <code>assets/img/ex5-check-pins.png</code></span>
+        </div>
+        <figcaption>Your Pins tab should show <code>Rx_1</code> on
+        <span class="pin">P6[0]</span> and <code>Tx_1</code> on
+        <span class="pin">P6[6]</span>.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Send on every capture</strong>
+      <p>Add <code>UART_Start();</code> to the initialization section. In the
+      timer ISR from Exercise 4, after the LCD print:</p>
+      <pre><code>char strbuf2[32];
+sprintf(strbuf2, "%s\r\n", strbuf);
+UART_PutString(strbuf2);</code></pre>
+      <p>Build and program. The firmware side is done — every SW3 press now
+      also transmits the measurement out the Tx pin.</p>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>Part B — The radio link</h2>
+  <p>You need a bench XBee pair from Radd: a unit labeled
+  <strong>"C"</strong> on a red carrier board (for the car/dev board) and a
+  unit labeled <strong>"E"</strong> with an XBIB USB carrier (for the PC).
+  Pairs are pre-configured per bench — matching labels, no radio setup
+  needed.</p>
+
+  <ol class="steps">
+    <li>
+      <strong>Wire the carrier to the dev board — USB unplugged</strong>
+      <p>Four wires from the red carrier's KK connector to the board headers:</p>
+      <div class="table-wrapper">
+        <table class="nice">
+          <thead><tr><th>Carrier</th><th>Dev board</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>+5V</td><td>VDDD</td><td>power</td></tr>
+            <tr><td>GND</td><td>VSSD</td><td>ground</td></tr>
+            <tr><td>IN</td><td><span class="pin">P6[0]</span> (<code>Rx_1</code>)</td><td>data <em>in to the car</em> = XBee's Tx → PSoC's Rx</td></tr>
+            <tr><td>OUT</td><td><span class="pin">P6[6]</span> (<code>Tx_1</code>)</td><td>data <em>out of the car</em> = PSoC's Tx → XBee's Rx</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure class="media check" data-img="ex5-xbee-wiring.jpg"
+              data-alt="Red XBee carrier wired to the dev board headers">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: the red carrier wired to the dev board, all four wires visible and labeled</span>
+          <span class="ph-file">save as <code>assets/img/ex5-xbee-wiring.jpg</code></span>
+        </div>
+        <figcaption>Your wiring should match this photo: four wires, USB
+        unplugged while you work.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Set up the PC side</strong>
+      <p>Seat the "E" module in the XBIB USB carrier and plug it into the PC.
+      Find its COM port in Device Manager, then open PuTTY: Serial, that COM
+      port, <strong>115200</strong> baud.</p>
+    </li>
+    <li>
+      <strong>Test</strong>
+      <p>Repower the dev board over USB. Press SW2 then SW3: the interval
+      should appear on the LCD <em>and</em> in the PuTTY window.</p>
+      <figure class="media check" data-img="ex5-check-putty.png"
+              data-alt="PuTTY window showing received interval lines">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: PuTTY at 115200 showing a few ms lines arriving</span>
+          <span class="ph-file">save as <code>assets/img/ex5-check-putty.png</code></span>
+        </div>
+        <figcaption>Your PuTTY window should show one ms line per SW3 press,
+        matching the LCD.</figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <div class="callout gotcha">
+    <span class="callout-label">The IN/OUT perspective trap</span>
+    <p>This is the most common point of confusion in the whole tutorial —
+    Radd chalk-boards it for students unprompted. The carrier's
+    <strong>IN</strong>/<strong>OUT</strong> labels don't say <em>whose</em>
+    perspective they take. On the Princeton carriers they are from the
+    <strong>car's</strong> perspective: IN = data into the car (XBee's Tx →
+    PSoC Rx), OUT = data out of the car (PSoC Tx → XBee's Rx). The tutorial
+    <em>text</em> uses the opposite convention (into the radio), so following
+    the tutorial's words against Radd's labels swaps the data wires. When
+    hardware labels and documentation disagree, trust the person who wired
+    the hardware.</p>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-label">Silent terminal? 30-second first check</span>
+    <p>A Tx/Rx swap is electrically harmless here and fixable without touching
+    a wire: swap the <code>Rx_1</code>/<code>Tx_1</code> assignments in the
+    Pins tab and reprogram. If the terminal is still silent: (2) check that
+    the two modules' pair labels match, (3) check the COM port and baud rate,
+    (4) watch the XBIB's Rx LED while pressing SW3: if it blinks, data is
+    arriving and the problem is on the PC side.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What just happened</h2>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> What the UART sends</summary>
+    <div class="body">
+      <p>UART stands for Universal Asynchronous Receiver/Transmitter.
+      Asynchronous means no clock wire connects the two ends. Instead, both
+      sides agree in advance on a rate (115200 bits per second here) and
+      each byte is framed: the line idles high, drops for one
+      <em>start bit</em>, then eight data bits, then at least one high
+      <em>stop bit</em>.</p>
+      <p>The receiver detects the start bit's falling edge and then samples
+      at what <em>its own clock</em> says are the bit centers. The two
+      clocks differ slightly, but resynchronizing on every start bit means
+      the drift only has to stay under half a bit across one 10-bit frame —
+      a few percent. That tolerance is why baud rates must match: at the
+      wrong rate the receiver samples the wrong positions and produces
+      garbage rather than nothing. If you've taken a communications course,
+      this is the simplest possible line code plus frame synchronization,
+      running at 5&nbsp;V.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Why your code never mentions the radio</summary>
+    <div class="body">
+      <p>Nothing in your firmware knows a radio exists. The PSoC writes bytes
+      to a UART; the XBee pair transports them and reproduces the same byte
+      stream on the far side, appearing to the PC as an ordinary serial
+      port. This is called a <em>transparent</em> serial link. Because the
+      radio hop preserves the serial interface, everything built on serial
+      (PuTTY, pyserial, your future telemetry scripts) works the same over
+      the radio as over a wire. This is the layering argument from
+      networking courses.</p>
+      <p>The perspective trap in Part B is old. RS-232, the 1960s standard
+      behind serial ports, had the same ambiguity (is "TxD" transmit from
+      <em>my</em> point of view or yours?), and null-modem cables existed to
+      repair the resulting mis-wirings. Sixty years later,
+      perspective-dependent names still cause the same mistake.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Why 115200 baud, and what fits through it</summary>
+    <div class="body">
+      <p>115200 baud with a 10-bit frame per byte moves at most ~11,520 bytes
+      per second. A telemetry line like <code>ms: 1234\r\n</code> is 10
+      bytes, so you could send about a thousand of them per second — plenty
+      for control-loop tuning at tens of hertz, nowhere near enough for,
+      say, raw camera frames. Knowing your link budget before designing the
+      telemetry format is a habit worth forming now.</p>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2>Capturing data with Python</h2>
+  <p>The tutorial closes with a pyserial script (Python 3.6+) that reads the
+  port and logs 30 seconds of samples, "the basis for telemetry and remote
+  access of your car" in the tutorial's words. Once PuTTY shows data,
+  anything that opens a serial port can consume it.</p>
+  <div class="callout tip">
+    <span class="callout-label">Mac note</span>
+    <p>The XBIB carrier mounts on macOS as
+    <code>/dev/cu.usbserial-XXXXXXXX</code> with FTDI drivers, so the PC-side
+    tooling is not Windows-bound — only PSoC Creator is.</p>
+  </div>
+</section>
+
+<div class="checkpoint">
+  <span class="callout-label">Checkpoint</span>
+  <p>SW3 presses show up on the LCD and in a terminal across the room, with
+  no cable between them. You've configured a UART, wired the radio despite
+  its ambiguous labels, and opened the channel the later milestones' tooling
+  will use. That completes the tutorial.</p>
+</div>
+
+<div class="pager">
+  <a href="ex4.html"><span class="dir">← Back</span>Exercise 4: Timers</a>
+  <a href="index.html" class="next"><span class="dir">Finish</span>Back to Start →</a>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>

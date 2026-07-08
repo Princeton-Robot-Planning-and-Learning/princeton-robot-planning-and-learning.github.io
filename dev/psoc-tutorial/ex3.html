@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Exercise 3 · LED Brightness via PWM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Exercise 3</span>
+  <h1>LED Brightness via PWM</h1>
+  <p class="subtitle">Generate a waveform in hardware and adjust it from C.
+  The car's motor drive has the same structure.</p>
+</div>
+
+<main class="container">
+
+<div class="callout car">
+  <span class="callout-label">On the car</span>
+  <p>This is the motor drive in miniature. On the car, a PWM component
+  generates the switching waveform for the MOSFET board, and your control
+  code adjusts one number — the compare value — to set torque. Practicing on
+  an LED means your first PWM bug can't put a car into a wall.</p>
+</div>
+
+<section>
+  <h2>Steps</h2>
+  <p>Continue in the same project.</p>
+  <ol class="steps">
+    <li>
+      <strong>Add the LED pin</strong>
+      <p>Place a <em>Digital Output Pin</em>, rename it <code>LED</code>, and
+      assign it to <span class="pin">P6[3]</span> — that's <strong>LED4</strong>
+      on the board.</p>
+    </li>
+    <li>
+      <strong>Add the PWM component</strong>
+      <p>Place a <em>PWM</em> (Digital → Functions), name it <code>PWM</code>,
+      and set <strong>PWM Mode = One output</strong>.</p>
+      <figure class="media check" data-img="ex3-check-pwm-config.png"
+              data-alt="PWM component configuration dialog with One output mode">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: PWM configuration dialog, One output mode selected</span>
+          <span class="ph-file">save as <code>assets/img/ex3-check-pwm-config.png</code></span>
+        </div>
+        <figcaption>Your PWM configuration dialog should match this before
+        you close it.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Clock it and wire it</strong>
+      <p>Place a <em>Clock</em> component (System) configured for
+      <strong>10&nbsp;kHz</strong>. Wire clock → PWM <code>clock</code>, and
+      PWM <code>pwm</code> → the LED pin.</p>
+      <figure class="media check" data-img="ex3-schematic.png"
+              data-alt="Schematic with Clock wired to PWM and PWM output wired to LED pin">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Exercise 3 schematic (Clock → PWM → LED, plus the Exercise 2 button chain)</span>
+          <span class="ph-file">save as <code>assets/img/ex3-schematic.png</code></span>
+        </div>
+        <figcaption>Your schematic should now have two islands: the button
+        chain from Exercise 2, and Clock → PWM → LED.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Start it and control it from the ISR</strong>
+      <p>Add <code>PWM_Start();</code> to the initialization section. Then
+      make the button toggle brightness by editing the ISR from Exercise 2.</p>
+      <div class="check-inline">
+        <span class="check-bar">Code check — your ISR after the edit</span>
+        <pre><code>CY_ISR(inter)
+{
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Button Pressed");
+
+    if (PWM_ReadCompare() == 0u) { PWM_WriteCompare(200u); }
+    else                         { PWM_WriteCompare(0u);   }
+}</code></pre>
+      </div>
+    </li>
+    <li>
+      <strong>Build, program, press SW2</strong>
+      <p>The LED toggles between off and bright. Try other compare values
+      (50, 100, 255) and watch the brightness follow.</p>
+      <figure class="media check" data-img="ex3-check-led.jpg"
+              data-alt="LED4 lit at partial brightness">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: LED4 lit, ideally two shots at different compare values</span>
+          <span class="ph-file">save as <code>assets/img/ex3-check-led.jpg</code></span>
+        </div>
+        <figcaption>After a press, LED4 should be lit steadily. It should
+        look dimmer at compare 50 than at 200.</figcaption>
+      </figure>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>What just happened</h2>
+
+  <details class="deeper">
+    <summary><span class="tag">Core idea</span> How PWM works: a counter and a comparison</summary>
+    <div class="body">
+      <p>Inside the PWM block, an 8-bit counter runs 0→255 over and over,
+      advancing on each 10&nbsp;kHz clock tick. The output is high while the
+      count is below the <em>compare</em> value and low the rest of the
+      period. Compare = 200 means high 200/255 ≈ 78% of the time — a 78%
+      <em>duty cycle</em>.</p>
+      <p>The waveform is generated entirely in hardware. The CPU's only job
+      is to poke the compare register occasionally; the pulses continue even
+      if your code is busy or asleep. The car's speed control divides the
+      work the same way: the PWM block makes the waveform, and the PID math
+      in an ISR adjusts the compare value.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Why it dims instead of blinking (signals view)</summary>
+    <div class="body">
+      <p>One full counter cycle takes 255 ticks at 10&nbsp;kHz, so the LED
+      switches at about 40&nbsp;Hz — fully on, fully off, 40 times a second.
+      Your eye can't follow that; it responds to the short-term average, so
+      duty cycle reads as brightness.</p>
+      <p>In signals-and-systems terms, the square wave is a DC component
+      (the average, proportional to duty cycle) plus harmonics at 40&nbsp;Hz
+      and up. Your visual system is a low-pass filter: it keeps the DC and
+      rejects the harmonics. The car's motor does the same thing with its
+      mechanical inertia — it can't accelerate at kilohertz rates, so it
+      responds to the average voltage. PWM is how digital chips fake an
+      analog output using only a switch, which is also why it drives motors
+      so efficiently: a transistor fully on or fully off dissipates far less
+      than one operated partway on.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Watch for it</span> The LED sometimes "doesn't change" on a press</summary>
+    <div class="body">
+      <p>Mechanical switch contacts bounce: one press can produce several
+      electrical edges within a few milliseconds, so the ISR runs twice and
+      the brightness toggles twice; the net effect is nothing visible.</p>
+      <p>Here the consequence is cosmetic and the tutorial doesn't ask you to
+      fix it. Remember the symptom, though: in
+      <a href="ex4.html">Exercise 4</a> the same bounce silently corrupts
+      timing data, and we fix it properly there.</p>
+    </div>
+  </details>
+</section>
+
+<div class="checkpoint">
+  <span class="callout-label">Checkpoint</span>
+  <p>SW2 toggles LED4 between two brightness levels, the waveform runs in
+  hardware, and you can explain why 40&nbsp;Hz switching looks like dimming.
+  The car's motor and servo drive will use this same pattern.</p>
+</div>
+
+<div class="pager">
+  <a href="ex2.html"><span class="dir">← Back</span>Exercise 2: Interrupts</a>
+  <a href="ex4.html" class="next"><span class="dir">Next</span>Exercise 4: Timing button presses →</a>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>

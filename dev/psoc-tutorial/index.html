@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ECE 302 · PSoC 5 Tutorial — Start Here</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">ECE/ELE 302 · Car Lab</span>
+  <h1>Getting Started with the PSoC 5</h1>
+  <p class="subtitle">Five short exercises that take you from a blank chip to
+  wireless telemetry. Each one practices a technique the car will need.</p>
+</div>
+
+<main class="container">
+
+<div class="tldr">
+  <span class="tldr-label">TL;DR</span>
+  <p>Work the exercises in order on a spare dev board. Everything runs from
+  the programming USB cable — no batteries. When something doesn't work,
+  each exercise has a troubleshooting section built from real debugging
+  sessions on this exact hardware.</p>
+</div>
+
+<section>
+  <h2>Why this tutorial exists</h2>
+  <p>A PSoC 5LP microcontroller controls the car. Before you can make it hold
+  4&nbsp;ft/s up a hill or follow a taped line at speed, you need to be fluent
+  in the PSoC workflow: drawing hardware in a schematic editor, assigning
+  pins, and driving that hardware from C. Each exercise practices that
+  workflow on a piece the car will use later:</p>
+
+  <div class="card-grid">
+    <a class="card" href="ex1.html">
+      <span class="pill">Exercise 1</span>
+      <h3>Hello World on the LCD</h3>
+      <p>The build–program–run loop, and the display you'll debug with all
+      semester.</p>
+    </a>
+    <a class="card" href="ex2.html">
+      <span class="pill">Exercise 2</span>
+      <h3>Button interrupts</h3>
+      <p>Responding to events in hardware: the same mechanism that will count
+      your Hall-sensor speed pulses.</p>
+    </a>
+    <a class="card" href="ex3.html">
+      <span class="pill">Exercise 3</span>
+      <h3>LED brightness with PWM</h3>
+      <p>The waveform that will drive your motor and steering servo, practiced
+      on something that can't crash.</p>
+    </a>
+    <a class="card" href="ex4.html">
+      <span class="pill">Exercise 4</span>
+      <h3>Timing button presses</h3>
+      <p>Timer capture: the technique that turns "magnet passed the sensor"
+      into a speed measurement.</p>
+    </a>
+    <a class="card" href="ex5.html">
+      <span class="pill">Exercise 5</span>
+      <h3>UART + XBee telemetry</h3>
+      <p>Streaming data off the board by radio, so you can tune a moving car
+      from the bench.</p>
+    </a>
+    <a class="card" href="board.html">
+      <span class="pill car">Reference</span>
+      <h3>The board, part by part</h3>
+      <p>An interactive map of the dev kit: click any part to see what it is,
+      how the tutorial uses it, and the questions everyone asks.</p>
+    </a>
+  </div>
+</section>
+
+<section>
+  <h2>Setup (once)</h2>
+  <ol class="steps">
+    <li>
+      <strong>Install PSoC Creator 4.4</strong>
+      <p>The installer is in the course files
+      (<code>psoccreator_4.4_Windows_x86-x64.exe</code>). Accept the defaults;
+      it bundles the C compiler and needs no license step. Windows only — the
+      lab machines have it installed.</p>
+    </li>
+    <li>
+      <strong>Plug into the right USB jack</strong>
+      <p>The board has <em>two</em> identical mini-USB jacks. The programming
+      jack is at the board corner <strong>next to the round DC barrel
+      jack</strong> — it belongs to the onboard programmer. The other jack is
+      the PSoC's own USB port: wrong, but harmless; just move the cable.</p>
+      <figure class="media check" data-img="setup-usb-jacks.jpg"
+              data-alt="Board corner showing the programming USB jack beside the DC barrel jack">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: board corner with the programming USB jack and barrel jack, arrow on the correct jack</span>
+          <span class="ph-file">save as <code>assets/img/setup-usb-jacks.jpg</code> — it will appear here automatically</span>
+        </div>
+        <figcaption>The programming USB jack sits beside the barrel jack.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Confirm Windows sees the programmer</strong>
+      <p>Open Device Manager (<kbd>Win</kbd>+<kbd>X</kbd> → Device Manager, or
+      run <code>devmgmt.msc</code>). The board should enumerate as a Cypress
+      <strong>DVKProg</strong> device. If it doesn't, you're probably in the
+      wrong USB jack.</p>
+      <figure class="media check" data-img="setup-check-device-manager.png"
+              data-alt="Device Manager showing the Cypress DVKProg device">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Device Manager with the DVKProg entry visible</span>
+          <span class="ph-file">save as <code>assets/img/setup-check-device-manager.png</code></span>
+        </div>
+        <figcaption>Your Device Manager should show a DVKProg entry like this
+        before you continue.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Know the first-time programming dialog</strong>
+      <p>The first Debug → Program shows a <em>Select Debug Target</em> dialog:
+      expand the DVKProg entry, select the chip (CY8C5868…), click Port
+      Acquire / Connect, then OK. It remembers after that.</p>
+      <figure class="media check" data-img="setup-select-debug-target.png"
+              data-alt="PSoC Creator Select Debug Target dialog">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: the Select Debug Target dialog with DVKProg expanded and the chip selected</span>
+          <span class="ph-file">save as <code>assets/img/setup-select-debug-target.png</code></span>
+        </div>
+      </figure>
+    </li>
+  </ol>
+
+  <div class="callout tip">
+    <span class="callout-label">No batteries needed</span>
+    <p>The programming USB cable powers the whole board for every tutorial
+    exercise. Batteries only matter once you move to the car.</p>
+  </div>
+
+  <div class="callout gotcha">
+    <span class="callout-label">Standing caution</span>
+    <p>Programming the bench-306 test car's PSoC <strong>permanently erases
+    Radd's firmware</strong> — there is no way to read source code back off a
+    chip. Do tutorial work on a spare dev board, or clear it with Radd
+    first.</p>
+  </div>
+
+  <details class="deeper">
+    <summary><span class="tag">Aside</span> Battery facts, for when you do move to the car</summary>
+    <div class="body">
+      <p>The car carries two separate packs, switched by the two toggle
+      switches at its rear:</p>
+      <ul>
+        <li>A <strong>9.6&nbsp;V pack</strong> (8 NiMH cells) feeds the
+        electronics rail: terminal block → regulator board (two 7805s and a
+        7806) → PSoC, camera, and Hall sensor.</li>
+        <li>A <strong>7.2&nbsp;V pack</strong> (6 cells) feeds the drive motor
+        through the MOSFET board.</li>
+      </ul>
+      <p>If a pack is unlabeled, identify it by cell count or with a DMM: a
+      charged 6-cell reads about 7.5–8.4&nbsp;V, an 8-cell about
+      10–11&nbsp;V. Never swap them — 9.6&nbsp;V overdrives the motor.</p>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2>How to use this site</h2>
+  <ul>
+    <li><strong>Steps</strong> are the things you do; do them in order.</li>
+    <li><strong>Going deeper</strong> boxes are optional expansions connecting
+    what you just did to material from your circuits, signals, and computer
+    architecture courses. Skip them under time pressure; read them before the
+    design milestones.</li>
+    <li><strong>On the car</strong> boxes (orange) point at the car subsystem
+    each technique becomes.</li>
+    <li><strong>Gotcha</strong> boxes (red) are mistakes that were made
+    building this walkthrough, so you don't have to repeat them.</li>
+    <li>If the pixel styling is hard on your eyes, the
+    <strong>Easy-read style</strong> button in the header switches the whole
+    site to plain high-contrast typography. Your choice is remembered.</li>
+  </ul>
+  <div class="pager">
+    <a href="board.html" class="next"><span class="dir">First stop</span>The Board →</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>

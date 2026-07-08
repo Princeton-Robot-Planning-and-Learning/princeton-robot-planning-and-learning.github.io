@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Exercise 2 · Button Push Interrupt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<script>(function(){var r=false;try{r=localStorage.getItem('ece302-style')==='readable'}catch(e){}if(location.search.indexOf('style=readable')>=0)r=true;else if(location.search.indexOf('style=retro')>=0)r=false;if(r)document.documentElement.classList.add('readable');try{localStorage.setItem('ece302-style',r?'readable':'retro')}catch(e){}})()</script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <h1><a href="index.html">ECE 302 · PSoC 5 Tutorial</a></h1>
+    <ul class="nav-links">
+      <li><a href="index.html">Start Here</a></li>
+      <li><a href="board.html">The Board</a></li>
+      <li><a href="ex1.html">1 · LCD</a></li>
+      <li><a href="ex2.html">2 · Interrupts</a></li>
+      <li><a href="ex3.html">3 · PWM</a></li>
+      <li><a href="ex4.html">4 · Timers</a></li>
+      <li><a href="ex5.html">5 · UART + Radio</a></li>
+    </ul>
+    <button id="style-toggle" type="button" aria-pressed="false">Easy-read style</button>
+  </div>
+</header>
+
+<div class="page-title container">
+  <span class="kicker">Exercise 2</span>
+  <h1>Button Push Interrupt</h1>
+  <p class="subtitle">Make the chip react to a button press, and learn how
+  the work divides between the schematic layer and the C layer.</p>
+</div>
+
+<main class="container">
+
+<div class="callout car">
+  <span class="callout-label">On the car</span>
+  <p>Replace "button" with "Hall-effect sensor" and this is your speedometer:
+  a magnet on the wheel passes the sensor, the pin sees an edge, an interrupt
+  fires, your code counts it. The schematic and the code follow the same
+  pattern in both cases.</p>
+</div>
+
+<section>
+  <h2>Steps</h2>
+  <p>This builds on your Exercise 1 project — keep the LCD.</p>
+  <ol class="steps">
+    <li>
+      <strong>Add the button pin</strong>
+      <p>Place a <em>Digital Input Pin</em> (Ports and Pins), rename it
+      <code>Button</code>, and set <strong>Drive mode = Resistive
+      Pull Up</strong> in its configuration dialog. The button shorts the pin
+      to ground when pressed, so the pull-up gives you 5&nbsp;V idle,
+      0&nbsp;V pressed.</p>
+    </li>
+    <li>
+      <strong>Add the interrupt component</strong>
+      <p>Place an <em>Interrupt</em> component (System), rename it
+      <code>Button_Interrupt</code>, and set <strong>InterruptType = Rising
+      Edge</strong>.</p>
+    </li>
+    <li>
+      <strong>Invert the signal</strong>
+      <p>A press produces a <em>falling</em> edge (5&nbsp;V → 0&nbsp;V), but
+      the interrupt is looking for a rising one, so place a <strong>NOT
+      gate</strong> (Digital → Logic → Not) between the pin and the interrupt.
+      Wire the chain with the <kbd>W</kbd> key, clicking the start and end of
+      each segment: <code>Button → NOT → Button_Interrupt</code>.</p>
+      <figure class="media check" data-img="ex2-schematic.png"
+              data-alt="Schematic with Button pin, NOT gate, and Interrupt component wired in series">
+        <span class="check-bar">Schematic check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: finished Exercise 2 schematic (Button → NOT → Button_Interrupt, LCD standing alone)</span>
+          <span class="ph-file">save as <code>assets/img/ex2-schematic.png</code></span>
+        </div>
+        <figcaption>Your schematic should match: Button → NOT →
+        Button_Interrupt in a chain, with the LCD standing alone. Zoom in on
+        both wire endpoints.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Assign the pin — carefully</strong>
+      <p>Pins tab: <code>Button</code> = <span class="pin">P6[1]</span>, which
+      is push button <strong>SW2</strong> on the board.</p>
+      <figure class="media check" data-img="ex2-check-pins.png"
+              data-alt="Pins tab with Button assigned to P6[1]">
+        <span class="check-bar">Screen check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">🖥️</span>
+          <span class="ph-need">Screenshot needed: Pins tab with Button on P6[1]</span>
+          <span class="ph-file">save as <code>assets/img/ex2-check-pins.png</code></span>
+        </div>
+        <figcaption>Your Pins tab should show <code>Button</code> on
+        <span class="pin">P6[1]</span>. Read the digits twice; the gotcha
+        below is about this line.</figcaption>
+      </figure>
+    </li>
+    <li>
+      <strong>Write the ISR and hook it up</strong>
+      <div class="check-inline">
+        <span class="check-bar">Code check — your whole main.c</span>
+        <pre><code>#include "project.h"
+
+CY_ISR(inter)
+{
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Button Pressed");
+}
+
+int main(void)
+{
+    CyGlobalIntEnable; /* Enable global interrupts. */
+
+    LCD_Start();
+    Button_Interrupt_Start();
+    Button_Interrupt_SetVector(inter);
+
+    LCD_Position(0u, 0u);
+    LCD_PrintString("Hello World");
+
+    for(;;)
+    {
+    }
+}</code></pre>
+      </div>
+    </li>
+    <li>
+      <strong>Build, program, press SW2</strong>
+      <p>"Hello World" should be replaced by "Button Pressed". Note that the
+      main loop is empty; the ISR does all the work.</p>
+      <figure class="media check" data-img="ex2-check-lcd-pressed.jpg"
+              data-alt="Board LCD displaying Button Pressed">
+        <span class="check-bar">Board check</span>
+        <div class="placeholder-box">
+          <span class="ph-icon">📷</span>
+          <span class="ph-need">Photo needed: LCD showing Button Pressed, finger on SW2</span>
+          <span class="ph-file">save as <code>assets/img/ex2-check-lcd-pressed.jpg</code></span>
+        </div>
+        <figcaption>After pressing SW2, your LCD should read Button
+        Pressed.</figcaption>
+      </figure>
+    </li>
+  </ol>
+
+  <div class="callout gotcha">
+    <span class="callout-label">Gotcha: P6[1] is not P1[6]</span>
+    <p>The pin dropdown makes it easy to transpose the digits.
+    <span class="pin">P1[6]</span> builds and programs without complaint, and
+    the button does nothing. Check the small annotation next to the pin symbol in the
+    schematic — it shows the actual assignment. This bug cost real time in
+    the debugging session below.</p>
+  </div>
+
+  <div class="callout gotcha">
+    <span class="callout-label">Gotcha: the two lines everyone forgets</span>
+    <p><code>Button_Interrupt_SetVector(inter)</code> — without it the
+    interrupt fires into an empty default handler and your ISR never runs.
+    And <code>CyGlobalIntEnable;</code> — without it every interrupt on the
+    chip is masked. Both must be present.</p>
+  </div>
+</section>
+
+<section>
+  <h2>What just happened</h2>
+
+  <details class="deeper">
+    <summary><span class="tag">Core idea</span> Why aren't the button and the LCD wired together?</summary>
+    <div class="body">
+      <p>Look at your schematic: the button chain and the LCD are separate
+      islands, and that is correct. Schematic wires route <em>hardware
+      signals</em>. The LCD is driven from <em>C code</em> through its API.
+      The only "connection" between the button and the display is the body of
+      your ISR.</p>
+      <p>This two-layer picture (a hardware layer drawn in the schematic, a
+      code layer in C, meeting at component APIs and interrupts) is the
+      central mental model for PSoC work. When something confuses you this
+      semester, first ask which layer you are in.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> Interrupts vs. polling</summary>
+    <div class="body">
+      <p>You could detect the press without an interrupt by spinning in the
+      main loop asking "is the pin low yet?" — that's <em>polling</em>. It
+      burns CPU continuously, and if the loop is busy elsewhere it can miss
+      short events.</p>
+      <p>An <em>interrupt</em> inverts control: dedicated hardware watches the
+      pin, and when the edge arrives the CPU suspends whatever it was doing,
+      runs your interrupt service routine (ISR), and resumes. This is the
+      same mechanism your computer architecture course covers (vector
+      table, context save, handler), at a scale small enough to see all the
+      pieces. <code>SetVector</code> writes your function's address into the
+      vector table.</p>
+      <p>On the car, interrupts are what let the PSoC time camera sync pulses
+      and count wheel magnets while your control loop does math; nothing
+      waits on anything else.</p>
+    </div>
+  </details>
+
+  <details class="deeper">
+    <summary><span class="tag">Going deeper</span> The pull-up resistor, from your circuits course</summary>
+    <div class="body">
+      <p>The button connects the pin to ground and nothing else. Without a
+      pull-up, an unpressed button leaves the pin <em>floating</em> — a high
+      impedance node whose voltage wanders with coupled noise, reading as
+      random logic levels.</p>
+      <p>"Resistive Pull Up" drive mode connects an internal resistor
+      (~5.6&nbsp;kΩ) from the pin to 5&nbsp;V. Unpressed: no current flows,
+      no drop across the resistor, pin reads 5&nbsp;V. Pressed: the switch
+      pulls the node to 0&nbsp;V and roughly 1&nbsp;mA flows through the
+      resistor — small enough to waste no meaningful power, stiff enough to
+      hold the node steady. It's a one-resistor application of the source /
+      load reasoning from your circuits course, and it appears in most
+      digital designs.</p>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2>When it doesn't work — a real debugging session</h2>
+  <p>Symptom, from building this walkthrough: pressing the button did nothing.
+  Work this list in order; it's arranged from cheapest check to most
+  thorough.</p>
+  <ol>
+    <li><strong>Are you pressing the right button?</strong> The silkscreen must
+    say <strong>SW2</strong>. One of the board's buttons is chip RESET, and
+    pressing it reboots to "Hello World" — which looks like "nothing
+    happens".</li>
+    <li><strong>Did you rebuild and reprogram after the schematic change?</strong>
+    Schematic edits and pin assignments are baked into the programmed image;
+    editing them does nothing until you program again.</li>
+    <li><strong>Diff your <code>main.c</code> against the listing above.</strong>
+    ISR above <code>main</code>, both interrupt init lines present, names
+    exactly matching the schematic component names.</li>
+    <li><strong>Check component configs:</strong> pull-up drive mode on the
+    pin, Rising Edge on the interrupt, pin assigned to
+    <span class="pin">P6[1]</span>.</li>
+    <li><strong>Zoom in on wire endpoints.</strong> A wire that stops one grid
+    square short of a terminal looks attached at normal zoom but isn't.</li>
+    <li><strong>Still stuck? Bypass the interrupt.</strong> Poll
+    <code>Button_Read() == 0u</code> in the <code>for(;;)</code> loop and
+    print. If polling works, the pin and hardware are fine and the problem is
+    in the interrupt chain; if not, it's the pin config or assignment.</li>
+  </ol>
+  <p>The actual bug that day was step 4: the pin was assigned
+  <span class="pin">P1[6]</span> instead of <span class="pin">P6[1]</span> —
+  diagnosed from a schematic screenshot, where the annotation next to the pin
+  symbol read <code>1[6]</code>. Fixed in Design Wide Resources → Pins,
+  rebuild, reprogram.</p>
+
+  <div class="callout tip">
+    <span class="callout-label">Tip</span>
+    <p>Printing a shorter string over a longer one leaves stale tail
+    characters on the LCD ("Button Pressedld"). Call
+    <code>LCD_ClearDisplay()</code> before printing when messages vary in
+    length.</p>
+  </div>
+</section>
+
+<div class="checkpoint">
+  <span class="callout-label">Checkpoint</span>
+  <p>Pressing SW2 changes the display, via an ISR, with an empty main loop.
+  You now know the hardware-layer/code-layer split, and you've debugged a
+  silent failure with a systematic checklist.</p>
+</div>
+
+<div class="pager">
+  <a href="ex1.html"><span class="dir">← Back</span>Exercise 1: Hello World</a>
+  <a href="ex3.html" class="next"><span class="dir">Next</span>Exercise 3: LED via PWM →</a>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="container">
+    ECE/ELE 302 Robotic and Autonomous Systems Lab · Princeton University ·
+    based on the course's <em>PSoC 5 IDE Tutorial</em>
+    <div class="credit">Visual style adapted from KinDER Blockly, designed by
+    Divija Durga, Ian Henriques, and Tomasz Sadowy</div>
+  </div>
+</footer>
+
+</body>
+</html>
