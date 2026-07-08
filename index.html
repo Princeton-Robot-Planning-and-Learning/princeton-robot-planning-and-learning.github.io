@@ -20,6 +20,7 @@
       PRPL<span class="tiger">.</span><small>Princeton Robot Planning &amp; Learning</small>
     </a>
     <nav>
+      <a href="#news">News</a>
       <a href="#team">Team</a>
       <a href="https://scholar.google.com/citations?user=CMcsygMAAAAJ">Research<sup>&#8599;</sup></a>
       <a href="#code">Code</a>
@@ -50,6 +51,87 @@
       </figcaption>
     </figure>
   </div>
+
+  <section class="row" id="news">
+    <div class="rail">
+      <h2>News</h2>
+    </div>
+    <div>
+      <ul class="news-list" id="news-items">
+        <li>
+          <span class="news-date">Jul 2026</span>
+          <span class="news-item">New preprint: <a href="/tamp-learning-survey.pdf">Learning By and For Task and Motion Planning: A Survey</a>, co-led by <a href="https://yixuanhuang98.github.io/">Yixuan Huang</a> and <a href="https://benned-h.github.io/">Benned Hedegaard</a>.</span>
+        </li>
+        <li>
+          <span class="news-date">Apr 2026</span>
+          <span class="news-item"><a href="/kinder-site/">KinDER</a> accepted at RSS 2026! Co-led by <a href="https://yixuanhuang98.github.io/">Yixuan Huang</a>, <a href="https://jaraxxus-me.github.io/">Bowen Li</a>, and <a href="https://sites.google.com/view/vaibhavsaxena">Vaibhav Saxena</a>.</span>
+        </li>
+        <li>
+          <span class="news-date">Jan 2026</span>
+          <span class="news-item">Two PRPL papers at ICLR 2026: <a href="https://arxiv.org/pdf/2511.01107">SLAP</a> (led by <a href="https://isabelliu0.github.io/">Isabel Liu</a>) and <a href="https://arxiv.org/abs/2509.26255">ExoPredicator</a> (led by <a href="https://yichao-liang.github.io/">Yichao Liang</a>).</span>
+        </li>
+        <li>
+          <span class="news-date">Sep 2025</span>
+          <span class="news-item">Three papers at CoRL 2025: <a href="https://arxiv.org/abs/2506.02353">SAVOR</a> (oral, led by Zhanxin Wu), <a href="https://arxiv.org/abs/2505.21495">CLAMP</a> (led by Pranav Thakkar), and <a href="https://arxiv.org/abs/2509.18447">PrioriTouch</a> (led by Rishabh Madan).</span>
+        </li>
+        <li>
+          <span class="news-date">Jun 2025</span>
+          <span class="news-item"><a href="https://emprise.cs.cornell.edu/feast/">FEAST</a> won the Best Paper Award at <a href="https://roboticsconference.org/program/awards/">RSS 2025</a>!</span>
+        </li>
+        <li>
+          <span class="news-date">May 2025</span>
+          <span class="news-item">New preprint: &ldquo;Coloring Between the Lines: Personalization in the Null Space of Planning Constraints&rdquo; (<a href="https://arxiv.org/abs/2505.15503">arXiv</a>, <a href="https://emprise.cs.cornell.edu/cbtl/">website</a>).</span>
+        </li>
+        <li>
+          <span class="news-date">May 2025</span>
+          <span class="news-item">Tom helped organize the <a href="https://emprise.cs.cornell.edu/rcareworld/challenge/">PhyRC Challenge</a> at ICRA 2025.</span>
+        </li>
+        <li>
+          <span class="news-date">Apr 2025</span>
+          <span class="news-item">Two papers at RSS 2025: <a href="https://arxiv.org/abs/2502.08697">Bilevel Learning for Bilevel Planning</a> (led by <a href="https://jaraxxus-me.github.io/">Bowen Li</a>) and <a href="https://emprise.cs.cornell.edu/feast/">FEAST</a> (led by <a href="https://www.cs.cornell.edu/~rkjenamani/">Rajat Kumar Jenamani</a>).</span>
+        </li>
+        <li>
+          <span class="news-date">Mar 2025</span>
+          <span class="news-item">Two papers at HRI 2025: <a href="https://emprise.cs.cornell.edu/grace/">GRACE</a> (led by <a href="https://www.ziangliu.com/">Ziang Liu</a>) and <a href="https://arxiv.org/abs/2501.11149">CART-MPC</a> (led by <a href="https://ruolinye.care/">Ruolin Ye</a>).</span>
+        </li>
+        <li>
+          <span class="news-date">Apr 2024</span>
+          <span class="news-item">Tom accepted an assistant professor position in <a href="https://ece.princeton.edu/">Princeton ECE</a>, starting Fall 2025.</span>
+        </li>
+        <li>
+          <span class="news-date">Apr 2024</span>
+          <span class="news-item">Tom joined the <a href="https://emprise.cs.cornell.edu/">EmPRISE Lab</a> at Cornell as a postdoc with <a href="http://www.tapomayukh.com">Tapo Bhattacharjee</a>.</span>
+        </li>
+        <li>
+          <span class="news-date">Apr 2024</span>
+          <span class="news-item">Tom defended his PhD at <a href="https://www.eecs.mit.edu/">MIT EECS</a> (<a href="https://www.youtube.com/watch?v=ikS2MN0HWxw">video</a>).</span>
+        </li>
+      </ul>
+      <script>
+        (function () {
+          var list = document.getElementById('news-items');
+          var total = list.children.length;
+          var recent = 5;
+          if (total <= recent) return;
+          list.classList.add('collapsed');
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'news-toggle';
+          var setLabel = function () {
+            button.textContent = list.classList.contains('collapsed')
+              ? 'Show all news (' + total + ')'
+              : 'Show recent news only';
+          };
+          setLabel();
+          button.addEventListener('click', function () {
+            list.classList.toggle('collapsed');
+            setLabel();
+          });
+          list.after(button);
+        })();
+      </script>
+    </div>
+  </section>
 
   <section class="row" id="team">
     <div class="rail">

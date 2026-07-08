@@ -192,6 +192,50 @@ section.row {
   line-height: 1.15;
 }
 
+/* ---------- news ---------- */
+
+.news-list { list-style: none; }
+
+.news-list li {
+  display: grid;
+  grid-template-columns: 6.5em 1fr;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.55rem 0.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.news-list li:first-child { border-top: 1px solid var(--rule); }
+
+.news-date {
+  font-family: var(--label);
+  font-weight: bold;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.news-item { font-size: 0.98rem; }
+
+.news-list.collapsed li:nth-child(n+6) { display: none; }
+
+.news-toggle {
+  margin-top: 1rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--label);
+  font-weight: bold;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--purple);
+}
+
+.news-toggle:hover { color: var(--orange); }
+
 /* ---------- team ---------- */
 
 .team-grid {
