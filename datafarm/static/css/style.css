@@ -82,6 +82,7 @@ h1.title {
 }
 .authors { font-size: 16px; margin: 0 auto 4px; color: var(--ink-2); }
 .affil { color: var(--muted); font-size: 14.5px; margin: 0 auto; }
+.affil .inst { color: var(--ink-2); margin-left: 0.12em; }
 
 /* ---------- link buttons ---------- */
 .buttons { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 0; }
