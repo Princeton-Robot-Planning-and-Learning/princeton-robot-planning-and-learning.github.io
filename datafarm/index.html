@@ -1,33 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DataFarm &middot; Princeton Robot Planning &amp; Learning</title>
-  <meta name="description" content="DataFarm, a project from the Princeton Robot Planning and Learning (PRPL) group. Project page coming soon.">
-  <link rel="canonical" href="https://prpl-group.com/datafarm/">
-  <link rel="icon" href="/assets/images/favicon.ico">
-  <link rel="stylesheet" href="/assets/css/prpl.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DATAFARM — Distribution-Aligned TAMP for Fine-Tuning VLAs</title>
+  <meta name="description" content="DATAFARM incorporates the pretraining distribution directly into TAMP trajectory generation, aligning generated trajectories with the pretraining data in robot joint configurations, motion style, and temporal execution profiles." />
+  <meta property="og:title" content="DATAFARM: Distribution-Aligned Task and Motion Planning for Fine-Tuning Vision-Language-Action Models" />
+  <meta property="og:description" content="DATAFARM achieves an average success rate of 56.7%, substantially outperforming raw TAMP (8.3%) while approaching human teleoperation (61.7%)." />
+  <meta property="og:image" content="static/images/teaser.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%276%27 y=%2712%27 width=%274%27 height=%2714%27 fill=%27white%27/><rect x=%2714%27 y=%278%27 width=%274%27 height=%2718%27 fill=%27white%27/><rect x=%2722%27 y=%2716%27 width=%274%27 height=%2710%27 fill=%27white%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/css/style.css" />
 </head>
 <body>
-<div class="sheet">
 
-  <header>
-    <a class="wordmark" href="/">
-      PRPL<span class="tiger">.</span><small>Princeton Robot Planning &amp; Learning</small>
-    </a>
-  </header>
+<!-- ===================== NAV ===================== -->
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#">Datafarm</a>
+    <a class="link" href="#abstract">Abstract</a>
+    <a class="link" href="#method">Method</a>
+    <a class="link" href="#results">Results</a>
+    <a class="link" href="#alignment">Alignment</a>
+    <a class="link" href="#autonomous">Data Collection</a>
+    <a class="link" href="#bibtex">BibTeX</a>
+  </div>
+</nav>
 
-  <main>
-    <div class="hero">
-      <h1>DataFarm</h1>
-      <p class="lede">
-        The project page is coming soon. In the meantime, see
-        <a href="/">the PRPL home page</a>.
-      </p>
+<!-- ===================== LEFT TABLE OF CONTENTS (wide screens) ===================== -->
+<nav class="toc" aria-label="On this page">
+  <div class="toc-hd">Contents</div>
+  <ul class="toc-list">
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#tasks">Tasks</a></li>
+    <li><a href="#demos">Demonstrations</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#rollouts">Policy Rollouts</a></li>
+    <li><a href="#ablations">Ablations</a></li>
+    <li><a href="#retention">Capability Retention</a></li>
+    <li><a href="#budget">Demonstration Budget</a></li>
+    <li><a href="#alignment">Alignment with DROID</a></li>
+    <li><a href="#autonomous">Autonomous Data Collection</a></li>
+    <li><a href="#bibtex">BibTeX</a></li>
+  </ul>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="wrap">
+    <h1 class="title">DATAFARM: Distribution-Aligned Task and Motion Planning for Fine-Tuning Vision-Language-Action Models</h1>
+
+    <div class="authors">Anonymous Authors</div>
+    <div class="affil">Paper under review</div>
+
+    <div class="buttons">
+      <a class="btn soon" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm8 1.5V8h4.5L14 3.5z"/></svg>
+        Paper &middot; coming soon
+      </a>
+      <a class="btn soon" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.3.9.1-.7.4-1.2.7-1.5-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+        Code &middot; coming soon
+      </a>
+      <a class="btn" href="static/pdfs/datafarm-appendix.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm8 1.5V8h4.5L14 3.5zM8 12h8v1.6H8V12zm0 3.4h8V17H8v-1.6z"/></svg>
+        Appendix
+      </a>
     </div>
-  </main>
 
-</div>
+    <!-- ===================== GAME: spot the planner ===================== -->
+    <div class="game" id="game" hidden>
+      <div class="game-hd">
+        <div>
+          <div class="game-kicker">Can you tell?</div>
+          <h2 class="game-title">Human teleoperation or DATAFARM?</h2>
+        </div>
+        <div class="game-score" aria-live="polite"><span id="g-round">Round 1 of 15</span> &middot; <span id="g-score">0 correct</span></div>
+      </div>
+      <p class="game-sub">Each round shows two real-robot demonstrations of the same task. One was teleoperated by a person; the other was generated by DATAFARM. Pick the one generated by DATAFARM.</p>
+
+      <div class="game-bar">
+        <div class="game-task" id="g-task"></div>
+        <div class="game-ctrl">
+          <div class="seg" id="g-view" role="group" aria-label="Camera">
+            <button type="button" class="active" data-view="ext">Scene</button><button type="button" data-view="wrist">Wrist</button>
+          </div>
+          <div class="seg" id="g-speed" role="group" aria-label="Playback speed">
+            <button type="button" data-rate="1">1&times;</button><button type="button" class="active" data-rate="2">2&times;</button><button type="button" data-rate="4">4&times;</button>
+          </div>
+          <button type="button" class="btn game-restart" id="g-restart" title="Play both clips from the start">Restart clips</button>
+        </div>
+      </div>
+
+      <div class="game-clips">
+        <figure class="game-clip" data-side="0">
+          <div class="game-frame"><span class="game-letter">A</span><video muted loop playsinline preload="none" width="640" height="360"></video><span class="game-reveal"></span></div>
+          <button type="button" class="btn game-pick" data-side="0">A is DATAFARM</button>
+        </figure>
+        <figure class="game-clip" data-side="1">
+          <div class="game-frame"><span class="game-letter">B</span><video muted loop playsinline preload="none" width="640" height="360"></video><span class="game-reveal"></span></div>
+          <button type="button" class="btn game-pick" data-side="1">B is DATAFARM</button>
+        </figure>
+      </div>
+
+      <div class="game-foot">
+        <div class="game-dots" id="g-dots" aria-hidden="true"></div>
+        <div class="game-result" id="g-result" aria-live="polite"></div>
+        <button type="button" class="btn game-next" id="g-next" hidden>Next round &rarr;</button>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<!-- ===================== ABSTRACT ===================== -->
+<section id="abstract">
+  <div class="wrap">
+    <h2 class="sec">Abstract</h2>
+    <div class="prose">
+      <p>Collecting high-quality robot data remains a fundamental challenge for training robot foundation models. Task and motion planning (TAMP) offers a scalable way to generate demonstrations, but our experiments show that raw TAMP trajectories provide surprisingly little benefit when used to fine-tune pretrained vision-language-action (VLA) models, despite successfully solving the target tasks. We hypothesize that this failure arises from a <b>behavioral distribution mismatch</b> between planner-generated trajectories and the data used to pretrain the VLA.</p>
+      <p>To address this mismatch, we introduce <b>DATAFARM</b>: <b>D</b>istribution-<b>A</b>ligned <b>T</b>ask <b>A</b>nd motion planning for <b>F</b>ine-tuning <b>A</b> <b>R</b>obot foundation <b>M</b>odel, an approach that incorporates the pretraining distribution directly into TAMP trajectory generation. DATAFARM aligns generated trajectories with the pretraining data in <b>robot joint configurations</b>, <b>motion style</b>, and <b>temporal execution profiles</b>. We evaluate DATAFARM on three tabletop manipulation tasks that TAMP can perform and a cloth-folding task beyond the capability of TAMP. DATAFARM achieves an average success rate of <b>56.7%</b>, substantially outperforming raw TAMP (8.3%) while approaching human teleoperation (61.7%). On Deformable Object Manipulation, which is outside the fine-tuning distribution, the fine-tuned model retains 85% success, compared with 90% for the pretrained model. These results show that aligning planner-generated demonstrations with the pretraining distribution can make TAMP an effective source of data for VLA fine-tuning.</p>
+    </div>
+
+    <figure class="fig teaser">
+      <img src="static/images/teaser.jpg" width="1756" height="744" loading="lazy" alt="Given a pretrained VLA and a new task, TAMP is cheap but off-distribution, teleoperation is on-distribution but expensive, and distribution-aligned TAMP (DATAFARM) is cheap and on-distribution. End-effector speed profiles show DATAFARM resembling teleoperation." />
+      <figcaption>TAMP data is scalable but mismatched with the VLA&rsquo;s pretraining data; teleoperation matches it but needs substantial human effort. <b>DATAFARM</b> aligns TAMP trajectories with the pretraining distribution.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== METHOD ===================== -->
+<section id="method">
+  <div class="wrap">
+    <h2 class="sec">Method</h2>
+    <p class="sec-sub">DATAFARM learns models of reference behavior from pretraining data and uses them to guide the planner&rsquo;s configurations, paths, and timing.</p>
+
+    <figure class="fig">
+      <img src="static/images/overview.jpg" width="1729" height="395" loading="lazy" alt="DATAFARM overview: a Gaussian mixture density over robot configurations and a trajectory encoder with a corresponding latent distribution are learned from pretraining demonstrations; these provide alignment costs for TAMP endpoint selection, path optimization, and retiming; the resulting trajectories are executed on the robot to collect demonstrations used to fine-tune the pretrained VLA." />
+      <figcaption><b>Overview of DATAFARM.</b> A Gaussian mixture over joint configurations and a trajectory encoder, both learned from pretraining demonstrations, provide alignment costs for endpoint selection, path optimization, and retiming.</figcaption>
+    </figure>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="step">1 &middot; Joint space</div>
+        <h4>Endpoint Selection</h4>
+        <p>For each end-effector pose, rank the IK solutions by configuration cost, favoring arm postures with higher reference density.</p>
+      </div>
+      <div class="pillar">
+        <div class="step">2 &middot; Motion style</div>
+        <h4>Path Optimization</h4>
+        <p>Add the trajectory cost to the planner&rsquo;s objective and optimize the waypoints by gradient through the frozen encoder. This changes how the arm moves between endpoints; feasibility is checked before acceptance.</p>
+      </div>
+      <div class="pillar">
+        <div class="step">3 &middot; Timing</div>
+        <h4>Retiming</h4>
+        <p>Keep each path&rsquo;s geometry fixed and optimize how quickly the robot traverses it, matching reference speeds around gripper events. Motion limits are checked before acceptance.</p>
+      </div>
+    </div>
+
+    <div class="vid-card">
+      <figure class="vid">
+        <div class="vid-hd">1 &middot; Endpoint selection</div>
+        <img class="wide" src="static/images/endpoint-selection.jpg" width="1920" height="606" loading="lazy" alt="A density over robot joint configurations with several peaks; an arrow runs from the highest peak to the configuration selected on the trajectory. Caption: We choose the IK solution that minimizes the negative log-likelihood of its joint configuration under a Gaussian mixture fit to the pretraining data." />
+      </figure>
+      <figure class="vid">
+        <div class="vid-hd">2 &middot; Path optimization</div>
+        <video class="wide" data-autoplay muted loop playsinline preload="none" width="1496" height="472" poster="static/videos/anim-path-optimization.jpg"><source src="static/videos/anim-path-optimization.mp4" type="video/mp4" /></video>
+      </figure>
+      <figure class="vid">
+        <div class="vid-hd">3 &middot; Retiming</div>
+        <video class="wide" data-autoplay muted loop playsinline preload="none" width="1496" height="472" poster="static/videos/anim-retiming.jpg"><source src="static/videos/anim-retiming.mp4" type="video/mp4" /></video>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TASKS ===================== -->
+<section id="tasks">
+  <div class="wrap">
+    <h2 class="sec">Tasks</h2>
+    <p class="sec-sub">Each checkpoint is fine-tuned on 20 successful demonstrations and evaluated for 20 trials.</p>
+
+    <div class="two-col">
+      <figure class="fig">
+        <img src="static/images/tasks.jpg" width="988" height="668" loading="lazy" alt="Initial and final scenes for Geometric Constraints, Multi-Step Reasoning, Semantic Reasoning, and Deformable Object Manipulation." />
+      </figure>
+      <ul class="task-list">
+        <li><b>Geometric Constraints <span class="tag target">target</span></b>Place three toys on a plate without collisions; earlier placements limit the free space.</li>
+        <li><b>Multi-Step Reasoning <span class="tag target">target</span></b>Remove an obstruction from a tray, then place two toys in it.</li>
+        <li><b>Semantic Reasoning <span class="tag target">target</span></b>Place three objects into two bowls by semantic category.</li>
+        <li class="ood"><b>Deformable Object Manipulation <span class="tag ood">out-of-distribution</span></b>Fold a cloth. The planner cannot do this, so it is excluded from fine-tuning and tests retention.</li>
+      </ul>
+    </div>
+
+    <!-- ---------- demonstrations ---------- -->
+    <h3 class="sub" id="demos">Raw TAMP vs. DATAFARM demonstrations</h3>
+    <p class="sec-sub">Both are successful planner executions; DATAFARM&rsquo;s are aligned with DROID in joint configurations, motion style, and timing.</p>
+    <div class="vid-card">
+      <div class="vid-row">
+        <div class="vid-label"><i style="background: var(--s-raw)"></i>Raw TAMP</div>
+        <div class="vid-grid cols-3">
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-raw-geometric.jpg"><source src="static/videos/demo-raw-geometric.mp4" type="video/mp4" /></video><figcaption>Geometric Constraints</figcaption></figure>
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-raw-multistep.jpg"><source src="static/videos/demo-raw-multistep.mp4" type="video/mp4" /></video><figcaption>Multi-Step Reasoning</figcaption></figure>
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-raw-semantic.jpg"><source src="static/videos/demo-raw-semantic.mp4" type="video/mp4" /></video><figcaption>Semantic Reasoning</figcaption></figure>
+        </div>
+      </div>
+      <div class="vid-row">
+        <div class="vid-label"><i style="background: var(--s-ours)"></i>DATAFARM</div>
+        <div class="vid-grid cols-3">
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-datafarm-geometric.jpg"><source src="static/videos/demo-datafarm-geometric.mp4" type="video/mp4" /></video><figcaption>Geometric Constraints</figcaption></figure>
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-datafarm-multistep.jpg"><source src="static/videos/demo-datafarm-multistep.mp4" type="video/mp4" /></video><figcaption>Multi-Step Reasoning</figcaption></figure>
+          <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/demo-datafarm-semantic.jpg"><source src="static/videos/demo-datafarm-semantic.mp4" type="video/mp4" /></video><figcaption>Semantic Reasoning</figcaption></figure>
+        </div>
+      </div>
+      <p class="chart-note">DATAFARM runs without human control; humans only set up and reset scenes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESULTS ===================== -->
+<section id="results">
+  <div class="wrap">
+    <h2 class="sec">Results</h2>
+    <p class="sec-sub">Raw TAMP demonstrations solve the tasks yet barely help fine-tuning: a task-valid trajectory is not necessarily good fine-tuning data.</p>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Success rate and task progress for task-specific fine-tuning</div>
+        <div class="seg" role="group" aria-label="Metric" data-for="main">
+          <button class="active" data-metric="succ">Success</button>
+          <button data-metric="prog">Task progress</button>
+        </div>
+      </div>
+      <div class="legend" id="legend-main"></div>
+      <div class="chart" id="chart-main"></div>
+      <details class="table-toggle">
+        <summary>Show full results table</summary>
+        <div class="table-wrap">
+          <table class="res">
+            <thead>
+              <tr><th rowspan="2">Approach</th><th colspan="4" class="grp">Geometric Constraints</th><th colspan="4" class="grp">Multi-Step Reasoning</th><th colspan="4" class="grp">Semantic Reasoning</th></tr>
+              <tr><th class="grp">Succ.</th><th>Prog.</th><th>OOD Succ.</th><th>OOD Prog.</th><th class="grp">Succ.</th><th>Prog.</th><th>OOD Succ.</th><th>OOD Prog.</th><th class="grp">Succ.</th><th>Prog.</th><th>OOD Succ.</th><th>OOD Prog.</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>&pi;<sub>0.5</sub>-DROID</td><td class="grp">0%</td><td>18%</td><td>90%</td><td>95%</td><td class="grp">0%</td><td>13%</td><td>90%</td><td>95%</td><td class="grp">5%</td><td>50%</td><td>90%</td><td>95%</td></tr>
+              <tr><td>Raw TAMP</td><td class="grp">5%</td><td>35%</td><td>85%</td><td>93%</td><td class="grp">5%</td><td>37%</td><td>70%</td><td>85%</td><td class="grp">15%</td><td>58%</td><td>75%</td><td>88%</td></tr>
+              <tr class="abl"><td>DATAFARM w/o style</td><td class="grp">10%</td><td>39%</td><td>–</td><td>–</td><td class="grp">0%</td><td>31%</td><td>–</td><td>–</td><td class="grp">35%</td><td>54%</td><td>–</td><td>–</td></tr>
+              <tr class="abl"><td>DATAFARM w/o timing</td><td class="grp">0%</td><td>19%</td><td>–</td><td>–</td><td class="grp">0%</td><td>18%</td><td>–</td><td>–</td><td class="grp">0%</td><td>29%</td><td>–</td><td>–</td></tr>
+              <tr class="abl"><td>DATAFARM w/o joint space</td><td class="grp">35%</td><td>73%</td><td>–</td><td>–</td><td class="grp">15%</td><td>53%</td><td>–</td><td>–</td><td class="grp">20%</td><td>66%</td><td>–</td><td>–</td></tr>
+              <tr class="ours"><td>DATAFARM</td><td class="grp">65%</td><td>84%</td><td>80%</td><td>90%</td><td class="grp">35%</td><td>81%</td><td>85%</td><td>88%</td><td class="grp">70%</td><td>89%</td><td>90%</td><td>93%</td></tr>
+              <tr class="oracle"><td>Human teleop (oracle)</td><td class="grp">50%</td><td>93%</td><td>95%</td><td>98%</td><td class="grp">45%</td><td>90%</td><td>95%</td><td>98%</td><td class="grp">90%</td><td>98%</td><td>95%</td><td>98%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">OOD: retention on Deformable Object Manipulation, which is excluded from fine-tuning. Teleoperation is an oracle only in its access to human demonstrations.</p>
+      </details>
+    </div>
+
+    <div class="findings">
+      <div class="finding"><b>56.7% average success.</b> Up from 8.3% for raw TAMP and 1.7% for &pi;<sub>0.5</sub>-DROID, with gains on every target task.</div>
+      <div class="finding"><b>Close to teleoperation, without teleoperating.</b> 56.7% vs. 61.7% with human demonstrations; humans only set up and reset scenes.</div>
+    </div>
+
+    <!-- ---------- rollouts ---------- -->
+    <h3 class="sub" id="rollouts">Policy rollouts after fine-tuning on DATAFARM</h3>
+    <p class="sec-sub">Each fine-tuned policy on its target task.</p>
+    <div class="vid-card">
+      <div class="vid-hd">Target tasks</div>
+      <div class="vid-grid cols-3">
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-geometric.jpg"><source src="static/videos/rollout-geometric.mp4" type="video/mp4" /></video><figcaption>Geometric Constraints</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-multistep.jpg"><source src="static/videos/rollout-multistep.mp4" type="video/mp4" /></video><figcaption>Multi-Step Reasoning</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-semantic.jpg"><source src="static/videos/rollout-semantic.mp4" type="video/mp4" /></video><figcaption>Semantic Reasoning</figcaption></figure>
+      </div>
+    </div>
+    <div class="vid-card">
+      <div class="vid-hd">Deformable Object Manipulation <span class="tag ood">out-of-distribution</span></div>
+      <div class="vid-grid cols-2">
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/base-cloth.jpg"><source src="static/videos/base-cloth.mp4" type="video/mp4" /></video><figcaption>Before fine-tuning (&pi;<sub>0.5</sub>-DROID)</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-cloth.jpg"><source src="static/videos/rollout-cloth.mp4" type="video/mp4" /></video><figcaption>After fine-tuning on DATAFARM</figcaption></figure>
+      </div>
+      <p class="chart-note">No fine-tuning dataset includes this task, yet the policies retain 85% average success.</p>
+    </div>
+
+    <!-- ---------- ablations ---------- -->
+    <h3 class="sub" id="ablations">Contribution of each alignment component</h3>
+    <p class="sec-sub">Removing one component at a time lowers average success from 56.7% to 23.3% without joint space, 15.0% without style, and 0% without timing.</p>
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Ablations</div>
+        <div class="seg" role="group" aria-label="Metric" data-for="abl">
+          <button class="active" data-metric="succ">Success</button>
+          <button data-metric="prog">Task progress</button>
+        </div>
+      </div>
+      <div class="legend" id="legend-abl"></div>
+      <div class="chart" id="chart-abl"></div>
+    </div>
+
+    <div class="grid-2">
+      <!-- ---------- retention ---------- -->
+      <div id="retention" class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">Retention of pretrained capabilities</div>
+        </div>
+        <div class="legend" id="legend-ret"></div>
+        <div class="chart" id="chart-ret"></div>
+        <p class="chart-note">Cloth folding: 90% before fine-tuning; 80%, 85%, and 90% after fine-tuning on each target task.</p>
+      </div>
+
+      <!-- ---------- budget ---------- -->
+      <div id="budget" class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">Effect of demonstration budget</div>
+        </div>
+        <div class="legend" id="legend-budget"></div>
+        <div class="chart" id="chart-budget"></div>
+        <p class="chart-note">Geometric Constraints; 0 is &pi;<sub>0.5</sub>-DROID without fine-tuning. Success reaches 75% at 40 demonstrations and 85% at 80.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ALIGNMENT ===================== -->
+<section id="alignment">
+  <div class="wrap">
+    <h2 class="sec">Alignment with DROID</h2>
+    <p class="sec-sub">Samples projected onto the first two principal components of (a) joint configurations and (b) trajectory embeddings.</p>
+
+    <div class="two-col">
+      <figure class="fig narrow">
+        <img src="static/images/alignment.jpg" width="1020" height="1280" loading="lazy" alt="PCA density contours. Joint space: 74% of DATAFARM samples inside the DROID contour vs. 66% raw TAMP and 60% without joint-space alignment. Latent space: 96% DATAFARM vs. 0% raw TAMP, 89% without style, 19% without timing." />
+      </figure>
+      <div class="prose">
+        <p><b>Joint space:</b> 74% of DATAFARM samples lie inside the DROID contour, vs. 66% for raw TAMP and 60% without joint-space alignment.</p>
+        <p><b>Trajectory latent space:</b> 96% for DATAFARM, vs. 0% for raw TAMP, 89% without style, and 19% without timing.</p>
+        <p>Overlap alone does not ensure success: the style ablation reaches 89% overlap but only 15.0% success.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== AUTONOMOUS DATA COLLECTION ===================== -->
+<section id="autonomous">
+  <div class="wrap">
+    <h2 class="sec">Autonomous Data Collection</h2>
+    <p class="sec-sub">Using TAMP, the robot can alternate between collecting a demonstration and resetting the scene.</p>
+
+    <div class="vid-card narrow">
+      <figure class="vid">
+        <video id="auto-50x" data-autoplay muted loop playsinline preload="none" width="960" height="540" poster="static/videos/autonomous-geometric-50x.jpg"><source src="static/videos/autonomous-geometric-50x.mp4" type="video/mp4" /></video>
+        <video id="auto-1x" hidden controls playsinline preload="none" width="960" height="540" poster="static/videos/autonomous-geometric-1x.jpg"><source src="static/videos/autonomous-geometric-1x.mp4" type="video/mp4" /></video>
+      </figure>
+      <div class="vid-foot">
+        <p class="chart-note">Nine rollouts and eight resets in 14 minutes.</p>
+        <button class="btn" type="button" id="auto-swap">Watch at 1&times; speed (14 min)</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BIBTEX ===================== -->
+<section id="bibtex">
+  <div class="wrap">
+    <h2 class="sec">BibTeX</h2>
+    <div class="bib">
+      <button class="copy" type="button">Copy</button>
+<pre><code>@article{datafarm2026,
+  title   = {DATAFARM: Distribution-Aligned Task and Motion Planning
+             for Fine-Tuning Vision-Language-Action Models},
+  author  = {Anonymous Authors},
+  year    = {2026},
+  note    = {Under review}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="#">Back to top</a>
+  </div>
+</footer>
+
+<script src="static/js/main.js"></script>
+<script src="static/js/game-rounds.js"></script>
+<script src="static/js/game.js"></script>
 </body>
 </html>

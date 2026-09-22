@@ -1,33 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tandem &middot; Princeton Robot Planning &amp; Learning</title>
-  <meta name="description" content="Tandem, a project from the Princeton Robot Planning and Learning (PRPL) group. Project page coming soon.">
-  <link rel="canonical" href="https://prpl-group.com/tandem/">
-  <link rel="icon" href="/assets/images/favicon.ico">
-  <link rel="stylesheet" href="/assets/css/prpl.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TANDEM — TAMP with As-Needed Demonstrations for Efficient VLA Fine-tuning</title>
+  <meta name="description" content="TANDEM combines task and motion planning (TAMP) with selective human teleoperation to collect demonstrations for tasks beyond the planner's capabilities, representing human assistance as an on-demand planning capability." />
+  <meta property="og:title" content="TANDEM: Task and Motion Planning with As-Needed Demonstrations for Efficient Vision-Language-Action Model Fine-tuning" />
+  <meta property="og:description" content="On a representative long-horizon task, TANDEM collects 2.9× as many demonstrations as full-task teleoperation at the same human intervention time. Fine-tuning π0.5-DROID on 20 TANDEM demonstrations per task increases average task success from 0% to 60%." />
+  <meta property="og:image" content="static/images/teaser.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/css/style.css" />
 </head>
 <body>
-<div class="sheet">
 
-  <header>
-    <a class="wordmark" href="/">
-      PRPL<span class="tiger">.</span><small>Princeton Robot Planning &amp; Learning</small>
-    </a>
-  </header>
+<!-- ===================== NAV ===================== -->
+<nav class="top">
+  <div class="wrap">
+    <a class="brand" href="#">Tandem</a>
+    <a class="link" href="#abstract">Abstract</a>
+    <a class="link" href="#method">Method</a>
+    <a class="link" href="#results">Results</a>
+    <a class="link" href="#effort">Human Effort</a>
+    <a class="link" href="#bibtex">BibTeX</a>
+  </div>
+</nav>
 
-  <main>
-    <div class="hero">
-      <h1>Tandem</h1>
-      <p class="lede">
-        The project page is coming soon. In the meantime, see
-        <a href="/">the PRPL home page</a>.
-      </p>
+<!-- ===================== LEFT TABLE OF CONTENTS (wide screens) ===================== -->
+<nav class="toc" aria-label="On this page">
+  <div class="toc-hd">Contents</div>
+  <ul class="toc-list">
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#method">Method</a></li>
+    <li><a href="#tasks">Tasks</a></li>
+    <li><a href="#demos">Demonstrations</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#rollouts">Policy Rollouts</a></li>
+    <li><a href="#effort">Human Effort</a></li>
+    <li><a href="#collection">Collection</a></li>
+    <li><a href="#bibtex">BibTeX</a></li>
+  </ul>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero">
+  <div class="wrap">
+    <h1 class="title">TANDEM: Task and Motion Planning with As&#8209;Needed Demonstrations for Efficient Vision&#8209;Language&#8209;Action Model Fine&#8209;tuning</h1>
+
+    <div class="authors">Anonymous Authors</div>
+    <div class="affil">Paper under review</div>
+
+    <div class="buttons">
+      <a class="btn soon" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm8 1.5V8h4.5L14 3.5z"/></svg>
+        Paper &middot; coming soon
+      </a>
+      <a class="btn soon" aria-disabled="true">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.9 10.9c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.3.9.1-.7.4-1.2.7-1.5-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+        Code &middot; coming soon
+      </a>
+      <a class="btn" href="static/pdfs/tandem-appendix.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h9l5 5v15a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm8 1.5V8h4.5L14 3.5zM8 12h8v1.6H8V12zm0 3.4h8V17H8v-1.6z"/></svg>
+        Appendix
+      </a>
     </div>
-  </main>
 
-</div>
+    <figure class="fig teaser">
+      <video data-autoplay muted loop playsinline preload="auto" width="962" height="270" poster="static/videos/human-time-comparison.jpg" aria-label="Side-by-side collection of Cover Bread Rolls by full-task teleoperation and by TANDEM, with running human-time counters"><source src="static/videos/human-time-comparison.mp4" type="video/mp4" /></video>
+      <figcaption>Full-task teleoperation (left) vs. <b>TANDEM</b> (right). With TANDEM, the human only teleoperates the covering stage.</figcaption>
+    </figure>
+
+  </div>
+</header>
+
+<!-- ===================== ABSTRACT ===================== -->
+<section id="abstract">
+  <div class="wrap">
+    <h2 class="sec">Abstract</h2>
+    <div class="prose">
+      <p>Human teleoperators spend substantial time demonstrating behaviors that robots can already perform autonomously, limiting the scalability of data collection for robot foundation models. Task and motion planning (TAMP) can automate many of these behaviors, but a fixed planning domain may not support every stage of a long-horizon manipulation task.</p>
+      <p>We present <b>TANDEM</b> (<b>T</b>amp with <b>A</b>s-<b>N</b>eeded <b>D</b>emonstrations for <b>E</b>fficient <b>M</b>odel fine-tuning), a system that combines TAMP with selective human teleoperation to collect demonstrations for tasks beyond the planner's capabilities. Our key idea is to represent <b>human assistance as an on-demand planning capability</b>. Given a language instruction and visual observation, TANDEM uses pretrained vision-language models to extend the planning domain with missing predicates and human-executed <b><i>magic operators</i></b>. This allows the planner to interleave autonomous and human-executed stages without task-specific intervention points. After each human stage, TANDEM re-perceives the scene and checks whether the intended effects hold before resuming autonomous planning. To support fine-tuning vision-language-action (VLA) models, TANDEM also uses example pretraining trajectories to align planner-generated motions with the target model's pretraining distribution.</p>
+      <p>We evaluate TANDEM on five long-horizon manipulation tasks beyond the TAMP domain's capabilities. On a representative long-horizon task, TANDEM collects <b>2.9&times;</b> as many demonstrations as full-task teleoperation at the same human intervention time. Fine-tuning a pretrained &pi;<sub>0.5</sub>-DROID model on 20 TANDEM demonstrations per task increases average task success from <b>0% to 60%</b> across the five tasks.</p>
+    </div>
+
+    <figure class="fig spaced">
+      <img src="static/images/teaser.jpg" width="1800" height="498" loading="lazy" alt="Goal: place the bread rolls on the plate and cover them. TAMP can pick and place but cannot cover, with no human effort; teleoperation executes every stage with huge human effort; TANDEM uses TAMP for pick and place and a human only for covering, with low human effort. The collected dataset supervises π0.5 fine-tuning, and an illustrative plot shows policy success rate against human time for TANDEM, teleop, and TAMP." />
+      <figcaption>TAMP executes pick-and-place behaviors, and humans handle behaviors beyond the planner&rsquo;s capabilities. The plot is illustrative.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== METHOD ===================== -->
+<section id="method">
+  <div class="wrap">
+    <h2 class="sec">Method</h2>
+    <p class="sec-sub">A VLM extends the TAMP domain with missing predicates and human-executed <i>magic operators</i>, so one plan can interleave autonomous and teleoperated phases.</p>
+
+    <figure class="fig">
+      <img src="static/images/overview.jpg" width="1800" height="859" loading="lazy" alt="TANDEM overview for “Place the bread inside the box”: (1) task and initial observation; (2) the existing TAMP domain has On, Grasped, Pick and Place, and LiftOpen(box) is detected as a missing capability; (3) a VLM invents the predicate IsOpen(box) and a magic operator LiftOpen(box) executed by a human; (4) the task plan is TAMP Pick(bread), TAMP Place(bread, plate), Human LiftOpen(box), TAMP Pick(bread), TAMP Place(bread, box); (5) execution, where after the human opens the box a VLM verifies IsOpen(box) from a new observation before TAMP resumes." />
+      <figcaption><b>Overview of TANDEM.</b> TAMP executes the supported stages and a human teleoperates the rest. After each human phase, TANDEM verifies the intended effect before TAMP resumes.</figcaption>
+    </figure>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="step">1 &middot; Predicates</div>
+        <h4>Predicate Invention</h4>
+        <p>A VLM invents predicates the domain is missing, each with a natural-language definition, e.g. <span class="pred">IsOpen(x)</span>: <i>&ldquo;x is open&rdquo;</i>. The definition also lets a VLM check the predicate from an image.</p>
+      </div>
+      <div class="pillar">
+        <div class="step">2 &middot; Operators</div>
+        <h4>Magic Operators</h4>
+        <p>Operators executed by a human through teleoperation. They have the same symbolic structure as TAMP operators, e.g. <span class="pred">LiftOpen(box)</span> with effect <span class="pred">IsOpen(box)</span>, so the planner can use them.</p>
+      </div>
+      <div class="pillar">
+        <div class="step">3 &middot; Execution</div>
+        <h4>Task Plan Generation and Execution</h4>
+        <p>Robot phases run on TAMP and human phases go to teleoperation. After each human phase, TANDEM re-perceives the scene and verifies the effects before planning resumes.</p>
+      </div>
+      <div class="pillar">
+        <div class="step">4 &middot; Alignment</div>
+        <h4>Demonstration Generation</h4>
+        <p>All phases of a successful trial form one complete demonstration. DATAFARM aligns the TAMP segments with the VLA&rsquo;s pretraining data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TASKS ===================== -->
+<section id="tasks">
+  <div class="wrap">
+    <h2 class="sec">Tasks</h2>
+    <p class="sec-sub">Five long-horizon tasks, each with at least one stage beyond the TAMP domain.</p>
+
+    <div class="two-col">
+      <figure class="fig">
+        <img src="static/images/tasks.jpg" width="1003" height="992" loading="lazy" alt="Frame sequences for the five tasks: Cover Bread Rolls, Solve Constrained Puzzle, Sort &amp; Cover Snacks, Open Obstructed Book, and Store Bread in Closed Box, with bars marking the segments executed by TAMP (green) and by human teleoperation (blue)." />
+      </figure>
+      <ul class="task-list">
+        <li><b>Cover Bread Rolls</b>Place three breads on a plate, then cover them with a cloth.<span class="phases"><span class="tag tamp">TAMP</span>&rarr;<span class="tag teleop">Teleop</span></span></li>
+        <li><b>Solve Constrained Puzzle</b>Remove an obstructing toy, then solve the puzzle.<span class="phases"><span class="tag tamp">TAMP</span>&rarr;<span class="tag teleop">Teleop</span></span></li>
+        <li><b>Sort &amp; Cover Snacks</b>Sort snacks into bowls, then cover the bread bowl with a cloth.<span class="phases"><span class="tag tamp">TAMP</span>&rarr;<span class="tag teleop">Teleop</span></span></li>
+        <li><b>Open Obstructed Book</b>Remove a marker from a book, then open the book.<span class="phases"><span class="tag tamp">TAMP</span>&rarr;<span class="tag teleop">Teleop</span></span></li>
+        <li><b>Store Bread in Closed Box</b>Move the bread off the lid, open the box, then place the bread inside.<span class="phases"><span class="tag tamp">TAMP</span>&rarr;<span class="tag teleop">Teleop</span>&rarr;<span class="tag tamp">TAMP</span></span></li>
+      </ul>
+    </div>
+
+    <!-- ---------- demonstrations ---------- -->
+    <h3 class="sub" id="demos">Demonstrations collected by TANDEM</h3>
+    <p class="sec-sub">The label in each video shows who executes the current phase: TAMP or a human.</p>
+    <div class="vid-card">
+      <div class="vid-grid cols-3">
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/collect-breads-cover.jpg" aria-label="TANDEM demonstration: Cover Bread Rolls"><source src="static/videos/collect-breads-cover.mp4" type="video/mp4" /></video><figcaption>Cover Bread Rolls</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/collect-toy-puzzle.jpg" aria-label="TANDEM demonstration: Solve Constrained Puzzle"><source src="static/videos/collect-toy-puzzle.mp4" type="video/mp4" /></video><figcaption>Solve Constrained Puzzle</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/collect-bowls-cover.jpg" aria-label="TANDEM demonstration: Sort &amp; Cover Snacks"><source src="static/videos/collect-bowls-cover.mp4" type="video/mp4" /></video><figcaption>Sort &amp; Cover Snacks</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/collect-pen-book.jpg" aria-label="TANDEM demonstration: Open Obstructed Book"><source src="static/videos/collect-pen-book.mp4" type="video/mp4" /></video><figcaption>Open Obstructed Book</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/collect-bread-box.jpg" aria-label="TANDEM demonstration: Store Bread in Closed Box"><source src="static/videos/collect-bread-box.mp4" type="video/mp4" /></video><figcaption>Store Bread in Closed Box</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESULTS ===================== -->
+<section id="results">
+  <div class="wrap">
+    <h2 class="sec">Results</h2>
+    <p class="sec-sub">&pi;<sub>0.5</sub>-DROID fine-tuned on 20 TANDEM demonstrations per task, compared with the pretrained model and HITL-TAMP (20 trials each).</p>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Downstream policy performance</div>
+        <div class="seg" role="group" aria-label="Metric" data-for="main">
+          <button class="active" data-metric="sr">Success</button>
+          <button data-metric="prog">Task progress</button>
+        </div>
+      </div>
+      <div class="legend" id="legend-main"></div>
+      <div class="chart" id="chart-main"></div>
+      <details class="table-toggle">
+        <summary>Show full results table</summary>
+        <div class="table-wrap">
+          <table class="res">
+            <thead>
+              <tr><th rowspan="2">Task</th><th colspan="2" class="grp">&pi;<sub>0.5</sub>-DROID</th><th colspan="2" class="grp">HITL-TAMP</th><th colspan="2" class="grp">TANDEM</th></tr>
+              <tr><th class="grp">Succ.</th><th>Prog.</th><th class="grp">Succ.</th><th>Prog.</th><th class="grp">Succ.</th><th>Prog.</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cover Bread Rolls</td><td class="grp">0%</td><td>41.3%</td><td class="grp">30%</td><td>68.8%</td><td class="grp ours">45%</td><td class="ours">67.5%</td></tr>
+              <tr><td>Solve Constrained Puzzle</td><td class="grp">0%</td><td>30.0%</td><td class="grp">0%</td><td>30.0%</td><td class="grp ours">50%</td><td class="ours">65.0%</td></tr>
+              <tr><td>Sort &amp; Cover Snacks</td><td class="grp">0%</td><td>31.7%</td><td class="grp">15%</td><td>68.3%</td><td class="grp ours">75%</td><td class="ours">85.0%</td></tr>
+              <tr><td>Open Obstructed Book</td><td class="grp">0%</td><td>38.3%</td><td class="grp">30%</td><td>71.7%</td><td class="grp ours">50%</td><td class="ours">76.7%</td></tr>
+              <tr><td>Store Bread in Closed Box</td><td class="grp">0%</td><td>33.3%</td><td class="grp">10%</td><td>40.0%</td><td class="grp ours">80%</td><td class="ours">93.3%</td></tr>
+              <tr class="total"><td>Average</td><td class="grp">0%</td><td>34.9%</td><td class="grp">17.0%</td><td>55.8%</td><td class="grp ours">60.0%</td><td class="ours">77.5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">Success: every subgoal met. Progress: fraction of subgoals met.</p>
+      </details>
+    </div>
+
+    <div class="findings">
+      <div class="finding"><b>60% average success.</b> Up from 0% for the pretrained model, and above HITL-TAMP (17%) on every task.</div>
+      <div class="finding"><b>No planner at inference.</b> The TANDEM-trained VLA runs at 15&nbsp;Hz; HITL-TAMP keeps a slow TAMP planner.</div>
+    </div>
+
+    <!-- ---------- rollouts ---------- -->
+    <h3 class="sub" id="rollouts">Fine-tuned policy rollouts</h3>
+    <p class="sec-sub">The fine-tuned VLA executes each full task on its own, without TAMP or a human.</p>
+    <div class="vid-card">
+      <div class="vid-grid cols-3">
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-breads-cover.jpg" aria-label="Fine-tuned policy rollout: Cover Bread Rolls"><source src="static/videos/rollout-breads-cover.mp4" type="video/mp4" /></video><figcaption>Cover Bread Rolls</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-toy-puzzle.jpg" aria-label="Fine-tuned policy rollout: Solve Constrained Puzzle"><source src="static/videos/rollout-toy-puzzle.mp4" type="video/mp4" /></video><figcaption>Solve Constrained Puzzle</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-bowls-cover.jpg" aria-label="Fine-tuned policy rollout: Sort &amp; Cover Snacks"><source src="static/videos/rollout-bowls-cover.mp4" type="video/mp4" /></video><figcaption>Sort &amp; Cover Snacks</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-pen-book.jpg" aria-label="Fine-tuned policy rollout: Open Obstructed Book"><source src="static/videos/rollout-pen-book.mp4" type="video/mp4" /></video><figcaption>Open Obstructed Book</figcaption></figure>
+        <figure class="vid"><video data-autoplay muted loop playsinline preload="none" width="640" height="360" poster="static/videos/rollout-bread-box.jpg" aria-label="Fine-tuned policy rollout: Store Bread in Closed Box"><source src="static/videos/rollout-bread-box.mp4" type="video/mp4" /></video><figcaption>Store Bread in Closed Box</figcaption></figure>
+      </div>
+    </div>
+
+    <!-- ---------- human effort ---------- -->
+    <h3 class="sub" id="effort">Human effort</h3>
+    <p class="sec-sub">On Cover Bread Rolls, TANDEM and full-task teleoperation get the same human time.</p>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Scaling with matched human effort on Cover Bread Rolls</div>
+        <div class="seg" role="group" aria-label="Metric" data-for="scale">
+          <button class="active" data-metric="ep">Demonstrations</button>
+          <button data-metric="sr">Success</button>
+        </div>
+      </div>
+      <div class="legend" id="legend-scale"></div>
+      <div class="chart" id="chart-scale"></div>
+      <p class="chart-note" id="note-scale"></p>
+    </div>
+
+
+    <!-- ---------- domain extension / collection ---------- -->
+    <h3 class="sub" id="collection">Demonstration collection</h3>
+    <p class="sec-sub">Raw TAMP completes none of the five tasks. TANDEM collected 100 demonstrations from 130 attempts (76.9%).</p>
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Demonstration collection attempts by outcome</div>
+      </div>
+      <div class="legend" id="legend-fail"></div>
+      <div class="fail-chart" id="chart-fail"></div>
+      <p class="chart-note">93.3% of failures come from TAMP execution. The remaining 6.7% come from predicate/operator invention, all on Store Bread in Closed Box.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== BIBTEX ===================== -->
+<section id="bibtex">
+  <div class="wrap">
+    <h2 class="sec">BibTeX</h2>
+    <div class="bib">
+      <button class="copy" type="button">Copy</button>
+<pre><code>@article{tandem2026,
+  title   = {TANDEM: Task and Motion Planning with As-Needed Demonstrations
+             for Efficient Vision-Language-Action Model Fine-tuning},
+  author  = {Anonymous Authors},
+  year    = {2026},
+  note    = {Under review}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a href="#">Back to top</a>
+  </div>
+</footer>
+
+<script src="static/js/main.js"></script>
 </body>
 </html>
