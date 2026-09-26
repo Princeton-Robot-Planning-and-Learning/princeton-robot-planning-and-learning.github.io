@@ -65,7 +65,7 @@
   <main class="doc">
     <article class="content">
 <h1 id="configuration">Configuration</h1>
-<p>This page lists every setting tandem reads. For setup, see <a href="/tandem/docs/installation/">Installation</a>; for commands, the <a href="/tandem/docs/commands/">Command reference</a>.</p>
+<p>This page lists every setting TANDEM reads. For setup, see <a href="/tandem/docs/installation/">Installation</a>; for commands, the <a href="/tandem/docs/commands/">Command reference</a>.</p>
 <h2 id="profiles">Profiles</h2>
 <p>A <a href="/tandem/docs/concepts/">profile</a> is one task in one YAML file:</p>
 <div class="hl"><pre><span></span><code><span class="c1"># ~/tandem-data/profiles/my-task.yml</span>
@@ -225,7 +225,7 @@ added to the rig's <code>calibration.json</code> only for cameras without an ent
 <li>Old directories aren't deleted. Each is archived in <code>profiles/.migrated/&lt;name&gt;/</code> with a <code>migration.json</code>.</li>
 <li>If the rig can't be set up from them, no profile is moved. A profile that fails to move is left as it was, and
   running the command again finishes a partial move.</li>
-<li><code>tandem rig set</code> and <code>rig edit</code> wait until old profiles are moved. Older tandem can't read version 3.</li>
+<li><code>tandem rig set</code> and <code>rig edit</code> wait until old profiles are moved. Older TANDEM can't read version 3.</li>
 <li>Version-1 profiles keep <code>hitl.on_robot_phase_failure: teleop</code>, the old default. Set <code>abort</code> unless you
   chose teleop.</li>
 </ul>
@@ -513,7 +513,7 @@ tandem<span class="w"> </span>rig<span class="w"> </span>path<span class="w"> </
 <li><strong>TiPToP's scripts</strong> (<code>calibrate-wrist-cam</code>, <code>viz-calibration</code>, <code>cutamp-demo</code>, …) run through
   <code>tandem runtime run</code> or <code>shell</code> use your rig settings, through <code>$TIPTOP_CONFIG</code> and <code>$TIPTOP_CALIBRATION</code>.
   <code>--raw</code> uses tiptop's stock config instead.</li>
-<li><strong>Teleop</strong> uses <code>robot.host</code> too; tandem passes it to the teleop driver.</li>
+<li><strong>Teleop</strong> uses <code>robot.host</code> too; TANDEM passes it to the teleop driver.</li>
 <li><strong>Gripper mask</strong> (<code>perception: hand</code> only): make yours with <code>tandem runtime run compute-gripper-mask</code> (or
   <code>paint-gripper-mask</code>). It writes the runtime's <code>tiptop/tiptop/config/assets/gripper_mask.png</code>.</li>
 </ul>
@@ -526,7 +526,7 @@ tandem<span class="w"> </span>rig<span class="w"> </span>path<span class="w"> </
 <span class="w">      </span><span class="nt">num_particles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
 </code></pre></div>
 <p>Task settings go in the profile's <code>planner.options</code>. Machine settings (a server's address, a robot's ports) go
-in <a href="#the-rig">the rig</a> under <code>planners.&lt;name&gt;</code>. If you put a key in the wrong file, tandem refuses it and says
+in <a href="#the-rig">the rig</a> under <code>planners.&lt;name&gt;</code>. If you put a key in the wrong file, TANDEM refuses it and says
 where it goes. <code>tandem planners info NAME</code> lists both (<a href="/tandem/docs/adding-a-planner/#options-and-doctor-rows">how planners declare them</a>).</p>
 <p><strong>Did my setting apply?</strong> <code>tandem profile show NAME --planner</code> prints exactly what the planner receives.</p>
 <h3 id="switching-planners">Switching planners</h3>
@@ -727,8 +727,8 @@ because every run in the paper used them.</p>
 </tr>
 </tbody>
 </table>
-<h2 id="tandem-settings-and-credentials">tandem settings and credentials</h2>
-<p>tandem's own settings live in <code>~/.config/tandem/config.toml</code>:</p>
+<h2 id="tandem-settings-and-credentials">TANDEM settings and credentials</h2>
+<p>TANDEM's own settings live in <code>~/.config/tandem/config.toml</code>:</p>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>config<span class="w"> </span>list
 tandem<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>ui.port<span class="w"> </span><span class="m">8800</span>
 tandem<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>data_root<span class="w"> </span>/mnt/data/tandem
@@ -899,17 +899,17 @@ log goes is in <a href="/tandem/docs/data/#logs-and-session-files">Logs and sess
 tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w"> </span>--sources<span class="w"> </span>/media/usb/planner-sources<span class="w"> </span><span class="c1"># on the workstation</span>
 </code></pre></div>
 <ul>
-<li>Use the same tandem version on both: commits are checked against their pins and files against the digest.</li>
+<li>Use the same TANDEM version on both: commits are checked against their pins and files against the digest.</li>
 <li><code>$TANDEM_PLANNER_SOURCES</code> can replace <code>--sources</code> (one directory per source: <code>tiptop/</code>, <code>cuTAMP/</code>,
   <code>curobo/</code>). While set, nothing is fetched.</li>
 <li>Only sources are bundled. <code>pixi install</code> still needs conda-forge, PyPI and GitHub (to build SAM-2), and the
   first warm-up downloads the SAM-2 checkpoint (about 0.9 GB).</li>
 </ul>
 <h2 id="installing">Installing</h2>
-<p>tandem isn't on PyPI; install it from git (<a href="/tandem/docs/installation/">Installation</a>). Plain <code>pip install git+…</code> needs
+<p>TANDEM isn't on PyPI; install it from git (<a href="/tandem/docs/installation/">Installation</a>). Plain <code>pip install git+…</code> needs
 a virtualenv on Debian and Ubuntu. Every install includes what <code>tandem export lerobot</code> needs (<code>av</code>, <code>pyarrow</code>
 and <code>huggingface_hub</code>).</p>
-<p>To develop tandem: <code>pip install -e '.[dev]'</code> in a virtualenv, then <code>pytest -q</code>.</p>
+<p>To develop TANDEM: <code>pip install -e '.[dev]'</code> in a virtualenv, then <code>pytest -q</code>.</p>
     </article>
     <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/web-ui/"><span>Previous</span>Web UI</a><a class="next" href="/tandem/docs/concepts/"><span>Next</span>Concepts</a></nav>
     <footer>
@@ -919,7 +919,7 @@ and <code>huggingface_hub</code>).</p>
   </main>
 
   <aside class="toc" aria-label="On this page">
-    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#profiles">Profiles</a></li><li class="sub"><a href="#profile-keys">Profile keys</a></li><li class="sub"><a href="#the-papers-five">The paper's five</a></li><li class="sub"><a href="#older-profiles">Older profiles</a></li><li><a href="#phase-planning-hitl">Phase planning (hitl)</a></li><li class="sub"><a href="#planning">Planning</a></li><li class="sub"><a href="#checks">Checks</a></li><li class="sub"><a href="#failures">Failures</a></li><li class="sub"><a href="#human-executor">Human executor</a></li><li><a href="#the-rig">The rig</a></li><li class="sub"><a href="#calibration-file">Calibration file</a></li><li class="sub"><a href="#related-settings-outside-the-rig">Related settings outside the rig</a></li><li><a href="#planner-settings">Planner settings</a></li><li class="sub"><a href="#switching-planners">Switching planners</a></li><li class="sub"><a href="#tiptop-options">TiPToP options</a></li><li class="sub"><a href="#surface-fitted-placement">Surface-fitted placement</a></li><li class="sub"><a href="#the-three-switches">The three switches</a></li><li><a href="#tandem-settings-and-credentials">tandem settings and credentials</a></li><li class="sub"><a href="#credentials">Credentials</a></li><li class="sub"><a href="#directories">Directories</a></li><li><a href="#the-planner-runtime">The planner runtime</a></li><li class="sub"><a href="#offline-install">Offline install</a></li><li><a href="#installing">Installing</a></li></ul>
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#profiles">Profiles</a></li><li class="sub"><a href="#profile-keys">Profile keys</a></li><li class="sub"><a href="#the-papers-five">The paper's five</a></li><li class="sub"><a href="#older-profiles">Older profiles</a></li><li><a href="#phase-planning-hitl">Phase planning (hitl)</a></li><li class="sub"><a href="#planning">Planning</a></li><li class="sub"><a href="#checks">Checks</a></li><li class="sub"><a href="#failures">Failures</a></li><li class="sub"><a href="#human-executor">Human executor</a></li><li><a href="#the-rig">The rig</a></li><li class="sub"><a href="#calibration-file">Calibration file</a></li><li class="sub"><a href="#related-settings-outside-the-rig">Related settings outside the rig</a></li><li><a href="#planner-settings">Planner settings</a></li><li class="sub"><a href="#switching-planners">Switching planners</a></li><li class="sub"><a href="#tiptop-options">TiPToP options</a></li><li class="sub"><a href="#surface-fitted-placement">Surface-fitted placement</a></li><li class="sub"><a href="#the-three-switches">The three switches</a></li><li><a href="#tandem-settings-and-credentials">TANDEM settings and credentials</a></li><li class="sub"><a href="#credentials">Credentials</a></li><li class="sub"><a href="#directories">Directories</a></li><li><a href="#the-planner-runtime">The planner runtime</a></li><li class="sub"><a href="#offline-install">Offline install</a></li><li><a href="#installing">Installing</a></li></ul>
   </aside>
 </div>
 

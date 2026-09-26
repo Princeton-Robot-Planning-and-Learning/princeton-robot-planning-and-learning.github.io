@@ -219,7 +219,7 @@ where the extrinsics file is.</p>
 it isn't ready, and <code>●</code> marks the profile's choice.</p>
 <h2 id="settings-and-runtime">Settings and runtime</h2>
 <p><code>tandem config list|get|set|edit|path|set-gemini-key|set-hf-token</code> manages
-<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">tandem's settings</a>. <code>set KEY VALUE</code> takes one dotted key,
+<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">TANDEM's settings</a>. <code>set KEY VALUE</code> takes one dotted key,
 such as <code>ui.port</code>. The <code>set-*</code> commands store a credential typed at a prompt, or read it with <code>--stdin</code>.
 <code>set-gemini-key --key KEY</code> also works, but leaves the key in your shell history.</p>
 <p><code>tandem runtime status|build|shell|python|run|clean|path</code> works on the active profile's planner runtime.
@@ -229,7 +229,7 @@ such as <code>ui.port</code>. The <code>set-*</code> commands store a credential
 <ul>
 <li><code>run</code> and <code>shell</code> run the planner's own scripts with your <a href="/tandem/docs/configuration/#the-rig">rig</a> settings. <code>--raw</code>
   uses the planner's stock config instead.</li>
-<li>tandem's options (<code>--planner</code>, <code>-p</code>, <code>--raw</code>) go before the script's name, and the script's own after it.
+<li>TANDEM's options (<code>--planner</code>, <code>-p</code>, <code>--raw</code>) go before the script's name, and the script's own after it.
   <code>--</code> still works.</li>
 <li><code>build</code> builds or repairs the runtime (<code>--force</code> refetches, plus <code>--env-only</code> and <code>--sources DIR</code>).
   <code>python</code> prints the interpreter, and <code>clean</code> deletes the runtime (<code>-y</code> skips the confirmation).</li>
@@ -252,7 +252,7 @@ them, and <code>tandem collect</code> starts any that are down and stops the one
 </tr>
 <tr>
 <td><code>servers status</code></td>
-<td>Whether each is installed and answering, and whether tandem started it. <code>--json</code>.</td>
+<td>Whether each is installed and answering, and whether TANDEM started it. <code>--json</code>.</td>
 </tr>
 <tr>
 <td><code>servers start [NAME]</code></td>
@@ -260,11 +260,11 @@ them, and <code>tandem collect</code> starts any that are down and stops the one
 </tr>
 <tr>
 <td><code>servers stop [NAME]</code></td>
-<td>Stop the ones tandem started, such as after a crashed session.</td>
+<td>Stop the ones TANDEM started, such as after a crashed session.</td>
 </tr>
 </tbody>
 </table>
-<p><code>NAME</code> is <code>m2t2</code> or <code>foundation_stereo</code>. tandem never starts a server whose URL points at another machine.
+<p><code>NAME</code> is <code>m2t2</code> or <code>foundation_stereo</code>. TANDEM never starts a server whose URL points at another machine.
 Each server's log is <code>server-&lt;name&gt;.log</code> (<a href="/tandem/docs/data/#logs-and-session-files">logs</a>).</p>
     </article>
     <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/concepts/"><span>Previous</span>Concepts</a><a class="next" href="/tandem/docs/data/"><span>Next</span>Data format</a></nav>

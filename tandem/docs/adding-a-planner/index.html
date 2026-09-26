@@ -65,12 +65,12 @@
   <main class="doc">
     <article class="content">
 <h1 id="adding-a-planner">Adding a planner</h1>
-<p>A planner is a Python package that tells tandem three things: what is in the scene (<code>perceive</code>), how to
-reach one goal (<code>plan</code>), and how to run that plan on the robot while recording it (<code>execute</code>). tandem does
+<p>A planner is a Python package that tells TANDEM three things: what is in the scene (<code>perceive</code>), how to
+reach one goal (<code>plan</code>), and how to run that plan on the robot while recording it (<code>execute</code>). TANDEM does
 everything else: splitting the task into phases, teleop, checking a person's work and merging the legs.</p>
 <p>Working examples: <code>src/tandem/planners/tiptop/</code> (the built-in planner) and <code>tests/toy_planner.py</code>.</p>
 <h2 id="quick-start">Quick start</h2>
-<p>Generate a package, install it where tandem runs, and run its tests:</p>
+<p>Generate a package, install it where TANDEM runs, and run its tests:</p>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>new<span class="w"> </span>shelfbot<span class="w">          </span><span class="c1"># creates ./tandem-shelfbot (--dir to change)</span>
 <span class="nb">cd</span><span class="w"> </span>tandem-shelfbot
 pipx<span class="w"> </span>inject<span class="w"> </span>tandem-tamp<span class="w"> </span>--editable<span class="w"> </span>.<span class="w"> </span>pytest<span class="w">    </span><span class="c1"># if tandem came from pipx</span>
@@ -92,7 +92,7 @@ and in a virtualenv use <code>pip install -e ".[test]"</code>.</p>
 <p>Use <code>tandem planners new NAME --sidecar</code> if the planner needs its own environment (torch, CUDA, a camera
 SDK). See <a href="#sidecars">Sidecars</a>.</p>
 <p><code>tandem planners list</code> should now show <code>shelfbot</code> as <code>no runtime needed</code>. <code>tandem planners info shelfbot</code>
-shows what tandem knows about it. What <code>planners use</code> changes in a profile is in
+shows what TANDEM knows about it. What <code>planners use</code> changes in a profile is in
 <a href="/tandem/docs/configuration/#planner-settings">Planner settings</a>.</p>
 <h3 id="names">Names</h3>
 <p>A planner's name uses lowercase letters, digits, <code>_</code> and <code>-</code>, and starts with a letter.</p>
@@ -250,11 +250,11 @@ every verb except <code>perceive</code>, <code>plan</code> and <code>execute</co
 </tr>
 <tr>
 <td><code>scene_id</code></td>
-<td>An opaque id that tandem passes back to <code>plan</code>.</td>
+<td>An opaque id that TANDEM passes back to <code>plan</code>.</td>
 </tr>
 <tr>
 <td><code>rgb_path</code></td>
-<td>An image of the scene. tandem splits the task and checks robot-leg preconditions from it. Without it, proposing a plan fails and the trial ends at <code>invention</code>.</td>
+<td>An image of the scene. TANDEM splits the task and checks robot-leg preconditions from it. Without it, proposing a plan fails and the trial ends at <code>invention</code>.</td>
 </tr>
 <tr>
 <td><code>detected_goal</code></td>
@@ -262,7 +262,7 @@ every verb except <code>perceive</code>, <code>plan</code> and <code>execute</co
 </tr>
 </tbody>
 </table>
-<p>Labels may change between perception passes. tandem rebinds its plan to the new labels.</p>
+<p>Labels may change between perception passes. TANDEM rebinds its plan to the new labels.</p>
 <h3 id="planresult"><code>PlanResult</code></h3>
 <p>Every field must be JSON-safe.</p>
 <table>
@@ -283,7 +283,7 @@ every verb except <code>perceive</code>, <code>plan</code> and <code>execute</co
 </tr>
 <tr>
 <td><code>plan_handle</code></td>
-<td>An opaque id that tandem passes back to <code>execute</code>.</td>
+<td>An opaque id that TANDEM passes back to <code>execute</code>.</td>
 </tr>
 <tr>
 <td><code>task_plan</code></td>
@@ -312,7 +312,7 @@ more, as the scaffold does:</p>
     <span class="n">supports_return_home</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>         <span class="c1"># only once plan() honours return_home=False</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>When a proposed phase breaks one of these rules, tandem sends it back to the model to repair ("repaired"
+<p>When a proposed phase breaks one of these rules, TANDEM sends it back to the model to repair ("repaired"
 below).</p>
 <table>
 <thead>
@@ -388,7 +388,7 @@ below).</p>
 </tr>
 <tr>
 <td><code>supports_return_home</code></td>
-<td><code>plan(return_home=False)</code> is honoured: the arm ends where the last operation leaves it. tandem uses this on every leg but the task's last.</td>
+<td><code>plan(return_home=False)</code> is honoured: the arm ends where the last operation leaves it. TANDEM uses this on every leg but the task's last.</td>
 </tr>
 <tr>
 <td><code>supports_cooperative_stop</code></td>
@@ -400,7 +400,7 @@ below).</p>
 </tr>
 </tbody>
 </table>
-<p>tandem passes <code>movables</code>, <code>return_home</code> and <code>should_stop</code> only when the matching capability is declared.
+<p>TANDEM passes <code>movables</code>, <code>return_home</code> and <code>should_stop</code> only when the matching capability is declared.
 So <code>plan</code> may leave <code>movables</code> or <code>return_home</code> out of its signature if it doesn't declare them.</p>
 <p><strong>Conjoining</strong> (<code>hitl.conjoin_robot_phases</code>) plans consecutive robot phases as one goal from one
 perception pass. The atoms are sorted, so the proposal's order between them is lost. It needs
@@ -525,9 +525,9 @@ pass <code>abstract=True</code> (<code>class MyBase(Planner, abstract=True)</cod
 <code>capabilities()</code>, <code>create(ctx)</code> and <code>runtime(settings)</code>, plus any optional hooks. TiPToP is built this way.</p>
 <h2 id="sidecars">Sidecars</h2>
 <p>Use a sidecar when the planner needs torch, CUDA kernels, a camera SDK or a robot client. The planner then
-runs as a script in its own interpreter, and tandem talks to it over JSON lines. <code>tandem planners new NAME
+runs as a script in its own interpreter, and TANDEM talks to it over JSON lines. <code>tandem planners new NAME
 --sidecar</code> generates both halves.</p>
-<p>The tandem half declares the planner and says which script to launch:</p>
+<p>The TANDEM half declares the planner and says which script to launch:</p>
 <div class="hl"><pre><span></span><code><span class="c1"># tandem_armsim/planner.py -- runs in tandem's process; keep it light</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tandem.planners</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlannerInfo</span><span class="p">,</span> <span class="n">SidecarPlanner</span>
 
@@ -578,22 +578,22 @@ runs as a script in its own interpreter, and tandem talks to it over JSON lines.
 </code></pre></div>
 <p>Rules for the script:</p>
 <ul>
-<li><strong>Don't print to stdout.</strong> tandem uses stdout to talk to the sidecar. Importing <code>tandem_sidecar</code> redirects
+<li><strong>Don't print to stdout.</strong> TANDEM uses stdout to talk to the sidecar. Importing <code>tandem_sidecar</code> redirects
   stdout to stderr, which goes to the session log, so import it first and put <code># isort: split</code> after it.</li>
 <li><strong>Import heavy libraries inside <code>warm()</code>.</strong> Then a library that fails to import shows up as a failed
   warm-up with its error, instead of a sidecar that never starts. The conformance kit checks the import order.</li>
-<li><strong>Import only <code>tandem_sidecar</code> from tandem.</strong> It is one standard-library file (Python 3.8+), and tandem puts
+<li><strong>Import only <code>tandem_sidecar</code> from TANDEM.</strong> It is one standard-library file (Python 3.8+), and TANDEM puts
   it on the script's <code>PYTHONPATH</code>.</li>
 <li><strong>Append to <code>PYTHONPATH</code>; don't replace it.</strong> If your <a href="https://pixi.sh">pixi</a> environment sets <code>PYTHONPATH</code> (for example in
   <code>[activation.env]</code>), the sidecar dies with <code>No module named 'tandem_sidecar'</code>. To run a sidecar by hand,
-  put tandem's <code>planners/sidecar_kit</code> directory on <code>PYTHONPATH</code> yourself.</li>
+  put TANDEM's <code>planners/sidecar_kit</code> directory on <code>PYTHONPATH</code> yourself.</li>
 </ul>
 <p>Each method takes keyword arguments and returns a JSON-safe dict. <code>capture_frame</code> returns <code>{"path": ...}</code>.
 A verb with no method gets <code>Planner</code>'s default. A sidecar missing <code>perceive</code>, <code>plan</code> or <code>execute</code> is refused
-at <code>warm</code>. If a method raises, tandem reports <code>"&lt;verb&gt; failed -- &lt;Type&gt;: &lt;message&gt;"</code> and puts the traceback
+at <code>warm</code>. If a method raises, TANDEM reports <code>"&lt;verb&gt; failed -- &lt;Type&gt;: &lt;message&gt;"</code> and puts the traceback
 in the session log. The wire protocol is documented in the docstring of
 <code>src/tandem/planners/sidecar_kit/tandem_sidecar.py</code>.</p>
-<h3 id="what-tandem-does-with-a-sidecar">What tandem does with a sidecar</h3>
+<h3 id="what-tandem-does-with-a-sidecar">What TANDEM does with a sidecar</h3>
 <table>
 <thead>
 <tr>
@@ -604,7 +604,7 @@ in the session log. The wire protocol is documented in the docstring of
 <tbody>
 <tr>
 <td>Launch</td>
-<td>Runs the runtime's <code>python</code> with <code>pixi run</code> (or tandem's interpreter without a runtime), from the runtime's working directory, in its own process group.</td>
+<td>Runs the runtime's <code>python</code> with <code>pixi run</code> (or TANDEM's interpreter without a runtime), from the runtime's working directory, in its own process group.</td>
 </tr>
 <tr>
 <td>Optional arguments</td>
@@ -616,11 +616,11 @@ in the session log. The wire protocol is documented in the docstring of
 </tr>
 <tr>
 <td>Crash or timeout</td>
-<td>tandem sends SIGTERM, then SIGKILL, to the process group. The trial ends at that verb's stage, and the next <code>warm()</code> restarts the sidecar.</td>
+<td>TANDEM sends SIGTERM, then SIGKILL, to the process group. The trial ends at that verb's stage, and the next <code>warm()</code> restarts the sidecar.</td>
 </tr>
 <tr>
 <td>Cooperative stop</td>
-<td>If declared, tandem polls <code>should_stop</code> and signals the sidecar through the file named in <code>TANDEM_SIDECAR_STOP_FILE</code>.</td>
+<td>If declared, TANDEM polls <code>should_stop</code> and signals the sidecar through the file named in <code>TANDEM_SIDECAR_STOP_FILE</code>.</td>
 </tr>
 <tr>
 <td><code>close</code></td>
@@ -705,7 +705,7 @@ in the session log. The wire protocol is documented in the docstring of
 <tbody>
 <tr>
 <td><code>serve(handlers, verbs=None, on_exit=None)</code></td>
-<td>Answers requests until tandem says quit or closes stdin, then calls <code>on_exit</code> or the <code>close</code> handler. <code>handlers</code> is an object with one method per verb, or a verb → callable mapping.</td>
+<td>Answers requests until TANDEM says quit or closes stdin, then calls <code>on_exit</code> or the <code>close</code> handler. <code>handlers</code> is an object with one method per verb, or a verb → callable mapping.</td>
 </tr>
 <tr>
 <td><code>log(message, level="info")</code></td>
@@ -717,7 +717,7 @@ in the session log. The wire protocol is documented in the docstring of
 </tr>
 <tr>
 <td><code>should_stop()</code></td>
-<td>True once tandem asks for a cooperative stop.</td>
+<td>True once TANDEM asks for a cooperative stop.</td>
 </tr>
 </tbody>
 </table>
@@ -829,14 +829,14 @@ in <code>OPTIONS</code>. Machine settings, such as a server's address or a robot
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>myplanner<span class="w"> </span>--option<span class="w"> </span><span class="nv">scene_file</span><span class="o">=</span>kitchen.yml<span class="w">   </span><span class="c1"># a task setting</span>
 tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.myplanner.server_url<span class="w"> </span>http://HOST:9000<span class="w"> </span><span class="c1"># a machine setting</span>
 </code></pre></div>
-<p>tandem calls <code>validate_options(options)</code> when a profile loads, and <code>validate_rig_options(options)</code> when the
+<p>TANDEM calls <code>validate_options(options)</code> when a profile loads, and <code>validate_rig_options(options)</code> when the
 rig is read. The defaults refuse any key that isn't declared, suggest the nearest one, and say which file a
 misplaced key belongs in. If you override either one, it must:</p>
 <ul>
 <li>Accept its own output, because the result is validated again on every read.</li>
 <li>Return plain data: string-keyed mappings, lists, strings, numbers, booleans and <code>None</code>. Use
   <code>model_dump(mode="json")</code>, never <code>Path</code>, <code>Enum</code> or numpy values.</li>
-<li>Raise <code>TandemError</code> or <code>ValueError</code> (pydantic's <code>ValidationError</code> counts). tandem reports it under
+<li>Raise <code>TandemError</code> or <code>ValueError</code> (pydantic's <code>ValidationError</code> counts). TANDEM reports it under
   <code>planner.options.</code> or <code>planners.&lt;name&gt;.</code>.</li>
 </ul>
 <p>To make a setting required, refuse <code>{}</code> with a <code>TandemError</code> naming it. Put a machine setting in
@@ -855,7 +855,7 @@ exactly what the planner gets.</p>
 <li>With <code>profile=None</code> (the preflight of <code>tandem init</code>), check only the machine.</li>
 <li>With <code>probe_hardware=False</code> (<code>--no-hardware</code>), touch no network or bus.</li>
 <li>A FAIL stops a session. It also stops <code>tandem init</code> before it builds the runtime (interactively, it asks).</li>
-<li>tandem already reports the runtime, so don't repeat it.</li>
+<li>TANDEM already reports the runtime, so don't repeat it.</li>
 </ul>
 <h2 id="registering-it">Registering it</h2>
 <p>The scaffold registers the planner with an entry point in <code>pyproject.toml</code>:</p>
@@ -864,7 +864,7 @@ exactly what the planner gets.</p>
 </code></pre></div>
 <p>Then select it with <code>tandem planners use arm</code>, or <code>planner: {backend: arm}</code> in a profile.
 <code>tandem planners default arm</code> makes it the planner new profiles get (<a href="/tandem/docs/commands/">Commands</a>).</p>
-<p>tandem looks up a name in this order, and the first match wins:</p>
+<p>TANDEM looks up a name in this order, and the first match wins:</p>
 <ol>
 <li><code>tandem.register_backend(name, factory)</code> (alias <code>register_planner</code>), called at runtime. <code>factory</code> may be
     a lazily imported <code>"module:attribute"</code> string. A taken name is an error unless you pass <code>replace=True</code>.</li>
@@ -881,7 +881,7 @@ and import torch and robot clients in <code>warm()</code> or a sidecar.</p>
 <li>Two installed packages claiming the same name is an error.</li>
 </ul>
 <h2 id="the-recording-contract">The recording contract</h2>
-<p><code>execute</code> records one leg of trial <code>leg.trajectory_id</code>. tandem's merge orders a trial's legs by their
+<p><code>execute</code> records one leg of trial <code>leg.trajectory_id</code>. TANDEM's merge orders a trial's legs by their
 recording windows and joins them into one episode. When <code>leg.record</code> is set, <code>save_dir</code> must hold three
 things: <code>_meta.json</code>, <code>robot_state.npz</code> and the camera clips.</p>
 <div class="hl"><pre><span></span><code>save_dir/
@@ -1056,7 +1056,7 @@ both with stand-in images. Turn one off only for a planner that is never run wit
   </main>
 
   <aside class="toc" aria-label="On this page">
-    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#quick-start">Quick start</a></li><li class="sub"><a href="#names">Names</a></li><li><a href="#a-minimal-planner">A minimal planner</a></li><li><a href="#the-protocol">The protocol</a></li><li class="sub"><a href="#sceneview">SceneView</a></li><li class="sub"><a href="#planresult">PlanResult</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#the-planner-base-class">The Planner base class</a></li><li><a href="#sidecars">Sidecars</a></li><li class="sub"><a href="#what-tandem-does-with-a-sidecar">What tandem does with a sidecar</a></li><li class="sub"><a href="#default-timeouts">Default timeouts</a></li><li class="sub"><a href="#sidecarplanner-methods-you-can-override">SidecarPlanner methods you can override</a></li><li class="sub"><a href="#the-tandem_sidecar-kit">The tandem_sidecar kit</a></li><li><a href="#a-runtime-recipe">A runtime recipe</a></li><li><a href="#options-and-doctor-rows">Options and doctor rows</a></li><li class="sub"><a href="#what-people-see">What people see</a></li><li class="sub"><a href="#doctor-rows">Doctor rows</a></li><li><a href="#registering-it">Registering it</a></li><li><a href="#the-recording-contract">The recording contract</a></li><li><a href="#the-conformance-kit">The conformance kit</a></li></ul>
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#quick-start">Quick start</a></li><li class="sub"><a href="#names">Names</a></li><li><a href="#a-minimal-planner">A minimal planner</a></li><li><a href="#the-protocol">The protocol</a></li><li class="sub"><a href="#sceneview">SceneView</a></li><li class="sub"><a href="#planresult">PlanResult</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#the-planner-base-class">The Planner base class</a></li><li><a href="#sidecars">Sidecars</a></li><li class="sub"><a href="#what-tandem-does-with-a-sidecar">What TANDEM does with a sidecar</a></li><li class="sub"><a href="#default-timeouts">Default timeouts</a></li><li class="sub"><a href="#sidecarplanner-methods-you-can-override">SidecarPlanner methods you can override</a></li><li class="sub"><a href="#the-tandem_sidecar-kit">The tandem_sidecar kit</a></li><li><a href="#a-runtime-recipe">A runtime recipe</a></li><li><a href="#options-and-doctor-rows">Options and doctor rows</a></li><li class="sub"><a href="#what-people-see">What people see</a></li><li class="sub"><a href="#doctor-rows">Doctor rows</a></li><li><a href="#registering-it">Registering it</a></li><li><a href="#the-recording-contract">The recording contract</a></li><li><a href="#the-conformance-kit">The conformance kit</a></li></ul>
   </aside>
 </div>
 

@@ -65,14 +65,14 @@
   <main class="doc">
     <article class="content">
 <h1 id="teleoperation">Teleoperation</h1>
-<p>A person carries out human phases by driving the arm with a <a href="https://www.meta.com/quest/">Meta Quest</a> VR controller. tandem builds the teleop driver's environment for you.</p>
+<p>A person carries out human phases by driving the arm with a <a href="https://www.meta.com/quest/">Meta Quest</a> VR controller. TANDEM builds the teleop driver's environment for you.</p>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>executors<span class="w"> </span>install<span class="w"> </span>teleop<span class="w">   </span><span class="c1"># builds the teleop driver's environment and turns teleop on</span>
 tandem<span class="w"> </span>executors<span class="w"> </span>list<span class="w">             </span><span class="c1"># teleop should say `ready`</span>
 </code></pre></div>
 <p><code>tandem init</code> offers to do this for you. The install fetches the workstation side of
 <a href="https://github.com/SamratSahoo/droid/tree/TANDEM">DROID</a> and builds a small environment for it, with the ZED
 Python API when the <a href="https://www.stereolabs.com/developers/release">ZED SDK</a> is installed. Human phases then drive the arm through the DROID server from <a href="/tandem/docs/robot/">Robot setup</a>.
-tandem passes the driver your NUC address and camera serials, so you don't need to edit anything in DROID.</p>
+TANDEM passes the driver your NUC address and camera serials, so you don't need to edit anything in DROID.</p>
 <p>Teleop uses a Meta Quest headset, driven with the right controller by default
 (<code>tandem config set teleop.controller left</code> switches). The workstation also needs <a href="https://developer.android.com/tools/adb"><code>adb</code></a>
 (<code>sudo apt install adb</code>), and the headset must be in <a href="https://github.com/SamratSahoo/droid/blob/TANDEM/docs/software-setup/docker.md#configuring-the-oculus-quest">developer mode</a> and

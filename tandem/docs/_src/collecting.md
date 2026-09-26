@@ -28,7 +28,7 @@ keys work at each step.
 **Preempt** (`p`) files the attempt's legs as aborted. The session stays warm for the next trial.
 
 **Hand-off** (`t` outside a human phase) gives you the arm through teleop at the next plan-step boundary. When
-you press `r`, tandem perceives again and replans the phase from where you left the arm, without homing. The
+you press `r`, TANDEM perceives again and replans the phase from where you left the arm, without homing. The
 legs merge into one episode.
 
 **Human phase.** The screen says what to do and what a fresh camera image will then check.
@@ -36,7 +36,7 @@ legs merge into one episode.
 - If the check fails, the screen lists what is missing and you get `hitl.verify_retries` more tries.
 - `d` is refused while recording, unless
   [`hitl.allow_unrecorded_human_phase`](CONFIGURATION.md#phase-planning-hitl) is true.
-- If you don't return control within an hour, tandem ends the leg and takes the arm back.
+- If you don't return control within an hour, TANDEM ends the leg and takes the arm back.
 
 **Label.** You are asked for one only if the plan ran to the end, or if a check failed under
 `hitl.on_verification_failure: label`. [Settled](README.md#terms) trials are filed without a label, with the

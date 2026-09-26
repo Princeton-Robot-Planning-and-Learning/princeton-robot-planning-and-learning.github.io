@@ -25,7 +25,7 @@ Terms used throughout these docs.
 
 ## Trials and recordings
 - **human executor**: whatever carries out a human phase. Only `teleop`, a person driving the arm, ships with
-  tandem. A **hand-off** lends the executor the arm and then takes it back.
+  TANDEM. A **hand-off** lends the executor the arm and then takes it back.
 - **perception pass**: one `perceive` call, which names the objects in the scene. One runs before each robot leg.
 - **trial**: one attempt at a task. All its legs share a 16-hex-character `trajectory_id`.
 - **leg**: one continuous recording, made either by the planner (one or more robot phases) or by a human executor.
@@ -36,14 +36,14 @@ Terms used throughout these docs.
 - **episode**: a filed trial. Its legs are merged into one directory in `success/` or `failure/`. A trial with
   one leg is that leg. Only `success/` is [exported](USAGE.md#exporting).
 - **trajectory**: an episode, or a leg not yet merged, in a profile's `trajectories/`. `tandem traj` lists them.
-- **settled**: ended by tandem rather than labeled by you: excluded, aborted, or failed part-way. Settled trials
+- **settled**: ended by TANDEM rather than labeled by you: excluded, aborted, or failed part-way. Settled trials
   are filed in `failure/` without a label.
 - **excluded**: settled because a camera check failed under `hitl.on_verification_failure: exclude` (the
   default). This is usually a human phase that still failed after its retries.
 
 ## Planners
 - **runtime**: a planner's pinned sources, and usually a [pixi](https://pixi.sh) environment, built by `tandem planners install`.
-- **sidecar**: a planner running as a subprocess that tandem drives over JSON lines, inside its runtime if it
+- **sidecar**: a planner running as a subprocess that TANDEM drives over JSON lines, inside its runtime if it
   has one.
 - **DATAFARM**: [TiPToP](https://github.com/SamratSahoo/tiptop/tree/TANDEM) `tamp` motion costs (a VAE manifold and RND novelty) that make planned motion resemble
   [DROID](https://droid-dataset.github.io/) teleop motion.

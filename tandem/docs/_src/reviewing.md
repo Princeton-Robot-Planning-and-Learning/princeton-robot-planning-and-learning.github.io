@@ -22,7 +22,7 @@ tandem traj relabel <id> failure        # move it to success, failure or eval
 | `traj rm <id>` | Delete it. `-y` skips the confirmation. |
 | `traj path <id>` | Print its directory. |
 
-**Relabeling a settled trial.** `relabel ... success` refuses a trial tandem settled. `--force` overrules it
+**Relabeling a settled trial.** `relabel ... success` refuses a trial TANDEM settled. `--force` overrules it
 (the web UI asks you to confirm), and `hitl.json` records it as `overruled`. This is the only way to export an
 excluded trial.
 
@@ -58,6 +58,6 @@ What goes into each episode:
 | `--repo OWNER/NAME` | The dataset. The default is the profile's `export.hf_repo`. `hf_org` fills in a missing owner. |
 | `--out DIR` | Write to `DIR/<owner>/<name>` instead. |
 | `-n`, `--max-episodes N` | Export only the first N. |
-| `--push` | Upload after building. Needs a Hugging Face token ([where tandem looks](CONFIGURATION.md#tandem-settings-and-credentials)). |
+| `--push` | Upload after building. Needs a Hugging Face token ([where TANDEM looks](CONFIGURATION.md#tandem-settings-and-credentials)). |
 | `--private`, `--public` | Visibility when pushing. The default is the profile's `export.private`. |
-| `--force` | Replace whatever is at the destination. Without it, a rebuild replaces only a dataset tandem built, and only once the new one is complete. |
+| `--force` | Replace whatever is at the destination. Without it, a rebuild replaces only a dataset TANDEM built, and only once the new one is complete. |

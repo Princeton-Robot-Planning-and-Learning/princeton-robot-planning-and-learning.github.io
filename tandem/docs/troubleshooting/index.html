@@ -131,7 +131,7 @@ list each dropped clause and why (<a href="/tandem/docs/planning/#planning-from-
 <h2 id="teleop-says-the-teleop-runtime-is-not-installed">Teleop says "the teleop runtime is not installed"</h2>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>executors<span class="w"> </span>install<span class="w"> </span>teleop
 </code></pre></div>
-<p>Teleop's driver runs in an environment tandem builds. This builds it (a few minutes) and turns teleop on. If it
+<p>Teleop's driver runs in an environment TANDEM builds. This builds it (a few minutes) and turns teleop on. If it
 says ZED cameras won't open, install the <a href="https://www.stereolabs.com/developers/release">ZED SDK</a> and run it
 again. It adds only what is missing.</p>
 <h2 id="the-teleop-driver-cant-reach-the-vr-headset">The teleop driver can't reach the VR headset</h2>
@@ -165,18 +165,18 @@ session log, or in that pass's <code>metadata.json</code> under the session's <c
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop
 </code></pre></div>
 <p>The paper's profiles name the DATAFARM checkpoint <code>vae/checkpoints/vae_full_v2.pt</code>, which the runtime install
-places. tandem looks for it beside the profile's file, then in the runtime. <code>tandem doctor</code> warns until the
+places. TANDEM looks for it beside the profile's file, then in the runtime. <code>tandem doctor</code> warns until the
 install has run.</p>
 <h2 id="a-tamp-setting-seems-to-do-nothing">A TAMP setting seems to do nothing</h2>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>show<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--planner<span class="w">   </span><span class="c1"># exactly what the planner receives</span>
 </code></pre></div>
 <p>A key missing from that output never applied. <code>tandem doctor</code>'s <code>tamp settings</code> row flags a key that needs
-another, such as a <code>placement_*</code> key without <code>placement_support: true</code>. It isn't a typo; tandem refuses to load a
+another, such as a <code>placement_*</code> key without <code>placement_support: true</code>. It isn't a typo; TANDEM refuses to load a
 profile with a misspelled key and suggests the closest one (<a href="/tandem/docs/configuration/#planner-settings">details</a>).</p>
 <h2 id="the-videos-wont-scrub-in-the-browser">The videos won't scrub in the browser</h2>
 <p>A proxy in front of <code>tandem ui</code> is probably dropping the <code>Range</code> header that <code>/api/media/</code> needs. Configure it
 to pass <code>Range</code> through (<a href="/tandem/docs/web-ui/#http-api">details</a>).</p>
-<h2 id="my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating tandem</h2>
+<h2 id="my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating TANDEM</h2>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>migrate<span class="w">   </span><span class="c1"># or tandem init</span>
 </code></pre></div>
 <p>Profiles from before version 3 (a directory each, with its own cameras and robot) aren't listed until they are
@@ -189,7 +189,7 @@ tandem<span class="w"> </span>executors<span class="w"> </span>use<span class="w
 <p><code>tandem collect</code> refuses such a profile, with <code>no planner named '…'</code> or <code>Unknown human executor '…'</code>. You can
 still browse, export and edit it.</p>
 <h2 id="a-sidecar-dies-with-no-module-named-tandem_sidecar">A sidecar dies with "No module named 'tandem_sidecar'"</h2>
-<p>Your environment's activation (for example <a href="https://pixi.sh">pixi</a>'s <code>[activation.env]</code>) overwrote <code>PYTHONPATH</code>, dropping tandem's
+<p>Your environment's activation (for example <a href="https://pixi.sh">pixi</a>'s <code>[activation.env]</code>) overwrote <code>PYTHONPATH</code>, dropping TANDEM's
 <code>tandem_sidecar</code> kit. Make it append to <code>PYTHONPATH</code> instead (<a href="/tandem/docs/adding-a-planner/#sidecars">details</a>).</p>
     </article>
     <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/data/"><span>Previous</span>Data format</a><a class="next" href="/tandem/docs/adding-a-planner/"><span>Next</span>Adding a planner</a></nav>
@@ -200,7 +200,7 @@ still browse, export and edit it.</p>
   </main>
 
   <aside class="toc" aria-label="On this page">
-    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#a-preempt-didnt-stop-the-arm">A preempt didn't stop the arm</a></li><li><a href="#a-camera-wont-open-or-shows-serial-number-0">A camera won't open, or shows serial number 0</a></li><li><a href="#the-zed-sdk-is-not-installed--so-zed-cameras-will-not-open">"the ZED SDK is not installed …, so ZED cameras will not open"</a></li><li><a href="#no-camera-extrinsics-for-serials-">"no camera extrinsics for serial(s) …"</a></li><li><a href="#the-robot-doesnt-answer-robot-control--timeouterror">The robot doesn't answer ("robot control … TimeoutError")</a></li><li><a href="#a-perception-server-doesnt-answer-foundation-stereo-depth-server--m2t2-grasp-server-">A perception server doesn't answer ("foundation stereo depth server …", "m2t2 grasp server …")</a></li><li><a href="#a-trial-was-excluded">A trial was excluded</a></li><li><a href="#the-plan-leaves-part-of-the-instruction-out">The plan leaves part of the instruction out</a></li><li><a href="#i-did-it-is-refused-at-a-human-step">"I did it" is refused at a human step</a></li><li><a href="#teleop-says-the-teleop-runtime-is-not-installed">Teleop says "the teleop runtime is not installed"</a></li><li><a href="#the-teleop-driver-cant-reach-the-vr-headset">The teleop driver can't reach the VR headset</a></li><li><a href="#the-planner-shows-as-outdated">The planner shows as outdated</a></li><li><a href="#the-runtime-build-failed">The runtime build failed</a></li><li><a href="#a-leg-fails-with-no-level-patch-of--is-large-enough">A leg fails with "No level patch of … is large enough"</a></li><li><a href="#vae_path-does-not-exist">"vae_path does not exist"</a></li><li><a href="#a-tamp-setting-seems-to-do-nothing">A TAMP setting seems to do nothing</a></li><li><a href="#the-videos-wont-scrub-in-the-browser">The videos won't scrub in the browser</a></li><li><a href="#my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating tandem</a></li><li><a href="#a-profiles-planner-or-executor-isnt-installed">A profile's planner or executor isn't installed</a></li><li><a href="#a-sidecar-dies-with-no-module-named-tandem_sidecar">A sidecar dies with "No module named 'tandem_sidecar'"</a></li></ul>
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#a-preempt-didnt-stop-the-arm">A preempt didn't stop the arm</a></li><li><a href="#a-camera-wont-open-or-shows-serial-number-0">A camera won't open, or shows serial number 0</a></li><li><a href="#the-zed-sdk-is-not-installed--so-zed-cameras-will-not-open">"the ZED SDK is not installed …, so ZED cameras will not open"</a></li><li><a href="#no-camera-extrinsics-for-serials-">"no camera extrinsics for serial(s) …"</a></li><li><a href="#the-robot-doesnt-answer-robot-control--timeouterror">The robot doesn't answer ("robot control … TimeoutError")</a></li><li><a href="#a-perception-server-doesnt-answer-foundation-stereo-depth-server--m2t2-grasp-server-">A perception server doesn't answer ("foundation stereo depth server …", "m2t2 grasp server …")</a></li><li><a href="#a-trial-was-excluded">A trial was excluded</a></li><li><a href="#the-plan-leaves-part-of-the-instruction-out">The plan leaves part of the instruction out</a></li><li><a href="#i-did-it-is-refused-at-a-human-step">"I did it" is refused at a human step</a></li><li><a href="#teleop-says-the-teleop-runtime-is-not-installed">Teleop says "the teleop runtime is not installed"</a></li><li><a href="#the-teleop-driver-cant-reach-the-vr-headset">The teleop driver can't reach the VR headset</a></li><li><a href="#the-planner-shows-as-outdated">The planner shows as outdated</a></li><li><a href="#the-runtime-build-failed">The runtime build failed</a></li><li><a href="#a-leg-fails-with-no-level-patch-of--is-large-enough">A leg fails with "No level patch of … is large enough"</a></li><li><a href="#vae_path-does-not-exist">"vae_path does not exist"</a></li><li><a href="#a-tamp-setting-seems-to-do-nothing">A TAMP setting seems to do nothing</a></li><li><a href="#the-videos-wont-scrub-in-the-browser">The videos won't scrub in the browser</a></li><li><a href="#my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating TANDEM</a></li><li><a href="#a-profiles-planner-or-executor-isnt-installed">A profile's planner or executor isn't installed</a></li><li><a href="#a-sidecar-dies-with-no-module-named-tandem_sidecar">A sidecar dies with "No module named 'tandem_sidecar'"</a></li></ul>
   </aside>
 </div>
 

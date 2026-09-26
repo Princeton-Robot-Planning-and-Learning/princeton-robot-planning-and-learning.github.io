@@ -7,7 +7,7 @@ tandem plan "place the bread inside the box" --image workspace.png -o bread -o b
 ```
 
 This previews a task's phases before you collect. It prints who does each phase, each phase's goal or magic
-operator, and the invented predicates. It needs only tandem (Python 3.10+) and a
+operator, and the invented predicates. It needs only TANDEM (Python 3.10+) and a
 [Gemini key](CONFIGURATION.md#tandem-settings-and-credentials): no runtime, GPU or robot. Answers vary between
 runs.
 

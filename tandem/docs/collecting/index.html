@@ -114,14 +114,14 @@ finishes (<a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>
 </blockquote>
 <p><strong>Preempt</strong> (<code>p</code>) files the attempt's legs as aborted. The session stays warm for the next trial.</p>
 <p><strong>Hand-off</strong> (<code>t</code> outside a human phase) gives you the arm through teleop at the next plan-step boundary. When
-you press <code>r</code>, tandem perceives again and replans the phase from where you left the arm, without homing. The
+you press <code>r</code>, TANDEM perceives again and replans the phase from where you left the arm, without homing. The
 legs merge into one episode.</p>
 <p><strong>Human phase.</strong> The screen says what to do and what a fresh camera image will then check.</p>
 <ul>
 <li>If the check fails, the screen lists what is missing and you get <code>hitl.verify_retries</code> more tries.</li>
 <li><code>d</code> is refused while recording, unless
   <a href="/tandem/docs/configuration/#phase-planning-hitl"><code>hitl.allow_unrecorded_human_phase</code></a> is true.</li>
-<li>If you don't return control within an hour, tandem ends the leg and takes the arm back.</li>
+<li>If you don't return control within an hour, TANDEM ends the leg and takes the arm back.</li>
 </ul>
 <p><strong>Label.</strong> You are asked for one only if the plan ran to the end, or if a check failed under
 <code>hitl.on_verification_failure: label</code>. <a href="/tandem/docs/concepts/">Settled</a> trials are filed without a label, with the

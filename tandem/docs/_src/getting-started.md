@@ -58,7 +58,7 @@ session warms the planner once, then waits for you. The footer shows the keys ea
 > **`p` does not stop the arm.** The current motion segment still finishes. Only the E-stop stops it at once.
 
 When you give the arm back after a `t` hand-off, the planner replans from where you left it. At a human phase,
-the screen tells you what to do. When you give the arm back, tandem takes a new camera image to check the step
+the screen tells you what to do. When you give the arm back, TANDEM takes a new camera image to check the step
 is done. If it isn't, you get one more try; a trial that still fails is saved as excluded and never exported.
 
 A robot phase the planner can't plan ends the trial. More in [Collecting](collecting.md).

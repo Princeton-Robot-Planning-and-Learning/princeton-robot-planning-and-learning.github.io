@@ -65,7 +65,7 @@
   <main class="doc">
     <article class="content">
 <h1 id="data-format">Data format</h1>
-<p>This page describes what a trial leaves on disk, and where tandem writes its logs. Paths are the Linux defaults
+<p>This page describes what a trial leaves on disk, and where TANDEM writes its logs. Paths are the Linux defaults
 (<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">moving them</a>). For the terms used here, see
 <a href="/tandem/docs/concepts/">Concepts</a>.</p>
 <h2 id="reading-an-episode">Reading an episode</h2>
@@ -306,7 +306,7 @@ beside the merged episode. A trial stopped at the label prompt keeps it in its p
 </tbody>
 </table>
 <p><code>provenance</code> has <code>phases_and_their_order</code>, <code>phase_sub_goals</code>, <code>invented_predicates</code> and <code>human_instructions</code> (the
-model), <code>robot_phases</code> (the planner), <code>who_does_what</code> (tandem), and <code>human_steps</code> (the intended executor; each
+model), <code>robot_phases</code> (the planner), <code>who_does_what</code> (TANDEM), and <code>human_steps</code> (the intended executor; each
 phase's <code>carried_out</code> says who actually did it). <code>human_operators</code> and <code>robot_operators</code> are <code>{by, signatures}</code>,
 with signatures written <code>Name(param: type)</code>.</p>
 <h3 id="specification"><code>specification</code></h3>
@@ -420,7 +420,7 @@ Earlier attempts are in the <code>human_phase_verified</code> events.</p>
 filed. Each query leaves:</p>
 <ul>
 <li><code>NNN_&lt;label&gt;_input.png</code>: the image sent.</li>
-<li><code>NNN_&lt;label&gt;_output.png</code>: that image above the answer. It is marked REJECTED if tandem rejected the answer, or
+<li><code>NNN_&lt;label&gt;_output.png</code>: that image above the answer. It is marked REJECTED if TANDEM rejected the answer, or
   CACHED if it was replayed from <code>hitl.cache_path</code>.</li>
 <li>An <code>index.jsonl</code> line with <code>seq</code>, <code>label</code>, <code>attempt</code>, <code>model</code>, <code>input_image</code>, <code>output_image</code>, <code>rejected</code> (why, or
   <code>null</code>), <code>cached</code>, <code>prompt</code> and <code>response</code>.</li>
@@ -616,7 +616,7 @@ UI streams each event on <code>/api/sessions/{id}/stream</code>, adding <code>"t
 </tr>
 <tr>
 <td><code>~/.local/state/tandem/logs/server-&lt;name&gt;.log</code></td>
-<td>A perception server tandem started (<code>m2t2</code>, <code>foundation_stereo</code>), appended per start. Its pid is in <code>~/.local/state/tandem/servers/&lt;name&gt;.pid</code> while it runs.</td>
+<td>A perception server TANDEM started (<code>m2t2</code>, <code>foundation_stereo</code>), appended per start. Its pid is in <code>~/.local/state/tandem/servers/&lt;name&gt;.pid</code> while it runs.</td>
 </tr>
 <tr>
 <td><code>~/.local/state/tandem/logs/export.log</code></td>

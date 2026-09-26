@@ -92,7 +92,7 @@
 <h2 id="trials-and-recordings">Trials and recordings</h2>
 <ul>
 <li><strong>human executor</strong>: whatever carries out a human phase. Only <code>teleop</code>, a person driving the arm, ships with
-  tandem. A <strong>hand-off</strong> lends the executor the arm and then takes it back.</li>
+  TANDEM. A <strong>hand-off</strong> lends the executor the arm and then takes it back.</li>
 <li><strong>perception pass</strong>: one <code>perceive</code> call, which names the objects in the scene. One runs before each robot leg.</li>
 <li><strong>trial</strong>: one attempt at a task. All its legs share a 16-hex-character <code>trajectory_id</code>.</li>
 <li><strong>leg</strong>: one continuous recording, made either by the planner (one or more robot phases) or by a human executor.</li>
@@ -103,7 +103,7 @@
 <li><strong>episode</strong>: a filed trial. Its legs are merged into one directory in <code>success/</code> or <code>failure/</code>. A trial with
   one leg is that leg. Only <code>success/</code> is <a href="/tandem/docs/reviewing/#exporting">exported</a>.</li>
 <li><strong>trajectory</strong>: an episode, or a leg not yet merged, in a profile's <code>trajectories/</code>. <code>tandem traj</code> lists them.</li>
-<li><strong>settled</strong>: ended by tandem rather than labeled by you: excluded, aborted, or failed part-way. Settled trials
+<li><strong>settled</strong>: ended by TANDEM rather than labeled by you: excluded, aborted, or failed part-way. Settled trials
   are filed in <code>failure/</code> without a label.</li>
 <li><strong>excluded</strong>: settled because a camera check failed under <code>hitl.on_verification_failure: exclude</code> (the
   default). This is usually a human phase that still failed after its retries.</li>
@@ -111,7 +111,7 @@
 <h2 id="planners">Planners</h2>
 <ul>
 <li><strong>runtime</strong>: a planner's pinned sources, and usually a <a href="https://pixi.sh">pixi</a> environment, built by <code>tandem planners install</code>.</li>
-<li><strong>sidecar</strong>: a planner running as a subprocess that tandem drives over JSON lines, inside its runtime if it
+<li><strong>sidecar</strong>: a planner running as a subprocess that TANDEM drives over JSON lines, inside its runtime if it
   has one.</li>
 <li><strong>DATAFARM</strong>: <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a> <code>tamp</code> motion costs (a VAE manifold and RND novelty) that make planned motion resemble
   <a href="https://droid-dataset.github.io/">DROID</a> teleop motion.</li>

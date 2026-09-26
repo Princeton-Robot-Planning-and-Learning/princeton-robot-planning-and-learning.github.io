@@ -64,7 +64,7 @@ it isn't ready, and `●` marks the profile's choice.
 
 ## Settings and runtime
 `tandem config list|get|set|edit|path|set-gemini-key|set-hf-token` manages
-[tandem's settings](CONFIGURATION.md#tandem-settings-and-credentials). `set KEY VALUE` takes one dotted key,
+[TANDEM's settings](CONFIGURATION.md#tandem-settings-and-credentials). `set KEY VALUE` takes one dotted key,
 such as `ui.port`. The `set-*` commands store a credential typed at a prompt, or read it with `--stdin`.
 `set-gemini-key --key KEY` also works, but leaves the key in your shell history.
 
@@ -77,7 +77,7 @@ tandem runtime run viz-calibration --camera external   # a planner script, run w
 
 - `run` and `shell` run the planner's own scripts with your [rig](CONFIGURATION.md#the-rig) settings. `--raw`
   uses the planner's stock config instead.
-- tandem's options (`--planner`, `-p`, `--raw`) go before the script's name, and the script's own after it.
+- TANDEM's options (`--planner`, `-p`, `--raw`) go before the script's name, and the script's own after it.
   `--` still works.
 - `build` builds or repairs the runtime (`--force` refetches, plus `--env-only` and `--sources DIR`).
   `python` prints the interpreter, and `clean` deletes the runtime (`-y` skips the confirmation).
@@ -90,9 +90,9 @@ them, and `tandem collect` starts any that are down and stops the ones it starte
 | command | what it does |
 |---|---|
 | `servers install` | Build their runtimes. `--force` (refetch, rebuild), `--sources DIR`, `-y/--yes`. |
-| `servers status` | Whether each is installed and answering, and whether tandem started it. `--json`. |
+| `servers status` | Whether each is installed and answering, and whether TANDEM started it. `--json`. |
 | `servers start [NAME]` | Start those that are down, wait for each to load, and leave them running. |
-| `servers stop [NAME]` | Stop the ones tandem started, such as after a crashed session. |
+| `servers stop [NAME]` | Stop the ones TANDEM started, such as after a crashed session. |
 
-`NAME` is `m2t2` or `foundation_stereo`. tandem never starts a server whose URL points at another machine.
+`NAME` is `m2t2` or `foundation_stereo`. TANDEM never starts a server whose URL points at another machine.
 Each server's log is `server-<name>.log` ([logs](DATA.md#logs-and-session-files)).

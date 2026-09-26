@@ -11,7 +11,7 @@ tandem servers status   # installed? answering?
 tandem servers start    # start them ahead of time; they keep running until `tandem servers stop`
 ```
 
-If the perception servers are on another machine, point tandem at it:
+If the perception servers are on another machine, point TANDEM at it:
 
 ```bash
 tandem rig set planners.tiptop.perception.m2t2.url http://HOST:8123

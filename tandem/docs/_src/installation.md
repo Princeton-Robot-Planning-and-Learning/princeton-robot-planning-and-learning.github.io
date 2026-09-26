@@ -6,7 +6,7 @@ You need:
 - a [Franka FR3](https://franka.de/products/franka-research-3) or Panda with a [Robotiq 2F-85](https://robotiq.com/products/adaptive-grippers) gripper, and its [polymetis](https://facebookresearch.github.io/fairo/polymetis/) NUC;
 - a wrist ZED camera, 1 third-person ZED camera and the [ZED SDK](https://www.stereolabs.com/developers/release);
 - [pipx](https://pipx.pypa.io) or [uv](https://docs.astral.sh/uv/), and a [Gemini API key](https://aistudio.google.com/apikey);
-- for human phases, a VR headset ([Meta Quest](https://www.meta.com/quest/)). tandem builds the teleop driver's environment itself ([Teleoperation](teleop.md));
+- for human phases, a VR headset ([Meta Quest](https://www.meta.com/quest/)). TANDEM builds the teleop driver's environment itself ([Teleoperation](teleop.md));
   the NUC runs [DROID's server](https://github.com/SamratSahoo/droid) ([Robot setup](robot.md)).
 
 Every command below runs on the workstation unless it says otherwise.

@@ -68,7 +68,7 @@
 <p>A <a href="/tandem/docs/concepts/">human executor</a> carries out a human phase and records it as one leg. It only decides
 <strong>how</strong> the phase is done: the plan decides which phase comes next, and the camera check decides whether it
 worked.</p>
-<p>tandem ships one executor, <code>teleop</code>. A package can add others, such as a learned policy. The code is in
+<p>TANDEM ships one executor, <code>teleop</code>. A package can add others, such as a learned policy. The code is in
 <code>src/tandem/executors/</code>.</p>
 <h2 id="choosing-one">Choosing one</h2>
 <div class="hl"><pre><span></span><code>tandem<span class="w"> </span>executors<span class="w"> </span>list<span class="w">           </span><span class="c1"># each executor: ready, needs setup (and what), or broken</span>
@@ -153,7 +153,7 @@ module light: listing executors imports it.</p>
 </tr>
 <tr>
 <td><code>settings</code></td>
-<td>tandem's settings. <code>None</code> in a session: call <code>tandem.core.settings.load()</code> each leg, so <code>tandem config set</code> applies at the next hand-off.</td>
+<td>TANDEM's settings. <code>None</code> in a session: call <code>tandem.core.settings.load()</code> each leg, so <code>tandem config set</code> applies at the next hand-off.</td>
 </tr>
 <tr>
 <td><code>on_log(stream, text)</code>, <code>on_emit(payload)</code>, <code>on_problem(message)</code></td>
@@ -308,7 +308,7 @@ with <code>a</code> runs no executor, so it is not <code>aborted</code>.</p>
 <li><code>teleop.enabled</code> (<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">keys</a>), which the install turns on;</li>
 <li>a VR headset and controller (<a href="https://www.meta.com/quest/">Meta Quest</a>).</li>
 </ul>
-<p>tandem sets <code>DROID_NUC_IP</code> and <code>TIPTOP_*_CAMERA_ID</code> for the driver from the rig, which DROID's
+<p>TANDEM sets <code>DROID_NUC_IP</code> and <code>TIPTOP_*_CAMERA_ID</code> for the driver from the rig, which DROID's
 <a href="https://github.com/SamratSahoo/droid/blob/TANDEM/droid/misc/parameters.py"><code>droid/misc/parameters.py</code></a> reads. To run a DROID checkout and environment of your own instead, set both
 <code>teleop.droid_dir</code> and <code>teleop.python</code>; the driver then runs there, and the runtime is ignored.</p>
 <p><code>tandem executors list</code> checks <code>teleop.enabled</code> and the runtime (or both overrides), but not the device. A
