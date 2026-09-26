@@ -30,7 +30,7 @@ To fill it in:
   describes. DROID writes [`droid/calibration/calibration_info.json`](https://github.com/SamratSahoo/droid/blob/TANDEM/droid/calibration/calibration_info.json) in the same format. Copy each
   `"<serial>_left"` entry into the rig's file under the bare serial (`"32439448_left"` becomes `"32439448"`).
 - **Wrist camera:** run `tandem runtime run calibrate-wrist-cam`, following [TiPToP](https://github.com/SamratSahoo/tiptop/tree/TANDEM)'s
-  [guide](https://github.com/SamratSahoo/tiptop/blob/682047493b88e5301c6b2b49da914ea4f173e5d9/docs/getting-started.md)
+  [guide](https://github.com/SamratSahoo/tiptop/blob/6cabf0f598515c5e149627456c0fdd889cc701d4/docs/getting-started.md)
   but skipping its Bamboo controller step (the shim replaces it). It writes the entry for you.
 - **Any other tool:** write the entry yourself. A 4×4 transform `T` becomes `T[:3, 3]` followed by
   `Rotation.from_matrix(T[:3, :3]).as_euler("xyz")`.

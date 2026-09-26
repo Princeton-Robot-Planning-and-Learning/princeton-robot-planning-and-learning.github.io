@@ -88,7 +88,7 @@ relative to the end effector; for an external camera it is relative to the robot
   describes. DROID writes <a href="https://github.com/SamratSahoo/droid/blob/TANDEM/droid/calibration/calibration_info.json"><code>droid/calibration/calibration_info.json</code></a> in the same format. Copy each
   <code>"&lt;serial&gt;_left"</code> entry into the rig's file under the bare serial (<code>"32439448_left"</code> becomes <code>"32439448"</code>).</li>
 <li><strong>Wrist camera:</strong> run <code>tandem runtime run calibrate-wrist-cam</code>, following <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s
-  <a href="https://github.com/SamratSahoo/tiptop/blob/682047493b88e5301c6b2b49da914ea4f173e5d9/docs/getting-started.md">guide</a>
+  <a href="https://github.com/SamratSahoo/tiptop/blob/6cabf0f598515c5e149627456c0fdd889cc701d4/docs/getting-started.md">guide</a>
   but skipping its Bamboo controller step (the shim replaces it). It writes the entry for you.</li>
 <li><strong>Any other tool:</strong> write the entry yourself. A 4×4 transform <code>T</code> becomes <code>T[:3, 3]</code> followed by
   <code>Rotation.from_matrix(T[:3, :3]).as_euler("xyz")</code>.</li>

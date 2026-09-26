@@ -1,7 +1,7 @@
 # Robot setup
 
 The NUC runs two programs: [DROID](https://github.com/SamratSahoo/droid/tree/TANDEM)'s server, which drives the arm and gripper through [polymetis](https://facebookresearch.github.io/fairo/polymetis/)
-(teleop uses it), and [TiPToP](https://github.com/SamratSahoo/tiptop/tree/TANDEM)'s [shim](https://github.com/SamratSahoo/tiptop/blob/682047493b88e5301c6b2b49da914ea4f173e5d9/bamboo_polymetis_shim.py), which the planner uses to control the arm. Do steps 1–4 on the NUC.
+(teleop uses it), and [TiPToP](https://github.com/SamratSahoo/tiptop/tree/TANDEM)'s [shim](https://github.com/SamratSahoo/tiptop/blob/6cabf0f598515c5e149627456c0fdd889cc701d4/bamboo_polymetis_shim.py), which the planner uses to control the arm. Do steps 1–4 on the NUC.
 
 1. **Install DROID.** Follow DROID's NUC guide
    ([Docker](https://github.com/SamratSahoo/droid/blob/TANDEM/docs/software-setup/docker.md) or
@@ -18,7 +18,7 @@ The NUC runs two programs: [DROID](https://github.com/SamratSahoo/droid/tree/TAN
 2. **Add TiPToP's shim.** In the DROID checkout, with DROID's polymetis environment active:
 
    ```bash
-   curl -LO https://raw.githubusercontent.com/SamratSahoo/tiptop/682047493b88e5301c6b2b49da914ea4f173e5d9/bamboo_polymetis_shim.py
+   curl -LO https://raw.githubusercontent.com/SamratSahoo/tiptop/6cabf0f598515c5e149627456c0fdd889cc701d4/bamboo_polymetis_shim.py
    pip install pyzmq msgpack
    ```
 

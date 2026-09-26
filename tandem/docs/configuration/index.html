@@ -636,10 +636,14 @@ tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</s
 <li>These are cuTAMP and cuRobo overrides with tiptop's key names, so a <code>cfg/tamp/*.yml</code>'s <code>tamp_overrides</code>
   paste in as is. Accepted keys: <code>src/tandem/planners/tiptop/tamp_keys.py</code>.</li>
 <li>For <code>contact_threshold_m</code> and <code>voxel_downsample_size</code>, the <code>tamp</code> value overrides the rig's.</li>
-<li><code>tandem doctor</code> warns about a key that needs another (<code>blend_ops</code> without <code>blend_trajectory</code>).</li>
-<li>Relative checkpoint paths (<code>vae_path</code>, <code>blend_model_path</code>, <code>blend_stats_path</code>, <code>posture_ref</code>) resolve beside
+<li><code>tandem doctor</code> warns about a key that needs another (<code>retime_ops</code> without <code>retime_trajectory</code>).</li>
+<li>Relative checkpoint paths (<code>encoder_path</code>, <code>posture_ref</code>) resolve beside
   the profile, then in the runtime, where the install puts the DATAFARM checkpoints
   (<code>vae/checkpoints/vae_full_v2.pt</code>, <code>rnd/checkpoints/rnd_droid.pt</code>).</li>
+<li>Stroke re-timing is the trajectory encoder's: <code>retime_trajectory</code> with <code>encoder_path</code> and the other
+  <code>retime_*</code> keys. A profile written with the older names (<code>vae_path</code>, <code>vae_manifold_weight</code>, <code>blend_*</code>) still
+  loads, read under the new names; <code>vae_retiming: false</code> and <code>blend_mode: vae</code> are dropped, and a setting of a
+  removed mode (the VAE-owned clock, spline or flow re-timing) is refused with the reason.</li>
 </ul>
 <h3 id="surface-fitted-placement">Surface-fitted placement</h3>
 <p>By default, cuTAMP can place an object anywhere in a surface's bounding box, at the top of it, such as on an
@@ -703,7 +707,7 @@ because every run in the paper used them.</p>
 <div class="hl"><pre><span></span><code><span class="nt">tamp</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">table_plane_support_vote</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">disjoint_object_masks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">blend_stretch_to_caps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">retime_stretch_to_caps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <table>
 <thead>
@@ -722,8 +726,8 @@ because every run in the paper used them.</p>
 <td>Disjoint object masks (a shared pixel goes to the smaller object), so a container's hull stops at what rests on it. Surface-fitted placement always uses them.</td>
 </tr>
 <tr>
-<td><code>blend_stretch_to_caps</code></td>
-<td>With <code>blend_trajectory</code>, slow a stroke that can't be re-timed within the velocity and acceleration caps until it fits. It can get many times slower.</td>
+<td><code>retime_stretch_to_caps</code></td>
+<td>With <code>retime_trajectory</code>, slow a stroke that can't be re-timed within the velocity and acceleration caps until it fits. It can get many times slower.</td>
 </tr>
 </tbody>
 </table>
@@ -869,7 +873,7 @@ pinned sources are below; the <code>TANDEM</code> branches add <a href="#surface
 <tr>
 <td><a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">SamratSahoo/tiptop</a></td>
 <td><code>TANDEM</code></td>
-<td><code>6820474</code></td>
+<td><code>6cabf0f</code></td>
 </tr>
 <tr>
 <td><a href="https://github.com/SamratSahoo/cuTAMP/tree/TANDEM">SamratSahoo/cuTAMP</a></td>

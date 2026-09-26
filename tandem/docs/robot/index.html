@@ -66,7 +66,7 @@
     <article class="content">
 <h1 id="robot-setup">Robot setup</h1>
 <p>The NUC runs two programs: <a href="https://github.com/SamratSahoo/droid/tree/TANDEM">DROID</a>'s server, which drives the arm and gripper through <a href="https://facebookresearch.github.io/fairo/polymetis/">polymetis</a>
-(teleop uses it), and <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s <a href="https://github.com/SamratSahoo/tiptop/blob/682047493b88e5301c6b2b49da914ea4f173e5d9/bamboo_polymetis_shim.py">shim</a>, which the planner uses to control the arm. Do steps 1–4 on the NUC.</p>
+(teleop uses it), and <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s <a href="https://github.com/SamratSahoo/tiptop/blob/6cabf0f598515c5e149627456c0fdd889cc701d4/bamboo_polymetis_shim.py">shim</a>, which the planner uses to control the arm. Do steps 1–4 on the NUC.</p>
 <ol>
 <li>
 <p><strong>Install DROID.</strong> Follow DROID's NUC guide
@@ -80,7 +80,7 @@
 </li>
 <li>
 <p><strong>Add TiPToP's shim.</strong> In the DROID checkout, with DROID's polymetis environment active:</p>
-<div class="hl"><pre><span></span><code>curl<span class="w"> </span>-LO<span class="w"> </span>https://raw.githubusercontent.com/SamratSahoo/tiptop/682047493b88e5301c6b2b49da914ea4f173e5d9/bamboo_polymetis_shim.py
+<div class="hl"><pre><span></span><code>curl<span class="w"> </span>-LO<span class="w"> </span>https://raw.githubusercontent.com/SamratSahoo/tiptop/6cabf0f598515c5e149627456c0fdd889cc701d4/bamboo_polymetis_shim.py
 pip<span class="w"> </span>install<span class="w"> </span>pyzmq<span class="w"> </span>msgpack
 </code></pre></div>
 </li>
