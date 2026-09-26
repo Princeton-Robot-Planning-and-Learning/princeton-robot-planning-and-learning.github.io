@@ -17,7 +17,7 @@ Deployment happens through GitHub Actions (`.github/workflows/deploy.yml`) on ev
 
 ```bash
 pip install markdown pygments pymdown-extensions
-python3 scripts/build_tandem_docs.py
+python3 tandem/build_tandem_docs.py
 ```
 
 The build fails on a link between pages that resolves to no heading.

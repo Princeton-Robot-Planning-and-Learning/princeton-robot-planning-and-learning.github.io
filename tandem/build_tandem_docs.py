@@ -6,7 +6,7 @@ tandem/docs/<page>/index.html per page, plus tandem/docs/static/search-index.js.
 deploy time. Run this after editing a page:
 
     pip install markdown pygments pymdown-extensions
-    python3 scripts/build_tandem_docs.py
+    python3 tandem/build_tandem_docs.py
 
 A link between pages is written the way the TANDEM repo's own docs write it -- to a Markdown file and a
 heading (`CONFIGURATION.md#the-rig`, `../README.md#6-teleop`) -- or to a page (`installation.md`).
@@ -24,7 +24,7 @@ from pathlib import Path
 import markdown
 from pygments.formatters import HtmlFormatter
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent  # the site repo
 DOCS = ROOT / "tandem" / "docs"
 SRC = DOCS / "_src"
 BASE = "/tandem/docs/"
