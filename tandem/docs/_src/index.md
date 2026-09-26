@@ -1,6 +1,6 @@
 # TANDEM documentation
 
-<p class="lead">TANDEM collects demonstrations for fine-tuning vision-language-action (VLA) models. A vision-language model splits each task into a sequence of phases, robot and human, in whatever order and number the task needs. The robot does its phases with task and motion planning (TAMP), and a person teleoperates the rest, only where the planner can't.</p>
+<p class="lead">TANDEM is a system that combines task and motion planning with selective human teleoperation to collect demonstrations for tasks beyond a planner’s capabilities.</p>
 
 <div class="home-buttons">
   <a class="btn primary" href="/tandem/docs/installation/">Install TANDEM</a>
