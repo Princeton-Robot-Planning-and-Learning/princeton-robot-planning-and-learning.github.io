@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Troubleshooting · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/" class="active" aria-current="page">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="troubleshooting">Troubleshooting</h1>
+<p>Start with <code>tandem doctor</code>. It runs every check and says how to fix what it finds. Logs and session files are
+described in <a href="/tandem/docs/data/#logs-and-session-files">Logs and session files</a>.</p>
+<h2 id="a-preempt-didnt-stop-the-arm">A preempt didn't stop the arm</h2>
+<p><strong>Use the physical E-stop. It is the only thing that stops the arm at once.</strong></p>
+<p><code>p</code> stops the plan from sending further steps, but the motion already sent still finishes
+(<a href="/tandem/docs/collecting/#collecting">details</a>).</p>
+<h2 id="a-camera-wont-open-or-shows-serial-number-0">A camera won't open, or shows serial number 0</h2>
+<div class="hl"><pre><span></span><code>ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">'tandem|tiptop'</span><span class="w">   </span><span class="c1"># find the process holding the camera</span>
+</code></pre></div>
+<p>Another process holds the camera. Right after a hand-off, <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s save workers free the cameras within a few
+seconds, so wait and retry first.</p>
+<h2 id="the-zed-sdk-is-not-installed--so-zed-cameras-will-not-open">"the ZED SDK is not installed …, so ZED cameras will not open"</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w">   </span><span class="c1"># after installing the ZED SDK; adds only what is missing</span>
+</code></pre></div>
+<p>The runtime was built without the ZED SDK, so it has no ZED Python API (<code>pyzed</code>). Install the
+<a href="https://www.stereolabs.com/developers/release">ZED SDK</a> first (<a href="/tandem/docs/configuration/#the-planner-runtime">details</a>).</p>
+<h2 id="no-camera-extrinsics-for-serials-">"no camera extrinsics for serial(s) …"</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>rig<span class="w"> </span>show<span class="w">                  </span><span class="c1"># check the serial is right</span>
+tandem<span class="w"> </span>rig<span class="w"> </span>path<span class="w"> </span>--calibration<span class="w">    </span><span class="c1"># the file to add its entry to</span>
+</code></pre></div>
+<p>A camera in the rig has no entry in the rig's <code>calibration.json</code>, so the session won't start. Add the entry
+(<a href="/tandem/docs/cameras/">format and steps</a>).</p>
+<h2 id="the-robot-doesnt-answer-robot-control--timeouterror">The robot doesn't answer ("robot control … TimeoutError")</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>rig<span class="w"> </span>show<span class="w">                          </span><span class="c1"># the address tandem uses: robot.host</span>
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>robot.host<span class="w"> </span>NUC_ADDRESS<span class="w">    </span><span class="c1"># if that isn't the NUC's address</span>
+</code></pre></div>
+<ul>
+<li><code>TimeoutError</code>: nothing answers at that address.</li>
+<li><code>ConnectionRefusedError</code>: the NUC answers, but the shim isn't running. Start it (<a href="/tandem/docs/robot/">Robot setup</a>).</li>
+</ul>
+<p>Teleop uses the same <code>robot.host</code>, so fixing it fixes both.</p>
+<h2 id="a-perception-server-doesnt-answer-foundation-stereo-depth-server--m2t2-grasp-server-">A perception server doesn't answer ("foundation stereo depth server …", "m2t2 grasp server …")</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>servers<span class="w"> </span>status<span class="w">    </span><span class="c1"># installed? answering?</span>
+tandem<span class="w"> </span>servers<span class="w"> </span>install<span class="w">   </span><span class="c1"># if it says "not installed"</span>
+tandem<span class="w"> </span>servers<span class="w"> </span>start<span class="w">     </span><span class="c1"># starts it and waits; a failure names its log</span>
+</code></pre></div>
+<p>TiPToP asks both servers on every rollout (<a href="/tandem/docs/perception-servers/">Perception servers</a>). Sessions start local
+servers automatically, so this usually means the server isn't built, or it crashed while loading.
+The log is <code>~/.local/state/tandem/logs/server-&lt;name&gt;.log</code>. Running out of GPU memory is the usual crash.</p>
+<p>For a server on another machine, check its URL (<code>tandem rig show</code>):</p>
+<ul>
+<li><code>gaierror</code>: the hostname doesn't resolve.</li>
+<li><code>ConnectionRefusedError</code>: nothing listens on that port.</li>
+</ul>
+<h2 id="a-trial-was-excluded">A trial was excluded</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>traj<span class="w"> </span>relabel<span class="w"> </span>&lt;id&gt;<span class="w"> </span>success<span class="w"> </span>--force<span class="w">   </span><span class="c1"># file it as a success anyway</span>
+</code></pre></div>
+<p>Usually a human phase failed its camera check, retries included. To see why, open the trial's <code>hitl.json</code>: each
+failed check in <code>verifications</code> has <code>satisfied: false</code> and the model's <code>reason</code>. The judged images are
+<code>vlm/*_classify-*</code> (<a href="/tandem/docs/data/#hitljson">format</a>).</p>
+<p>If the checks themselves are wrong, set <code>hitl.on_verification_failure: label</code> while you tune them, and label
+those trials yourself (<a href="/tandem/docs/reviewing/#reviewing-and-exporting">relabeling</a>).</p>
+<h2 id="the-plan-leaves-part-of-the-instruction-out">The plan leaves part of the instruction out</h2>
+<p>Put the missing object on the table, or reword the task.</p>
+<p>Usually a named object wasn't detected. <code>tandem plan</code>, the web UI and the session log (<code>NOT part of the plan — …</code>)
+list each dropped clause and why (<a href="/tandem/docs/planning/#planning-from-a-photo">details</a>).</p>
+<h2 id="i-did-it-is-refused-at-a-human-step">"I did it" is refused at a human step</h2>
+<p>While recording, a human phase must run through its executor. Do one of these:</p>
+<ul>
+<li>Take the arm with <code>t</code>. If <code>t</code> isn't offered, <code>tandem executors list</code> says why.</li>
+<li>Set <a href="/tandem/docs/configuration/#phase-planning-hitl"><code>hitl.allow_unrecorded_human_phase: true</code></a>.</li>
+<li>Run <code>tandem collect --no-record</code>.</li>
+</ul>
+<h2 id="teleop-says-the-teleop-runtime-is-not-installed">Teleop says "the teleop runtime is not installed"</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>executors<span class="w"> </span>install<span class="w"> </span>teleop
+</code></pre></div>
+<p>Teleop's driver runs in an environment TANDEM builds. This builds it (a few minutes) and turns teleop on. If it
+says ZED cameras won't open, install the <a href="https://www.stereolabs.com/developers/release">ZED SDK</a> and run it
+again. It adds only what is missing.</p>
+<h2 id="the-teleop-driver-cant-reach-the-vr-headset">The teleop driver can't reach the VR headset</h2>
+<div class="hl"><pre><span></span><code>adb<span class="w"> </span>devices<span class="w">   </span><span class="c1"># the headset should be listed as "device"</span>
+</code></pre></div>
+<p><a href="https://github.com/rail-berkeley/oculus_reader">oculus_reader</a> talks to the headset over <code>adb</code> (<code>sudo apt install adb</code>). Connect the headset by USB, turn on
+developer mode, and accept the prompt in the headset. A headset that has never run <a href="https://github.com/SamratSahoo/droid/tree/TANDEM">DROID</a> teleop also needs the
+app (<a href="/tandem/docs/teleop/">Teleoperation</a>).</p>
+<h2 id="the-planner-shows-as-outdated">The planner shows as outdated</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop
+</code></pre></div>
+<p>Its pinned sources moved, so the runtime was built from other commits (<a href="/tandem/docs/configuration/#the-planner-runtime">why</a>).</p>
+<h2 id="the-runtime-build-failed">The runtime build failed</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w">   </span><span class="c1"># after fixing the cause; finished steps are skipped</span>
+</code></pre></div>
+<p>The build prints its log path (<code>runtime-build-&lt;time&gt;.log</code>) first. The usual causes each have a <code>tandem doctor</code>
+row: missing <code>nvcc</code>, a torch/CUDA mismatch (<code>cuda runtime</code>), or a full disk (<code>disk space</code>).</p>
+<h2 id="a-leg-fails-with-no-level-patch-of--is-large-enough">A leg fails with "No level patch of … is large enough"</h2>
+<div class="hl"><pre><span></span><code><span class="nt">planner</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tamp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">placement_fill_occluded</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># a box wall or lid hides the floor</span>
+<span class="w">      </span><span class="c1"># placement_flatness_tol: 0.012 # a noisy floor: raise it (default 0.008)</span>
+<span class="w">      </span><span class="c1"># placement_support_required: false   # last resort: use the bounding box</span>
+</code></pre></div>
+<p>With <code>placement_support: true</code>, no visible level patch of the goal surface fits the object's footprint plus
+<code>placement_support_margin</code> (<a href="/tandem/docs/configuration/#surface-fitted-placement">details</a>). The full message is in the
+session log, or in that pass's <code>metadata.json</code> under the session's <code>perception/</code>
+(<a href="/tandem/docs/data/#logs-and-session-files">where</a>).</p>
+<h2 id="vae_path-does-not-exist">"vae_path does not exist"</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop
+</code></pre></div>
+<p>The paper's profiles name the DATAFARM checkpoint <code>vae/checkpoints/vae_full_v2.pt</code>, which the runtime install
+places. TANDEM looks for it beside the profile's file, then in the runtime. <code>tandem doctor</code> warns until the
+install has run.</p>
+<h2 id="a-tamp-setting-seems-to-do-nothing">A TAMP setting seems to do nothing</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>show<span class="w"> </span>&lt;name&gt;<span class="w"> </span>--planner<span class="w">   </span><span class="c1"># exactly what the planner receives</span>
+</code></pre></div>
+<p>A key missing from that output never applied. <code>tandem doctor</code>'s <code>tamp settings</code> row flags a key that needs
+another, such as a <code>placement_*</code> key without <code>placement_support: true</code>. It isn't a typo; TANDEM refuses to load a
+profile with a misspelled key and suggests the closest one (<a href="/tandem/docs/configuration/#planner-settings">details</a>).</p>
+<h2 id="the-videos-wont-scrub-in-the-browser">The videos won't scrub in the browser</h2>
+<p>A proxy in front of <code>tandem ui</code> is probably dropping the <code>Range</code> header that <code>/api/media/</code> needs. Configure it
+to pass <code>Range</code> through (<a href="/tandem/docs/web-ui/#http-api">details</a>).</p>
+<h2 id="my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating TANDEM</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>migrate<span class="w">   </span><span class="c1"># or tandem init</span>
+</code></pre></div>
+<p>Profiles from before version 3 (a directory each, with its own cameras and robot) aren't listed until they are
+moved. Migrating moves them and sets up the rig from them, without deleting anything
+(<a href="/tandem/docs/configuration/#older-profiles">details</a>).</p>
+<h2 id="a-profiles-planner-or-executor-isnt-installed">A profile's planner or executor isn't installed</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>NAME<span class="w">     </span><span class="c1"># or install the missing planner's package</span>
+tandem<span class="w"> </span>executors<span class="w"> </span>use<span class="w"> </span>NAME<span class="w">    </span><span class="c1"># add -p PROFILE for another profile</span>
+</code></pre></div>
+<p><code>tandem collect</code> refuses such a profile, with <code>no planner named '…'</code> or <code>Unknown human executor '…'</code>. You can
+still browse, export and edit it.</p>
+<h2 id="a-sidecar-dies-with-no-module-named-tandem_sidecar">A sidecar dies with "No module named 'tandem_sidecar'"</h2>
+<p>Your environment's activation (for example <a href="https://pixi.sh">pixi</a>'s <code>[activation.env]</code>) overwrote <code>PYTHONPATH</code>, dropping TANDEM's
+<code>tandem_sidecar</code> kit. Make it append to <code>PYTHONPATH</code> instead (<a href="/tandem/docs/adding-a-planner/#sidecars">details</a>).</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/data/"><span>Previous</span>Data format</a><a class="next" href="/tandem/docs/adding-a-planner/"><span>Next</span>Adding a planner</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#a-preempt-didnt-stop-the-arm">A preempt didn't stop the arm</a></li><li><a href="#a-camera-wont-open-or-shows-serial-number-0">A camera won't open, or shows serial number 0</a></li><li><a href="#the-zed-sdk-is-not-installed--so-zed-cameras-will-not-open">"the ZED SDK is not installed …, so ZED cameras will not open"</a></li><li><a href="#no-camera-extrinsics-for-serials-">"no camera extrinsics for serial(s) …"</a></li><li><a href="#the-robot-doesnt-answer-robot-control--timeouterror">The robot doesn't answer ("robot control … TimeoutError")</a></li><li><a href="#a-perception-server-doesnt-answer-foundation-stereo-depth-server--m2t2-grasp-server-">A perception server doesn't answer ("foundation stereo depth server …", "m2t2 grasp server …")</a></li><li><a href="#a-trial-was-excluded">A trial was excluded</a></li><li><a href="#the-plan-leaves-part-of-the-instruction-out">The plan leaves part of the instruction out</a></li><li><a href="#i-did-it-is-refused-at-a-human-step">"I did it" is refused at a human step</a></li><li><a href="#teleop-says-the-teleop-runtime-is-not-installed">Teleop says "the teleop runtime is not installed"</a></li><li><a href="#the-teleop-driver-cant-reach-the-vr-headset">The teleop driver can't reach the VR headset</a></li><li><a href="#the-planner-shows-as-outdated">The planner shows as outdated</a></li><li><a href="#the-runtime-build-failed">The runtime build failed</a></li><li><a href="#a-leg-fails-with-no-level-patch-of--is-large-enough">A leg fails with "No level patch of … is large enough"</a></li><li><a href="#vae_path-does-not-exist">"vae_path does not exist"</a></li><li><a href="#a-tamp-setting-seems-to-do-nothing">A TAMP setting seems to do nothing</a></li><li><a href="#the-videos-wont-scrub-in-the-browser">The videos won't scrub in the browser</a></li><li><a href="#my-profiles-are-gone-after-updating-tandem">My profiles are gone after updating TANDEM</a></li><li><a href="#a-profiles-planner-or-executor-isnt-installed">A profile's planner or executor isn't installed</a></li><li><a href="#a-sidecar-dies-with-no-module-named-tandem_sidecar">A sidecar dies with "No module named 'tandem_sidecar'"</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

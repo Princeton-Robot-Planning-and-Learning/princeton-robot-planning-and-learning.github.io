@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planning from a photo · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/" class="active" aria-current="page">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="planning-from-a-photo">Planning from a photo</h1>
+<p><code>tandem plan</code> shows how a task will be split into robot and human phases, from one photo of the workspace, before you collect. It needs no robot, GPU or planner runtime.</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>plan<span class="w"> </span><span class="s2">"place the bread inside the box"</span><span class="w"> </span>--image<span class="w"> </span>workspace.png<span class="w"> </span>-o<span class="w"> </span>bread<span class="w"> </span>-o<span class="w"> </span>box<span class="w"> </span>-o<span class="w"> </span>plate
+</code></pre></div>
+<p>This previews a task's phases before you collect. It prints who does each phase, each phase's goal or magic
+operator, and the invented predicates. It needs only TANDEM (Python 3.10+) and a
+<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">Gemini key</a>: no runtime, GPU or robot. Answers vary between
+runs.</p>
+<p><strong>It tells you if part of the instruction can't be planned.</strong> Usually an object wasn't detected; put it on
+the table or reword the task.</p>
+<table>
+<thead>
+<tr>
+<th>flag</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-i</code>, <code>--image PHOTO</code></td>
+<td>The workspace photo. Required.</td>
+</tr>
+<tr>
+<td><code>-o</code>, <code>--object LABEL</code></td>
+<td>Pin an object label. Repeatable. Without it, a vision model names the objects. A session's labels reproduce its plan.</td>
+</tr>
+<tr>
+<td><code>-p</code>, <code>--profile P</code></td>
+<td>Take the planning settings and planner from this profile.</td>
+</tr>
+<tr>
+<td><code>-b</code>, <code>--planner NAME</code></td>
+<td>Plan in this planner's goal language. The default is the profile's planner, else the machine's. <code>--backend</code> is an older alias.</td>
+</tr>
+<tr>
+<td><code>--table NAME</code></td>
+<td>What the planner calls the table. The default is <code>table</code>.</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>Print the record that <code>hitl.json</code> is written from.</td>
+</tr>
+<tr>
+<td><code>--save-vlm-io DIR</code></td>
+<td>Keep every image sent to the model, and its reply, in <code>DIR</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="from-python">From Python</h2>
+<div class="hl"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">tandem</span>
+
+<span class="n">plan</span> <span class="o">=</span> <span class="n">tandem</span><span class="o">.</span><span class="n">plan_task</span><span class="p">(</span><span class="s2">"place the bread inside the box"</span><span class="p">,</span> <span class="s2">"workspace.png"</span><span class="p">,</span> <span class="n">objects</span><span class="o">=</span><span class="p">[</span><span class="s2">"bread"</span><span class="p">,</span> <span class="s2">"box"</span><span class="p">,</span> <span class="s2">"plate"</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">phases</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">phase</span><span class="o">.</span><span class="n">executor</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">phase</span><span class="o">.</span><span class="n">atoms</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li><code>plan_task</code> returns a <code>PhasePlan</code> with <code>.phases</code>, <code>.spec</code> and <code>.to_json()</code>. Each phase has <code>.executor</code>,
+  <code>.description</code> and <code>.atoms</code>.</li>
+<li>The image can be a path, a PIL image or an RGB <code>uint8</code> array.</li>
+<li>The keywords match the flags (<code>planner</code>, <code>profile</code>, <code>table</code>, <code>save_vlm_io</code>), plus <code>config</code> (a
+  <code>PlanningConfig</code>).</li>
+<li>Inside a running event loop, use <code>await tandem.plan_task_async(...)</code>.</li>
+</ul>
+<p><code>import tandem</code> also exports <code>Planner</code>, <code>SidecarPlanner</code>, <code>Capabilities</code>, <code>PlannerInfo</code>, <code>Predicate</code>,
+<code>Parameter</code>, <code>RuntimeRecipe</code>, <code>register_backend</code> (alias <code>register_planner</code>), <code>register_human_executor</code> and
+<code>TandemError</code>.</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/collecting/"><span>Previous</span>Collecting</a><a class="next" href="/tandem/docs/reviewing/"><span>Next</span>Reviewing and exporting</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#from-python">From Python</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

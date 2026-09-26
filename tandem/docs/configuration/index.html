@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuration · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/" class="active" aria-current="page">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="configuration">Configuration</h1>
+<p>This page lists every setting TANDEM reads. For setup, see <a href="/tandem/docs/installation/">Installation</a>; for commands, the <a href="/tandem/docs/commands/">Command reference</a>.</p>
+<h2 id="profiles">Profiles</h2>
+<p>A <a href="/tandem/docs/concepts/">profile</a> is one task in one YAML file:</p>
+<div class="hl"><pre><span></span><code><span class="c1"># ~/tandem-data/profiles/my-task.yml</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">'Cup</span><span class="nv"> </span><span class="s">onto</span><span class="nv"> </span><span class="s">plate'</span>
+<span class="nt">task</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">put the cup on the plate</span><span class="w">       </span><span class="c1"># the episode's language label</span>
+<span class="w">  </span><span class="nt">target_episodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="nt">hitl</span><span class="p">:</span><span class="w">                                    </span><span class="c1"># phase planning (see below)</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">on_verification_failure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">label</span>
+<span class="nt">planner</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tiptop</span>
+<span class="w">  </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tamp</span><span class="p">:</span><span class="w">                                </span><span class="c1"># TiPToP's task settings</span>
+<span class="w">      </span><span class="nt">num_particles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="nt">recording</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">export</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hf_repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-org/cup-on-plate</span>
+</code></pre></div>
+<p>Keys you leave out take their defaults. Usually you start from the paper's settings or a copy:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span>my-task<span class="w"> </span>--prompt<span class="w"> </span><span class="s2">"put the cup on the plate"</span><span class="w">   </span><span class="c1"># the paper's settings, your task</span>
+tandem<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span>my-box<span class="w"> </span>--from<span class="w"> </span>store-bread-in-closed-box<span class="w">      </span><span class="c1"># a copy of any profile</span>
+tandem<span class="w"> </span>profile<span class="w"> </span>edit<span class="w"> </span>my-task<span class="w">                                        </span><span class="c1"># opens $EDITOR; validated on save</span>
+</code></pre></div>
+<p>Robot, camera and calibration settings aren't in a profile; they're in <a href="#the-rig">the rig</a>. Every key is documented
+in <code>src/tandem/resources/profile_template.yml</code>. An unknown key fails at load, and a misspelled <code>tamp</code> key gets
+a suggestion. Profiles and their trajectories live under <code>~/tandem-data/</code>:</p>
+<div class="hl"><pre><span></span><code>~/tandem-data/
+├── profiles/
+│   ├── my-task.yml             one file per profile
+│   └── .planner-options/       a previous planner's options (tandem planners use)
+└── trajectories/
+    └── my-task/
+        ├── eval/               not yet labeled
+        ├── success/
+        └── failure/            failures, and settled trials (no label)
+</code></pre></div>
+<h3 id="profile-keys">Profile keys</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version</code></td>
+<td><code>3</code></td>
+<td>Layout version. See <a href="#older-profiles">older profiles</a>.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td></td>
+<td>Free text. The profile's name is its file name: lowercase letters, digits, <code>-</code> and <code>_</code>, not starting with <code>-</code> or <code>_</code>.</td>
+</tr>
+<tr>
+<td><code>task.prompt</code></td>
+<td></td>
+<td>The episode's language label, and what phase planning splits into steps.</td>
+</tr>
+<tr>
+<td><code>task.goal</code></td>
+<td><code>null</code></td>
+<td>The planner's goal, when it must differ from <code>task.prompt</code>.</td>
+</tr>
+<tr>
+<td><code>task.target_episodes</code></td>
+<td><code>20</code></td>
+<td>Target shown by <code>profile show</code>, the UI and the session. &gt; 0.</td>
+</tr>
+<tr>
+<td><code>hitl</code></td>
+<td></td>
+<td><a href="#phase-planning-hitl">Phase planning</a>.</td>
+</tr>
+<tr>
+<td><code>planner</code></td>
+<td></td>
+<td><a href="#planner-settings">The planner and its task settings</a>.</td>
+</tr>
+<tr>
+<td><code>recording.enabled</code></td>
+<td><code>true</code></td>
+<td>Record camera video. <code>tandem collect --no-record</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>export.hf_repo</code></td>
+<td><code>''</code></td>
+<td>Repository for <code>tandem export lerobot</code> without <code>--repo</code>.</td>
+</tr>
+<tr>
+<td><code>export.private</code></td>
+<td><code>false</code></td>
+<td>Upload as private. <code>--private</code> or <code>--public</code> overrides it.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-papers-five">The paper's five</h3>
+<p><code>tandem init</code> adds the paper's five tasks, each with the settings the paper collected it with, plus
+<a href="#the-three-switches">the three switches</a>.</p>
+<table>
+<thead>
+<tr>
+<th>profile</th>
+<th>paper task (Fig. 3)</th>
+<th>its own settings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cover-bread-rolls</code></td>
+<td>Cover Bread Rolls</td>
+<td>A grasp-centre cost and threshold, and finer voxels.</td>
+</tr>
+<tr>
+<td><code>solve-constrained-puzzle</code></td>
+<td>Solve Constrained Puzzle</td>
+<td><a href="#surface-fitted-placement">Surface-fitted placement</a>.</td>
+</tr>
+<tr>
+<td><code>sort-and-cover-snacks</code></td>
+<td>Sort &amp; Cover Snacks</td>
+<td></td>
+</tr>
+<tr>
+<td><code>open-obstructed-book</code></td>
+<td>Open Obstructed Book</td>
+<td></td>
+</tr>
+<tr>
+<td><code>store-bread-in-closed-box</code></td>
+<td>Store Bread in Closed Box</td>
+<td>Surface-fitted placement into the box, and finer voxels.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>They're yours to edit. <code>tandem init</code> never overwrites one, and restores one you deleted.</li>
+<li><code>profile create --prompt</code> gives a new profile what the five share: phase planning, the TAMP and
+  <a href="/tandem/docs/concepts/">DATAFARM</a> settings, and the three switches.</li>
+<li><strong>Safety:</strong> they set <code>tamp.time_dilation_factor_literal: 1.0</code>, so planned motions ignore the rig's
+  <code>time_dilation_factor</code> (homing and capture moves don't). Keep a hand on the E-stop.</li>
+</ul>
+<h3 id="older-profiles">Older profiles</h3>
+<p>Before version 3, a profile was a directory (<code>profiles/&lt;name&gt;/profile.yml</code>) with its own robot, cameras and
+<code>calibration.json</code>. They don't show up until you move them:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>profile<span class="w"> </span>migrate<span class="w">   </span><span class="c1"># tandem init also does this</span>
+</code></pre></div>
+<p>Each profile's task goes to <code>profiles/&lt;name&gt;.yml</code> and its trajectories to <code>trajectories/&lt;name&gt;/</code>. The robot
+and cameras seed <a href="#the-rig">the rig</a> (from the active profile) if <code>rig.yml</code> doesn't exist yet. Extrinsics are
+added to the rig's <code>calibration.json</code> only for cameras without an entry.</p>
+<ul>
+<li>Old directories aren't deleted. Each is archived in <code>profiles/.migrated/&lt;name&gt;/</code> with a <code>migration.json</code>.</li>
+<li>If the rig can't be set up from them, no profile is moved. A profile that fails to move is left as it was, and
+  running the command again finishes a partial move.</li>
+<li><code>tandem rig set</code> and <code>rig edit</code> wait until old profiles are moved. Older TANDEM can't read version 3.</li>
+<li>Version-1 profiles keep <code>hitl.on_robot_phase_failure: teleop</code>, the old default. Set <code>abort</code> unless you
+  chose teleop.</li>
+</ul>
+<h2 id="phase-planning-hitl">Phase planning (hitl)</h2>
+<p>Phase planning is on in the paper's profiles and in every new profile, and off in a profile with no <code>hitl:</code>
+block. The defaults match the paper. Some common changes:</p>
+<div class="hl"><pre><span></span><code><span class="c1"># Label failed human steps yourself, instead of excluding the trial from the dataset</span>
+<span class="nt">hitl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">on_verification_failure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">label</span>
+</code></pre></div>
+<div class="hl"><pre><span></span><code><span class="c1"># When the planner can't plan a robot step, let a person do it (checked like a human step)</span>
+<span class="nt">hitl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">on_robot_phase_failure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">teleop</span><span class="w">    </span><span class="c1"># or replan: ask the model for a new plan</span>
+</code></pre></div>
+<div class="hl"><pre><span></span><code><span class="c1"># Turn phase planning off: the planner does the whole task, with no human steps or checks</span>
+<span class="nt">hitl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>Each check costs one model call per checkable atom, with the arm parked. Checkable atoms are invented
+predicates plus the planner's <code>checkable_predicates</code> (TiPToP: <code>On</code>; <a href="/tandem/docs/adding-a-planner/#capabilities">capabilities</a>).</p>
+<h3 id="planning">Planning</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>enabled</code></td>
+<td><code>false</code></td>
+<td>When off, each attempt is one leg to the planner's goal, with no phases or checks.</td>
+</tr>
+<tr>
+<td><code>proposal_model</code></td>
+<td><code>gemini-2.5-pro</code></td>
+<td>Splits the task into phases and invents predicates and operators.</td>
+</tr>
+<tr>
+<td><code>vlm_model</code></td>
+<td><code>gemini-2.5-flash</code></td>
+<td>Answers checks, and names objects for <code>tandem plan</code>.</td>
+</tr>
+<tr>
+<td><code>max_attempts</code></td>
+<td><code>3</code></td>
+<td>Tries per proposal and per check, rejections fed back. Also the re-plan limit under <code>replan</code>. ≥ 1.</td>
+</tr>
+<tr>
+<td><code>check_plan_effects</code></td>
+<td><code>true</code></td>
+<td>Run the contract check when repairing a proposal (no model call).</td>
+</tr>
+<tr>
+<td><code>conjoin_robot_phases</code></td>
+<td><code>true</code></td>
+<td>Plan consecutive robot phases as one goal where sound (<a href="/tandem/docs/adding-a-planner/#capabilities">conditions</a>). When off, each robot phase gets its own leg and perception pass.</td>
+</tr>
+<tr>
+<td><code>cache_path</code></td>
+<td><code>null</code></td>
+<td>SQLite cache of proposals (keyed by model, prompt, image), relative to <code>profiles/</code>. Re-plans skip it.</td>
+</tr>
+<tr>
+<td><code>save_vlm_io</code></td>
+<td><code>true</code></td>
+<td>Save every model image and reply, rejected ones too, in <a href="/tandem/docs/data/#vlm"><code>vlm/</code></a>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="checks">Checks</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verification_camera</code></td>
+<td><code>external</code></td>
+<td>Which camera's image the checks use: <code>external</code>, <code>hand</code> or <code>perception</code> (whichever camera perception uses).</td>
+</tr>
+<tr>
+<td><code>check_human_effects</code></td>
+<td><code>true</code></td>
+<td>After a human phase, check its add effects hold and delete effects don't.</td>
+</tr>
+<tr>
+<td><code>check_human_preconditions</code></td>
+<td><code>false</code></td>
+<td>Check a human phase's preconditions once, before the hand-off.</td>
+</tr>
+<tr>
+<td><code>check_tamp_preconditions</code></td>
+<td><code>false</code></td>
+<td>Before a robot leg, check what earlier phases should have made true.</td>
+</tr>
+<tr>
+<td><code>check_tamp_effects</code></td>
+<td><code>false</code></td>
+<td>After a robot leg, check its add effects. Recorded only.</td>
+</tr>
+<tr>
+<td><code>classify_initial</code></td>
+<td><code>false</code></td>
+<td>Classify each invented atom on the first image (a call each); with <code>check_plan_effects</code>, re-run the contract check. Recorded only.</td>
+</tr>
+<tr>
+<td><code>verify_enforced</code></td>
+<td><code>true</code></td>
+<td>When off, failed checks are only recorded.</td>
+</tr>
+<tr>
+<td><code>precondition_enforced</code></td>
+<td><code>false</code></td>
+<td>When on, an unmet precondition ends the trial at <code>verification</code>. When off, it's only recorded.</td>
+</tr>
+<tr>
+<td><code>verify_final_phase</code></td>
+<td><code>true</code></td>
+<td>When off, a final human phase isn't checked and your label decides.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="failures">Failures</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verify_retries</code></td>
+<td><code>1</code></td>
+<td>Extra tries for a human phase that fails its check; the operator is told what's missing. ≥ 0.</td>
+</tr>
+<tr>
+<td><code>on_verification_failure</code></td>
+<td><code>exclude</code></td>
+<td>What happens when a check still fails after retries. <code>exclude</code> files the trial in <code>failure/</code> as excluded, with no label. <code>label</code> lets your label decide.</td>
+</tr>
+<tr>
+<td><code>on_robot_phase_failure</code></td>
+<td><code>abort</code></td>
+<td>What happens when a robot phase can't be planned. <code>abort</code> fails the trial at <code>tamp_planning</code>. <code>teleop</code> has a person do it, checked like a human phase. <code>replan</code> asks the model for a new plan that accounts for the failure. Execution failures always end at <code>tamp_execution</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="human-executor">Human executor</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>human_executor</code></td>
+<td><code>teleop</code></td>
+<td>Who does human phases (<a href="/tandem/docs/adding-a-human-executor/#choosing-one">choosing one</a>).</td>
+</tr>
+<tr>
+<td><code>human_executor_options</code></td>
+<td><code>{}</code></td>
+<td>Each executor's settings, keyed by its name. Checked at load.</td>
+</tr>
+<tr>
+<td><code>allow_unrecorded_human_phase</code></td>
+<td><code>false</code></td>
+<td>While recording, accept a human phase with no recording (<code>d</code>, or a leg with no frames). <code>--no-record</code> always accepts.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-rig">The rig</h2>
+<p>The rig holds this workstation's robot, camera and calibration settings. All profiles use it. <code>tandem init</code>
+writes it to <code>~/.config/tandem/rig.yml</code>:</p>
+<div class="hl"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">robot</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fr3_robotiq</span>
+<span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">172.16.0.2</span><span class="w">          </span><span class="c1"># the NUC</span>
+<span class="nt">cameras</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">perception</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external</span>
+<span class="w">  </span><span class="nt">hand</span><span class="p">:</span><span class="w">     </span><span class="p p-Indicator">{</span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">'14846828'</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">serial</span><span class="p">:</span><span class="w"> </span><span class="s">'32439448'</span><span class="p p-Indicator">}</span>
+<span class="nt">calibration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calibration.json</span>
+<span class="nt">planners</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span><span class="w">                </span><span class="c1"># a planner's machine settings, where they differ from its defaults</span>
+</code></pre></div>
+<p>To view or change it:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>rig<span class="w"> </span>show<span class="w">                                   </span><span class="c1"># also --json; the web UI's Settings page shows it too</span>
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>robot.host<span class="w"> </span>NUC_ADDRESS<span class="w">             </span><span class="c1"># `null` removes a setting</span>
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.tiptop.perception.m2t2.url<span class="w"> </span>http://HOST:8123
+tandem<span class="w"> </span>rig<span class="w"> </span>edit<span class="w">                                   </span><span class="c1"># opens $EDITOR; validated on save</span>
+tandem<span class="w"> </span>rig<span class="w"> </span>path<span class="w"> </span>--calibration<span class="w">                     </span><span class="c1"># where the extrinsics are</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>robot.type</code></td>
+<td><code>fr3_robotiq</code></td>
+<td>The arm. TiPToP: <code>fr3_robotiq</code> (FR3) or <code>panda_robotiq</code> (Panda), with a <a href="https://robotiq.com/products/adaptive-grippers">Robotiq 2F-85</a> via the shim. <code>panda</code> (Franka Hand): the shim refuses its gripper commands. <code>ur5</code>: needs tiptop's <code>ur5</code> extra (ur_rtde), not in the runtime.</td>
+</tr>
+<tr>
+<td><code>robot.host</code></td>
+<td><code>172.16.0.2</code></td>
+<td>The NUC's hostname or IP address. The planner sets the ports.</td>
+</tr>
+<tr>
+<td><code>cameras.perception</code></td>
+<td><code>external</code></td>
+<td>The camera perception uses. With <code>external</code> the arm stays at <code>q_home</code>; with <code>hand</code> it moves to <code>q_capture</code> first.</td>
+</tr>
+<tr>
+<td><code>cameras.hand</code>, <code>cameras.external</code></td>
+<td></td>
+<td>Wrist and third-person cameras. Every leg is recorded from them; both must open at warm-up.</td>
+</tr>
+<tr>
+<td><code>cameras.external_2</code></td>
+<td></td>
+<td>Optional second third-person camera (<a href="https://droid-dataset.github.io/">DROID</a> <code>exterior_2</code>). If listed, it must open.</td>
+</tr>
+<tr>
+<td><code>&lt;camera&gt;.serial</code></td>
+<td></td>
+<td>ZED serial, quoted (<code>'14846828'</code>). One role per serial.</td>
+</tr>
+<tr>
+<td><code>&lt;camera&gt;.type</code>, <code>.resolution</code></td>
+<td><code>zed</code>, <code>HD720</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>&lt;camera&gt;.fps</code></td>
+<td><code>15</code></td>
+<td>Keep 15: three ZEDs at HD720@30 exceed USB bandwidth, and export resamples to 15 Hz.</td>
+</tr>
+<tr>
+<td><code>calibration</code></td>
+<td><code>calibration.json</code></td>
+<td>The extrinsics file, relative to <code>rig.yml</code>, or absolute.</td>
+</tr>
+<tr>
+<td><code>planners.&lt;name&gt;</code></td>
+<td></td>
+<td>Each planner's machine settings (<a href="#tiptop-options">TiPToP's</a>).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="calibration-file">Calibration file</h3>
+<p><code>calibration.json</code> holds one pose per camera, keyed by serial:</p>
+<div class="hl"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"14846828"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pose"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.0266</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0705</span><span class="p">,</span><span class="w"> </span><span class="mf">-0.1392</span><span class="p">,</span><span class="w"> </span><span class="mf">-0.4509</span><span class="p">,</span><span class="w"> </span><span class="mf">-0.0045</span><span class="p">,</span><span class="w"> </span><span class="mf">-1.5620</span><span class="p">]},</span>
+<span class="w">  </span><span class="nt">"32439448"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"pose"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.1532</span><span class="p">,</span><span class="w"> </span><span class="mf">-0.5827</span><span class="p">,</span><span class="w"> </span><span class="mf">0.4410</span><span class="p">,</span><span class="w"> </span><span class="mf">-2.0843</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0126</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1964</span><span class="p">]}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><code>pose</code> is <code>[x, y, z, roll, pitch, yaw]</code>, in meters and radians (<code>xyz</code> Euler angles).</li>
+<li>The wrist camera's pose is relative to the end effector (<code>ee_from_cam</code>).</li>
+<li>An external camera's pose is relative to the robot's base (<code>world_from_cam</code>).</li>
+<li>Other keys in an entry, such as <code>timestamp</code>, are ignored.</li>
+</ul>
+<p>A session won't start if a camera has no entry. To get the poses, see
+<a href="/tandem/docs/cameras/">Cameras and calibration</a>.</p>
+<h3 id="related-settings-outside-the-rig">Related settings outside the rig</h3>
+<ul>
+<li><strong>TiPToP's scripts</strong> (<code>calibrate-wrist-cam</code>, <code>viz-calibration</code>, <code>cutamp-demo</code>, …) run through
+  <code>tandem runtime run</code> or <code>shell</code> use your rig settings, through <code>$TIPTOP_CONFIG</code> and <code>$TIPTOP_CALIBRATION</code>.
+  <code>--raw</code> uses tiptop's stock config instead.</li>
+<li><strong>Teleop</strong> uses <code>robot.host</code> too; TANDEM passes it to the teleop driver.</li>
+<li><strong>Gripper mask</strong> (<code>perception: hand</code> only): make yours with <code>tandem runtime run compute-gripper-mask</code> (or
+  <code>paint-gripper-mask</code>). It writes the runtime's <code>tiptop/tiptop/config/assets/gripper_mask.png</code>.</li>
+</ul>
+<h2 id="planner-settings">Planner settings</h2>
+<p>A profile names its planner and that planner's settings for the task:</p>
+<div class="hl"><pre><span></span><code><span class="nt">planner</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tiptop</span><span class="w">     </span><span class="c1"># which planner</span>
+<span class="w">  </span><span class="nt">options</span><span class="p">:</span><span class="w">            </span><span class="c1"># its task settings, checked by the planner at load</span>
+<span class="w">    </span><span class="nt">tamp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">num_particles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+</code></pre></div>
+<p>Task settings go in the profile's <code>planner.options</code>. Machine settings (a server's address, a robot's ports) go
+in <a href="#the-rig">the rig</a> under <code>planners.&lt;name&gt;</code>. If you put a key in the wrong file, TANDEM refuses it and says
+where it goes. <code>tandem planners info NAME</code> lists both (<a href="/tandem/docs/adding-a-planner/#options-and-doctor-rows">how planners declare them</a>).</p>
+<p><strong>Did my setting apply?</strong> <code>tandem profile show NAME --planner</code> prints exactly what the planner receives.</p>
+<h3 id="switching-planners">Switching planners</h3>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>myplanner<span class="w">                  </span><span class="c1"># the active profile now plans with it</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>myplanner<span class="w"> </span>-o<span class="w"> </span><span class="nv">KEY</span><span class="o">=</span>VALUE<span class="w">     </span><span class="c1"># also set an option it requires (repeatable)</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>default<span class="w"> </span>myplanner<span class="w">              </span><span class="c1"># the planner new profiles get</span>
+</code></pre></div>
+<p><code>use</code> sets <code>planner.backend</code> and stashes the old planner's <code>options</code> in
+<code>profiles/.planner-options/&lt;profile&gt;.&lt;planner&gt;.yml</code>, restoring them when you switch back. It warns if the
+runtime isn't installed, and it repairs a profile naming a planner this machine lacks.</p>
+<h3 id="tiptop-options">TiPToP options</h3>
+<p><strong>Machine settings</strong> live in <code>rig.yml</code> under <code>planners.tiptop</code>:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.tiptop.robot.time_dilation_factor<span class="w"> </span><span class="m">0</span>.3<span class="w">          </span><span class="c1"># arm at 30% speed</span>
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.tiptop.perception.m2t2.url<span class="w"> </span>http://HOST:8123
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.tiptop.perception.depth_smoothing_frames<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<p>The robot's address and type come from <code>robot.host</code> and <code>robot.type</code>.</p>
+<p><code>robot</code>:</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dof</code></td>
+<td><code>7</code></td>
+<td>Joint count. It must match <code>q_home</code> and <code>q_capture</code>.</td>
+</tr>
+<tr>
+<td><code>port</code>, <code>gripper_port</code>, <code>state_port</code></td>
+<td><code>5555</code>, <code>5559</code>, <code>5557</code></td>
+<td>Shim control, gripper and state ports.</td>
+</tr>
+<tr>
+<td><code>time_dilation_factor</code></td>
+<td><code>0.2</code></td>
+<td>Arm speed, in (0, 1]. <code>0.2</code> is 20%.</td>
+</tr>
+<tr>
+<td><code>q_home</code>, <code>q_capture</code></td>
+<td>TiPToP's</td>
+<td>Home pose; capture pose for <code>cameras.perception: hand</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>perception</code>:</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m2t2.url</code>, <code>m2t2.apply_bounds</code></td>
+<td><code>http://localhost:8123</code>, <code>true</code></td>
+<td><a href="https://github.com/SamratSahoo/M2T2/tree/TANDEM">M2T2</a> grasp server, and a flag sent with each request. If it runs on this workstation, a session starts it when it's down (<a href="/tandem/docs/commands/#servers">servers</a>). <code>tandem doctor</code> probes it.</td>
+</tr>
+<tr>
+<td><code>foundation_stereo.url</code></td>
+<td><code>http://localhost:1234</code></td>
+<td><a href="https://github.com/SamratSahoo/FoundationStereo/tree/TANDEM">FoundationStereo</a> depth server, used every rollout. If it runs on this workstation, a session starts it when it's down. <code>tandem doctor</code> probes it.</td>
+</tr>
+<tr>
+<td><code>sam_mode</code></td>
+<td><code>local</code></td>
+<td><code>local</code>: <a href="https://github.com/facebookresearch/sam2">SAM-2</a> in the runtime. <code>remote</code>: the server at <code>sam_url</code> (then required).</td>
+</tr>
+<tr>
+<td><code>depth_smoothing_frames</code></td>
+<td><code>5</code></td>
+<td>Depth frames median-fused at capture. <code>1</code> disables it.</td>
+</tr>
+<tr>
+<td><code>robot_mask_margin_m</code></td>
+<td><code>0.02</code></td>
+<td>Padding when cutting the arm out of a third-person cloud. Raise it if arm points remain.</td>
+</tr>
+<tr>
+<td><code>depth_trunc_m</code>, <code>voxel_downsample_size</code>, <code>contact_threshold_m</code>, <code>mask_erosion_pixels</code></td>
+<td><code>5.0</code>, <code>0.0075</code>, <code>0.01</code>, <code>3</code></td>
+<td>Passed to tiptop's settings of the same names.</td>
+</tr>
+<tr>
+<td><code>gemini.model</code>, <code>gemini.temperature</code></td>
+<td><code>gemini-robotics-er-2-preview</code>, <code>null</code></td>
+<td>Only recorded; the pinned tiptop always uses this model at its own temperature. <code>tandem doctor</code> warns on a mismatch.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Task settings</strong> live in the profile's <code>planner.options.tamp</code>:</p>
+<div class="hl"><pre><span></span><code><span class="nt">planner</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tiptop</span>
+<span class="w">  </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tamp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">num_particles</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">      </span><span class="nt">voxel_downsample_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.005</span><span class="w">   </span><span class="c1"># finer than the rig's perception setting</span>
+<span class="w">      </span><span class="nt">placement_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">        </span><span class="c1"># see Surface-fitted placement</span>
+</code></pre></div>
+<ul>
+<li>These are cuTAMP and cuRobo overrides with tiptop's key names, so a <code>cfg/tamp/*.yml</code>'s <code>tamp_overrides</code>
+  paste in as is. Accepted keys: <code>src/tandem/planners/tiptop/tamp_keys.py</code>.</li>
+<li>For <code>contact_threshold_m</code> and <code>voxel_downsample_size</code>, the <code>tamp</code> value overrides the rig's.</li>
+<li><code>tandem doctor</code> warns about a key that needs another (<code>blend_ops</code> without <code>blend_trajectory</code>).</li>
+<li>Relative checkpoint paths (<code>vae_path</code>, <code>blend_model_path</code>, <code>blend_stats_path</code>, <code>posture_ref</code>) resolve beside
+  the profile, then in the runtime, where the install puts the DATAFARM checkpoints
+  (<code>vae/checkpoints/vae_full_v2.pt</code>, <code>rnd/checkpoints/rnd_droid.pt</code>).</li>
+</ul>
+<h3 id="surface-fitted-placement">Surface-fitted placement</h3>
+<p>By default, cuTAMP can place an object anywhere in a surface's bounding box, at the top of it, such as on an
+open box's rim or a plate's edge. <code>placement_support: true</code> places only on observed level patches that fit the footprint:</p>
+<div class="hl"><pre><span></span><code><span class="nt">tamp</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">placement_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">placement_fill_occluded</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">    </span><span class="c1"># e.g. a box whose floor the camera can't see</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>placement_support</code></td>
+<td><code>false</code></td>
+<td>Turns it on. The other keys are read only then.</td>
+</tr>
+<tr>
+<td><code>placement_support_margin</code></td>
+<td><code>0.01</code></td>
+<td>Surface kept around the footprint, in metres. ≥ 0.</td>
+</tr>
+<tr>
+<td><code>placement_flatness_tol</code></td>
+<td><code>0.008</code></td>
+<td>Height variation (and slope) that still counts as level, in metres. &gt; 0. Raise it for noisy reconstructions.</td>
+</tr>
+<tr>
+<td><code>placement_support_required</code></td>
+<td><code>true</code></td>
+<td>If no patch fits, the plan fails. With <code>false</code>, it falls back to the bounding box.</td>
+</tr>
+<tr>
+<td><code>placement_into_surface</code></td>
+<td><code>true</code></td>
+<td>Let the object overlap its surface in collision checks. Containers need it (they reconstruct as filled hulls).</td>
+</tr>
+<tr>
+<td><code>placement_fill_occluded</code></td>
+<td><code>false</code></td>
+<td>Count unseen cells inside a surface's outline as floor, as in a box the camera can't see into.</td>
+</tr>
+<tr>
+<td><code>placement_min_seen_frac</code></td>
+<td><code>0.25</code></td>
+<td>Observed fraction each footprint needs; guards <code>placement_fill_occluded</code>. In [0, 1].</td>
+</tr>
+</tbody>
+</table>
+<p>In the paper's profiles, <code>solve-constrained-puzzle</code> sets <code>placement_support</code>, <code>placement_support_required</code> and
+<code>placement_into_surface</code>. <code>store-bread-in-closed-box</code> sets all seven, with margin <code>0.005</code>, flatness <code>0.012</code> and
+<code>placement_fill_occluded: true</code>.</p>
+<h3 id="the-three-switches">The three switches</h3>
+<p>These <code>tamp:</code> keys are off unless set. <a href="#the-papers-five">The paper's five</a> and every new profile turn them on,
+because every run in the paper used them.</p>
+<div class="hl"><pre><span></span><code><span class="nt">tamp</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">table_plane_support_vote</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">disjoint_object_masks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">blend_stretch_to_caps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>what it switches on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>table_plane_support_vote</code></td>
+<td>Pick the table among RANSAC's planes by the objects resting on each, instead of by every object within 3 cm above or below.</td>
+</tr>
+<tr>
+<td><code>disjoint_object_masks</code></td>
+<td>Disjoint object masks (a shared pixel goes to the smaller object), so a container's hull stops at what rests on it. Surface-fitted placement always uses them.</td>
+</tr>
+<tr>
+<td><code>blend_stretch_to_caps</code></td>
+<td>With <code>blend_trajectory</code>, slow a stroke that can't be re-timed within the velocity and acceleration caps until it fits. It can get many times slower.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tandem-settings-and-credentials">TANDEM settings and credentials</h2>
+<p>TANDEM's own settings live in <code>~/.config/tandem/config.toml</code>:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>config<span class="w"> </span>list
+tandem<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>ui.port<span class="w"> </span><span class="m">8800</span>
+tandem<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>data_root<span class="w"> </span>/mnt/data/tandem
+tandem<span class="w"> </span>config<span class="w"> </span>edit<span class="w">                 </span><span class="c1"># also: get KEY, path</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>default</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>active_profile</code></td>
+<td>none</td>
+<td>The profile commands act on (<code>tandem profile use</code>). <code>tandem init</code> sets <code>cover-bread-rolls</code>, and <code>tandem profile create</code> makes its profile active when none is.</td>
+</tr>
+<tr>
+<td><code>data_root</code></td>
+<td><code>~/tandem-data</code></td>
+<td>Profiles and trajectories. <code>$TANDEM_DATA_ROOT</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>runtime_dir</code></td>
+<td><code>~/.local/share/tandem/runtime</code></td>
+<td>TiPToP's runtime (about 25 GB). <code>$TANDEM_RUNTIME_DIR</code> overrides it.</td>
+</tr>
+<tr>
+<td><code>default_planner</code></td>
+<td><code>tiptop</code></td>
+<td>The planner new profiles get (<code>tandem planners default NAME</code>).</td>
+</tr>
+<tr>
+<td><code>hf_org</code></td>
+<td></td>
+<td>Owner for an export repo named without one.</td>
+</tr>
+<tr>
+<td><code>teleop.enabled</code></td>
+<td><code>false</code></td>
+<td>Human phases can use teleop. <code>tandem executors install teleop</code> turns it on (<a href="/tandem/docs/adding-a-human-executor/#the-teleop-executor">teleop</a>).</td>
+</tr>
+<tr>
+<td><code>teleop.droid_dir</code>, <code>teleop.python</code></td>
+<td>blank</td>
+<td>Blank: the driver runs in the teleop runtime. Set both to run a DROID checkout and environment of your own.</td>
+</tr>
+<tr>
+<td><code>teleop.controller</code></td>
+<td><code>right</code></td>
+<td>Which VR controller drives the arm: <code>right</code> or <code>left</code>.</td>
+</tr>
+<tr>
+<td><code>ui.host</code>, <code>ui.port</code>, <code>ui.open_browser</code></td>
+<td><code>127.0.0.1</code>, <code>8787</code>, <code>true</code></td>
+<td><code>tandem ui</code>. A busy port steps to the next free one.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="credentials">Credentials</h3>
+<p>Credentials are stored in <code>credentials.toml</code> next to it, readable only by you:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>config<span class="w"> </span>set-gemini-key<span class="w">    </span><span class="c1"># for phase planning and TiPToP's perception</span>
+tandem<span class="w"> </span>config<span class="w"> </span>set-hf-token<span class="w">      </span><span class="c1"># for tandem export lerobot --push</span>
+</code></pre></div>
+<ul>
+<li><code>GEMINI_API_KEY</code> or <code>GOOGLE_API_KEY</code> overrides the stored <a href="https://aistudio.google.com/apikey">Gemini key</a>.</li>
+<li>The Hugging Face token is looked up in order: stored, <code>HF_TOKEN</code> or <code>HUGGING_FACE_HUB_TOKEN</code>, then
+  <code>~/.cache/huggingface/token</code> (<code>huggingface-cli login</code>).</li>
+</ul>
+<h3 id="directories">Directories</h3>
+<p>These are the Linux defaults; other systems differ.</p>
+<table>
+<thead>
+<tr>
+<th>directory</th>
+<th>default</th>
+<th>env var</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>config: <code>config.toml</code>, <code>credentials.toml</code>, <code>rig.yml</code>, <code>calibration.json</code></td>
+<td><code>~/.config/tandem</code></td>
+<td><code>$TANDEM_CONFIG_DIR</code></td>
+</tr>
+<tr>
+<td>state: logs, session scratch (<a href="/tandem/docs/data/#logs-and-session-files">Logs and session files</a>)</td>
+<td><code>~/.local/state/tandem</code></td>
+<td><code>$TANDEM_STATE_DIR</code></td>
+</tr>
+<tr>
+<td>share: runtimes</td>
+<td><code>~/.local/share/tandem</code></td>
+<td><code>$TANDEM_SHARE_DIR</code></td>
+</tr>
+<tr>
+<td>data: profiles, trajectories</td>
+<td><code>~/tandem-data</code></td>
+<td><code>$TANDEM_DATA_ROOT</code></td>
+</tr>
+<tr>
+<td>TiPToP's runtime</td>
+<td><code>&lt;share&gt;/runtime</code></td>
+<td><code>$TANDEM_RUNTIME_DIR</code></td>
+</tr>
+<tr>
+<td>other planners' runtimes, teleop's and the servers'</td>
+<td><code>&lt;share&gt;/runtimes/NAME</code> (<code>teleop</code>, <code>m2t2</code>, <code>foundation_stereo</code>)</td>
+<td><code>$TANDEM_RUNTIMES_DIR</code></td>
+</tr>
+<tr>
+<td><a href="#offline-install">offline install</a> sources</td>
+<td>none</td>
+<td><code>$TANDEM_PLANNER_SOURCES</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="the-planner-runtime">The planner runtime</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w">    </span><span class="c1"># build or update TiPToP's runtime (tandem init runs this)</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>info<span class="w"> </span>tiptop<span class="w">       </span><span class="c1"># pinned vs installed commits</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w"> </span>--force<span class="w">   </span><span class="c1"># refetch and rebuild everything</span>
+</code></pre></div>
+<p>TiPToP's <a href="/tandem/docs/concepts/">runtime</a> is a <a href="https://pixi.sh">pixi</a> environment (torch, cuRobo's CUDA kernels, cuTAMP, tiptop).
+The first build takes about 25 GB and 5–20 minutes, and asks before installing pixi (<code>--yes</code> accepts). Its
+pinned sources are below; the <code>TANDEM</code> branches add <a href="#surface-fitted-placement">surface-fitted placement</a> and
+<a href="#the-three-switches">the three switches</a>.</p>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>branch</th>
+<th>pinned commit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">SamratSahoo/tiptop</a></td>
+<td><code>TANDEM</code></td>
+<td><code>6820474</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/SamratSahoo/cuTAMP/tree/TANDEM">SamratSahoo/cuTAMP</a></td>
+<td><code>TANDEM</code></td>
+<td><code>fc8f233</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/SamratSahoo/curobo">SamratSahoo/curobo</a></td>
+<td><code>main</code></td>
+<td><code>3a90ff4</code></td>
+</tr>
+</tbody>
+</table>
+<p>The install applies one patch (so <code>$TIPTOP_CONFIG</code> and <code>$TIPTOP_CALIBRATION</code> can point TiPToP at the rig)
+and places the DATAFARM checkpoints. How sources are fetched is in <a href="/tandem/docs/adding-a-planner/#a-runtime-recipe">Adding a planner</a>, and where the build
+log goes is in <a href="/tandem/docs/data/#logs-and-session-files">Logs and session files</a>.</p>
+<ul>
+<li><strong>Updating.</strong> A moved pin shows <code>outdated</code> in <code>tandem planners list</code>. Reinstalling replaces only the moved
+  sources.</li>
+<li><strong>ZED.</strong> With the <a href="https://www.stereolabs.com/developers/release">ZED SDK</a> installed (<code>/usr/local/zed/get_python_api.py</code>), the install adds <code>pyzed</code>. Without
+  it the install succeeds but ZED cameras won't open, and <code>tandem doctor</code> says so. Install the SDK, then
+  reinstall.</li>
+</ul>
+<h3 id="offline-install">Offline install</h3>
+<p>If the workstation can't reach GitHub, bundle the sources on a machine that can:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>bundle<span class="w"> </span>tiptop<span class="w"> </span>--out<span class="w"> </span>/media/usb/planner-sources<span class="w">      </span><span class="c1"># on a machine with network</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>install<span class="w"> </span>tiptop<span class="w"> </span>--sources<span class="w"> </span>/media/usb/planner-sources<span class="w"> </span><span class="c1"># on the workstation</span>
+</code></pre></div>
+<ul>
+<li>Use the same TANDEM version on both: commits are checked against their pins and files against the digest.</li>
+<li><code>$TANDEM_PLANNER_SOURCES</code> can replace <code>--sources</code> (one directory per source: <code>tiptop/</code>, <code>cuTAMP/</code>,
+  <code>curobo/</code>). While set, nothing is fetched.</li>
+<li>Only sources are bundled. <code>pixi install</code> still needs conda-forge, PyPI and GitHub (to build SAM-2), and the
+  first warm-up downloads the SAM-2 checkpoint (about 0.9 GB).</li>
+</ul>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/web-ui/"><span>Previous</span>Web UI</a><a class="next" href="/tandem/docs/concepts/"><span>Next</span>Concepts</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#profiles">Profiles</a></li><li class="sub"><a href="#profile-keys">Profile keys</a></li><li class="sub"><a href="#the-papers-five">The paper's five</a></li><li class="sub"><a href="#older-profiles">Older profiles</a></li><li><a href="#phase-planning-hitl">Phase planning (hitl)</a></li><li class="sub"><a href="#planning">Planning</a></li><li class="sub"><a href="#checks">Checks</a></li><li class="sub"><a href="#failures">Failures</a></li><li class="sub"><a href="#human-executor">Human executor</a></li><li><a href="#the-rig">The rig</a></li><li class="sub"><a href="#calibration-file">Calibration file</a></li><li class="sub"><a href="#related-settings-outside-the-rig">Related settings outside the rig</a></li><li><a href="#planner-settings">Planner settings</a></li><li class="sub"><a href="#switching-planners">Switching planners</a></li><li class="sub"><a href="#tiptop-options">TiPToP options</a></li><li class="sub"><a href="#surface-fitted-placement">Surface-fitted placement</a></li><li class="sub"><a href="#the-three-switches">The three switches</a></li><li><a href="#tandem-settings-and-credentials">TANDEM settings and credentials</a></li><li class="sub"><a href="#credentials">Credentials</a></li><li class="sub"><a href="#directories">Directories</a></li><li><a href="#the-planner-runtime">The planner runtime</a></li><li class="sub"><a href="#offline-install">Offline install</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

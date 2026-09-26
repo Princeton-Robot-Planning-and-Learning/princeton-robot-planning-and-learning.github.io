@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reviewing and exporting · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/" class="active" aria-current="page">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="reviewing-and-exporting">Reviewing and exporting</h1>
+<p>Every trial is filed under <code>success/</code>, <code>failure/</code> or <code>eval/</code>. These commands list, replay and refile them, and export the successes as a LeRobot dataset.</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>traj<span class="w"> </span>list<span class="w"> </span>-s<span class="w"> </span>success<span class="w"> </span>-n<span class="w"> </span><span class="m">0</span><span class="w">        </span><span class="c1"># every success, newest first</span>
+tandem<span class="w"> </span>traj<span class="w"> </span>open<span class="w"> </span>&lt;id&gt;<span class="w">                   </span><span class="c1"># replay one in its planner's viewer (TiPToP: Rerun)</span>
+tandem<span class="w"> </span>traj<span class="w"> </span>relabel<span class="w"> </span>&lt;id&gt;<span class="w"> </span>failure<span class="w">        </span><span class="c1"># move it to success, failure or eval</span>
+</code></pre></div>
+<p><code>&lt;id&gt;</code> is a trajectory's directory name (a timestamp) or a unique prefix of it. Every <code>traj</code> command except
+<code>list</code> takes <code>-p/--profile</code>.</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>traj list [profile]</code></td>
+<td>Newest first. <code>-s/--status eval\|success\|failure</code>; <code>-n N</code> shows N (default 30, <code>0</code> for all).</td>
+</tr>
+<tr>
+<td><code>traj show &lt;id&gt;</code></td>
+<td>One trajectory in detail.</td>
+</tr>
+<tr>
+<td><code>traj open &lt;id&gt;</code></td>
+<td>Replay in its planner's viewer.</td>
+</tr>
+<tr>
+<td><code>traj relabel &lt;id&gt; &lt;status&gt;</code></td>
+<td>Move it to <code>success</code>, <code>failure</code> or <code>eval</code>.</td>
+</tr>
+<tr>
+<td><code>traj merge [&lt;trajectory id&gt;]</code></td>
+<td>Re-join a trial's legs after a failed merge. <code>--status STATUS</code> files the result.</td>
+</tr>
+<tr>
+<td><code>traj copy &lt;id&gt; &lt;profile&gt;</code></td>
+<td>Copy it into another profile.</td>
+</tr>
+<tr>
+<td><code>traj rm &lt;id&gt;</code></td>
+<td>Delete it. <code>-y</code> skips the confirmation.</td>
+</tr>
+<tr>
+<td><code>traj path &lt;id&gt;</code></td>
+<td>Print its directory.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Relabeling a settled trial.</strong> <code>relabel ... success</code> refuses a trial TANDEM settled. <code>--force</code> overrules it
+(the web UI asks you to confirm), and <code>hitl.json</code> records it as <code>overruled</code>. This is the only way to export an
+excluded trial.</p>
+<p><strong>Merging</strong> takes the trial's <code>trajectory_id</code> from <code>_meta.json</code>, not the timestamp. With no id, it merges every
+trial that has unmerged legs.</p>
+<h2 id="exporting">Exporting</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span><span class="nb">export</span><span class="w"> </span>lerobot<span class="w"> </span>--repo<span class="w"> </span>&lt;owner&gt;/&lt;name&gt;<span class="w">          </span><span class="c1"># writes ~/tandem-data/exports/&lt;owner&gt;/&lt;name&gt;</span>
+tandem<span class="w"> </span><span class="nb">export</span><span class="w"> </span>lerobot<span class="w"> </span>--repo<span class="w"> </span>&lt;owner&gt;/&lt;name&gt;<span class="w"> </span>--push<span class="w">   </span><span class="c1"># and uploads it</span>
+tandem<span class="w"> </span><span class="nb">export</span><span class="w"> </span>manifest<span class="w"> </span>--out<span class="w"> </span>index.json<span class="w">              </span><span class="c1"># a JSON index of the trajectories (default: stdout)</span>
+</code></pre></div>
+<p><code>export lerobot</code> writes a <a href="https://github.com/huggingface/lerobot">LeRobot</a> v3.0 dataset in <a href="https://huggingface.co/datasets/lerobot/droid_1.0.1"><code>lerobot/droid_1.0.1</code></a>'s schema, for <a href="https://github.com/Physical-Intelligence/openpi">π₀.₅-DROID</a> fine-tuning.
+Each run is logged to <code>export.log</code> (<a href="/tandem/docs/data/#logs-and-session-files">logs</a>).</p>
+<p><strong>Only <code>success/</code> is exported.</strong> These are skipped, each with its reason:</p>
+<ul>
+<li>settled trials, unless a forced relabel overruled them;</li>
+<li>episodes whose <code>cmd_gripper</code> isn't binary;</li>
+<li>episodes missing an exterior or wrist video;</li>
+<li>episodes whose state arrays don't fit <a href="https://droid-dataset.github.io/">DROID</a>'s schema.</li>
+</ul>
+<p>What goes into each episode:</p>
+<ul>
+<li><strong>Action:</strong> <code>cmd_joint_velocity</code>, clipped to [-1, 1] and never rescaled, plus <code>cmd_gripper</code>.
+  <code>action_joint_velocity</code> (in <code>robot_state.npz</code>) isn't exported.</li>
+<li><strong>Task:</strong> the episode's <code>instruction</code> from <code>_meta.json</code>, else the profile's <code>task.prompt</code>.</li>
+<li><strong>Cameras:</strong> without <code>external_2</code>, the first exterior video fills both exterior slots.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>flag</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--repo OWNER/NAME</code></td>
+<td>The dataset. The default is the profile's <code>export.hf_repo</code>. <code>hf_org</code> fills in a missing owner.</td>
+</tr>
+<tr>
+<td><code>--out DIR</code></td>
+<td>Write to <code>DIR/&lt;owner&gt;/&lt;name&gt;</code> instead.</td>
+</tr>
+<tr>
+<td><code>-n</code>, <code>--max-episodes N</code></td>
+<td>Export only the first N.</td>
+</tr>
+<tr>
+<td><code>--push</code></td>
+<td>Upload after building. Needs a Hugging Face token (<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">where TANDEM looks</a>).</td>
+</tr>
+<tr>
+<td><code>--private</code>, <code>--public</code></td>
+<td>Visibility when pushing. The default is the profile's <code>export.private</code>.</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>Replace whatever is at the destination. Without it, a rebuild replaces only a dataset TANDEM built, and only once the new one is complete.</td>
+</tr>
+</tbody>
+</table>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/planning/"><span>Previous</span>Planning from a photo</a><a class="next" href="/tandem/docs/web-ui/"><span>Next</span>Web UI</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#exporting">Exporting</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>
