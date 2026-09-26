@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adding a human executor · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/" class="active" aria-current="page">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="adding-a-human-executor">Adding a human executor</h1>
+<p>A <a href="/tandem/docs/concepts/">human executor</a> carries out a human phase and records it as one leg. It only decides
+<strong>how</strong> the phase is done: the plan decides which phase comes next, and the camera check decides whether it
+worked.</p>
+<p>tandem ships one executor, <code>teleop</code>. A package can add others, such as a learned policy. The code is in
+<code>src/tandem/executors/</code>.</p>
+<h2 id="choosing-one">Choosing one</h2>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>executors<span class="w"> </span>list<span class="w">           </span><span class="c1"># each executor: ready, needs setup (and what), or broken</span>
+tandem<span class="w"> </span>executors<span class="w"> </span>use<span class="w"> </span>mypolicy<span class="w">   </span><span class="c1"># the active profile now uses it; -p PROFILE for another</span>
+</code></pre></div>
+<p><code>use</code> sets the profile's <code>hitl.human_executor</code>. It warns if the executor isn't ready, and refuses an unknown or
+broken one (<a href="/tandem/docs/web-ui/#http-api">HTTP API</a> too).</p>
+<ul>
+<li>A profile that names a missing executor can't collect until <code>use</code> fixes it. It can still be browsed,
+  exported and edited.</li>
+<li>With phase planning on, a session looks the executor up before warm-up, so a broken plugin fails early.
+  <code>tandem doctor</code>'s <code>human executor</code> row reports it.</li>
+<li>While recording, an executor that isn't ready leaves a human phase only <code>a</code> (give up). <code>d</code> also works if
+  <a href="/tandem/docs/configuration/#phase-planning-hitl"><code>hitl.allow_unrecorded_human_phase</code></a> is true.</li>
+</ul>
+<h2 id="registering-one">Registering one</h2>
+<p>A minimal executor that runs a policy, and the factory that registers it:</p>
+<div class="hl"><pre><span></span><code><span class="c1"># my_package/executor.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem.executors</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExecutorFactory</span><span class="p">,</span> <span class="n">HumanPhaseResult</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PolicyExecutor</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"mypolicy"</span>
+    <span class="n">segment_source</span> <span class="o">=</span> <span class="s2">"policy"</span>
+    <span class="n">display_name</span> <span class="o">=</span> <span class="s2">"My policy"</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="s2">"Runs a learned policy."</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_killed</span> <span class="o">=</span> <span class="n">ctx</span><span class="p">,</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">leg</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_root</span><span class="p">,</span> <span class="n">should_stop</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># yours: run the policy, recording under save_root/"eval"; poll should_stop() and self._killed</span>
+            <span class="n">leg_dir</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">,</span> <span class="n">stopped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_policy</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">leg</span><span class="p">,</span> <span class="n">save_root</span><span class="p">,</span> <span class="n">should_stop</span><span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">"aborted"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_killed</span> <span class="k">else</span> <span class="s2">"ended_by_operator"</span> <span class="k">if</span> <span class="n">stopped</span> <span class="k">else</span> <span class="s2">"done"</span>
+            <span class="k">return</span> <span class="n">HumanPhaseResult</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">n_frames</span><span class="o">=</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">leg_dir</span><span class="o">=</span><span class="n">leg_dir</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_killed</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_killed</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">FACTORY</span> <span class="o">=</span> <span class="n">ExecutorFactory</span><span class="p">(</span>
+    <span class="n">create</span><span class="o">=</span><span class="n">PolicyExecutor</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="n">PolicyExecutor</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span>
+    <span class="n">summary</span><span class="o">=</span><span class="n">PolicyExecutor</span><span class="o">.</span><span class="n">summary</span><span class="p">,</span>
+    <span class="n">segment_source</span><span class="o">=</span><span class="n">PolicyExecutor</span><span class="o">.</span><span class="n">segment_source</span><span class="p">,</span>
+    <span class="n">requirements</span><span class="o">=</span><span class="p">(</span><span class="s2">"a policy checkpoint"</span><span class="p">,),</span>
+    <span class="n">check</span><span class="o">=</span><span class="k">lambda</span> <span class="n">settings</span><span class="p">:</span> <span class="p">[],</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Register it with an entry point in <code>pyproject.toml</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">[project.entry-points.</span><span class="s2">"tandem.human_executors"</span><span class="k">]</span>
+<span class="n">mypolicy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"my_package.executor:FACTORY"</span>
+</code></pre></div>
+<p>Or call <code>tandem.register_human_executor("mypolicy", FACTORY)</code> (or <code>"my_package.executor:FACTORY"</code>). Keep the
+module light: listing executors imports it.</p>
+<ul>
+<li><strong><code>check(settings)</code></strong> returns unmet requirements in words. An empty list means ready. Keep it cheap and start
+  nothing.</li>
+<li><strong>A class can be the factory.</strong> It needs <code>segment_source</code>, <code>display_name</code>, <code>summary</code> and <code>requirements</code> class
+  attributes, and optionally <code>validate_options</code>. It can't have <code>check</code>.</li>
+<li><strong>Names</strong> follow the <a href="/tandem/docs/adding-a-planner/#names">planner rule</a>. Reusing a name needs <code>replace=True</code>. Two
+  installed packages claiming one name is an error.</li>
+</ul>
+<h3 id="executorcontext"><code>ExecutorContext</code></h3>
+<p><code>create</code> receives this once per session.</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>profile</code>, <code>session_dir</code></td>
+<td>The validated profile; scratch space (not for recordings).</td>
+</tr>
+<tr>
+<td><code>rig</code></td>
+<td>The <a href="/tandem/docs/configuration/#the-rig">rig</a>: the cameras a leg records from and the robot's address. <code>None</code> in a context built by hand; then read <code>tandem.core.rig.load()</code>.</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>tandem's settings. <code>None</code> in a session: call <code>tandem.core.settings.load()</code> each leg, so <code>tandem config set</code> applies at the next hand-off.</td>
+</tr>
+<tr>
+<td><code>on_log(stream, text)</code>, <code>on_emit(payload)</code>, <code>on_problem(message)</code></td>
+<td>Log a line; message every UI subscriber; show the operator a problem until the leg ends.</td>
+</tr>
+<tr>
+<td><code>options</code></td>
+<td>The profile's <code>hitl.human_executor_options.&lt;name&gt;</code>, or <code>{}</code> if unset.</td>
+</tr>
+</tbody>
+</table>
+<p>If the factory has <code>validate_options(options)</code>, it runs when the profile loads. It returns plain data, which is
+saved to the profile's file, or raises <code>TandemError</code> or <code>ValueError</code> naming the bad key.</p>
+<h2 id="the-protocol">The protocol</h2>
+<p>Implement <code>tandem.executors.HumanExecutor</code>. Every member is required except <code>close()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>member</th>
+<th>contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code>, <code>display_name</code>, <code>summary</code></td>
+<td>The registered name, and what listings show.</td>
+</tr>
+<tr>
+<td><code>segment_source</code></td>
+<td><code>"teleop"</code> or <code>"policy"</code>, matching the factory. It is written to each leg's <code>_meta.json</code>.</td>
+</tr>
+<tr>
+<td><code>run(request, leg, *, save_root, should_stop)</code></td>
+<td>Called once per attempt, at hand-over (<code>t</code> or the UI). Record the phase, then return a <a href="#humanphaseresult"><code>HumanPhaseResult</code></a> once the robot and cameras are free.</td>
+</tr>
+<tr>
+<td><code>kill()</code></td>
+<td>Ends the running leg, called from another thread. <code>run</code> then returns <code>aborted</code>. Safe when idle. Clear the kill flag when <code>run</code> returns, not when it starts.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Frees what the executor started. Called once at any session end, after parking. Must not raise.</td>
+</tr>
+</tbody>
+</table>
+<p>The arguments to <code>run</code>:</p>
+<table>
+<thead>
+<tr>
+<th>argument</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>request</code></td>
+<td>A <a href="#humanphaserequest"><code>HumanPhaseRequest</code></a>. It is <code>None</code> only when the operator takes the arm between phases, which always uses <code>teleop</code>.</td>
+</tr>
+<tr>
+<td><code>leg</code></td>
+<td>Stamps the leg per <a href="/tandem/docs/adding-a-planner/#the-recording-contract">the recording contract</a>.</td>
+</tr>
+<tr>
+<td><code>save_root</code></td>
+<td>The profile's <code>trajectories/&lt;profile&gt;/</code>. Record under a new directory in <code>save_root/eval/</code>.</td>
+</tr>
+<tr>
+<td><code>should_stop</code></td>
+<td>Turns true when the operator returns control (<code>r</code>), the session stops, or an hour passes. Poll it, and never block without it.</td>
+</tr>
+</tbody>
+</table>
+<p>If the arm can't be freed, raise <code>tandem.executors.CustodyError</code>, and the session ends. <code>teleop</code> does this when
+its driver survives a kill.</p>
+<h3 id="humanphaserequest"><code>HumanPhaseRequest</code></h3>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>phase_index</code>, <code>n_phases</code></td>
+<td>0-based. <code>n_phases</code> is 0 when no plan is behind the phase (then <code>leg.phase_index</code> is <code>None</code>).</td>
+</tr>
+<tr>
+<td><code>description</code>, <code>instructions</code>, <code>expected</code></td>
+<td>The phase in the model's words; what the person sees; what the camera check looks for.</td>
+</tr>
+<tr>
+<td><code>operator</code></td>
+<td>The magic operator, as <code>HumanOperator.to_json()</code>. <code>None</code> for a robot phase handed to a person (<code>on_robot_phase_failure: teleop</code>).</td>
+</tr>
+<tr>
+<td><code>attempt</code>, <code>missing</code></td>
+<td>Counts from 1; on a retry, what the last check found missing.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="humanphaseresult"><code>HumanPhaseResult</code></h3>
+<div class="hl"><pre><span></span><code><span class="n">HumanPhaseResult</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">n_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">leg_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">leg_dirs</span><span class="o">=</span><span class="p">())</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>status</code></th>
+<th>meaning</th>
+<th>what the loop does next</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>done</code></td>
+<td>The phase was carried out.</td>
+<td>Checks its effects (<a href="/tandem/docs/configuration/#phase-planning-hitl"><code>hitl</code> keys</a>), with <code>verify_retries</code> more tries on failure.</td>
+</tr>
+<tr>
+<td><code>ended_by_operator</code></td>
+<td>The operator stopped it to move on, e.g. a step-limited policy.</td>
+<td>Keeps the leg and accepts the phase unchecked (<a href="/tandem/docs/data/#hitljson"><code>hitl.json</code></a>).</td>
+</tr>
+<tr>
+<td><code>aborted</code></td>
+<td>Cut off, or couldn't run (e.g. no policy server).</td>
+<td>Fails the trial at <code>human_policy</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><code>n_frames</code> counts every frame the hand-off wrote. <code>leg_dir</code> is the last recording's directory (or <code>None</code>), and
+<code>leg_dirs</code> lists every recording in order (empty means just <code>leg_dir</code>).</p>
+<p>While recording, a result with <code>n_frames=0</code> is refused and the phase is asked again, without spending a retry.
+<a href="/tandem/docs/configuration/#phase-planning-hitl"><code>hitl.allow_unrecorded_human_phase: true</code></a> accepts it instead. Giving up
+with <code>a</code> runs no executor, so it is not <code>aborted</code>.</p>
+<h3 id="custody">Custody</h3>
+<p>Each human leg runs in four steps:</p>
+<ol>
+<li><code>backend.release_hardware()</code> frees the robot and cameras. A failure only warns.</li>
+<li><code>executor.run(...)</code> runs. It is skipped as <code>aborted</code> if a forced stop came during step 1.</li>
+<li>The leg is counted. It is labeled and merged even if step 4 fails.</li>
+<li><code>backend.reacquire_hardware()</code> takes the robot back, unless <code>run</code> raised <code>CustodyError</code>. A failure ends the
+    session.</li>
+</ol>
+<p>Any other exception from <code>run</code> fails the trial at <code>human_policy</code>, and the session goes on.</p>
+<h2 id="the-teleop-executor">The teleop executor</h2>
+<p><code>TeleopExecutor</code> runs the <a href="https://github.com/SamratSahoo/droid/tree/TANDEM">DROID</a> teleop driver, one process per leg. It needs:</p>
+<ul>
+<li>the teleop runtime, from <code>tandem executors install teleop</code> (<a href="/tandem/docs/teleop/">setup</a>). It holds the
+  workstation side of <a href="https://github.com/SamratSahoo/droid/tree/TANDEM">DROID's TANDEM branch</a> and
+  <a href="https://github.com/rail-berkeley/oculus_reader">oculus_reader</a>, in their own environment;</li>
+<li><code>teleop.enabled</code> (<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">keys</a>), which the install turns on;</li>
+<li>a VR headset and controller (<a href="https://www.meta.com/quest/">Meta Quest</a>).</li>
+</ul>
+<p>tandem sets <code>DROID_NUC_IP</code> and <code>TIPTOP_*_CAMERA_ID</code> for the driver from the rig, which DROID's
+<a href="https://github.com/SamratSahoo/droid/blob/TANDEM/droid/misc/parameters.py"><code>droid/misc/parameters.py</code></a> reads. To run a DROID checkout and environment of your own instead, set both
+<code>teleop.droid_dir</code> and <code>teleop.python</code>; the driver then runs there, and the runtime is ignored.</p>
+<p><code>tandem executors list</code> checks <code>teleop.enabled</code> and the runtime (or both overrides), but not the device. A
+missing headset shows up as a driver error when the leg starts.</p>
+<p>If the driver can't start, the leg stays open and shows the problem until you return control. One hand-off can
+make several recordings, and all of them are in <code>leg_dirs</code>.</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/adding-a-planner/"><span>Previous</span>Adding a planner</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#choosing-one">Choosing one</a></li><li><a href="#registering-one">Registering one</a></li><li class="sub"><a href="#executorcontext">ExecutorContext</a></li><li><a href="#the-protocol">The protocol</a></li><li class="sub"><a href="#humanphaserequest">HumanPhaseRequest</a></li><li class="sub"><a href="#humanphaseresult">HumanPhaseResult</a></li><li class="sub"><a href="#custody">Custody</a></li><li><a href="#the-teleop-executor">The teleop executor</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

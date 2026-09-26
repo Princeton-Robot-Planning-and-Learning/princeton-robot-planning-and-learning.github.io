@@ -11,6 +11,17 @@ Deployment happens through GitHub Actions (`.github/workflows/deploy.yml`) on ev
 - **Page paths** (e.g. `/prbench-site/`) become small HTML files that immediately forward the browser to the destination.
 - **Non-HTML paths** (e.g. a `.pdf`) cannot redirect on GitHub Pages, so the build copies the destination file to the old path — both URLs serve the same file.
 
+## TANDEM's docs
+
+`/tandem/docs/` is generated from the Markdown in `tandem/docs/_src/` (one file per page; the sidebar order is `NAV` in the script). The HTML is committed, so the deploy doesn't change. After editing a page:
+
+```bash
+pip install markdown pygments pymdown-extensions
+python3 scripts/build_tandem_docs.py
+```
+
+The build fails on a link between pages that resolves to no heading.
+
 ## Making changes
 
 You should already be on the PRPL lab GitHub team with write access to this repo — ask Tom if not. **Do not fork**; work on a branch:

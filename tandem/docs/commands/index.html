@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Command reference · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/" class="active" aria-current="page">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="command-reference">Command reference</h1>
+<p><code>tandem &lt;command&gt; --help</code> lists every flag. <code>[profile]</code> defaults to the active profile. Global options go
+first: <code>tandem --debug collect</code> shows full tracebacks, and <code>--no-color</code> (or <code>NO_COLOR</code>) turns off color.</p>
+<p><code>--json</code> works with <code>doctor</code>, <code>plan</code>, <code>profile list|show</code>, <code>rig show</code>, <code>traj list|show</code>,
+<code>planners list|info|use|default</code>, <code>executors list|use</code>, <code>runtime status</code> and <code>config list</code>.</p>
+<h2 id="setup">Setup</h2>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tandem init</code></td>
+<td>Checks, data directory, planner runtime and its <a href="#servers">servers</a>, <a href="https://aistudio.google.com/apikey">Gemini key</a>, <a href="/tandem/docs/configuration/#the-rig">the rig</a>, <a href="/tandem/docs/configuration/#the-papers-five">the paper's five</a> and teleop. Moves <a href="/tandem/docs/configuration/#older-profiles">older profiles</a>. Skips steps already done.</td>
+</tr>
+<tr>
+<td><code>tandem doctor</code></td>
+<td>Runs every check and says how to fix what fails. Changes nothing.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>flag</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>init --viz-only</code></td>
+<td>Set up a laptop for reviewing only: no runtime or robot.</td>
+</tr>
+<tr>
+<td><code>init -y</code>, <code>--yes</code></td>
+<td>Accept every prompt.</td>
+</tr>
+<tr>
+<td><code>init --repair</code></td>
+<td>Redo the runtime, key, rig and teleop. Never touches a profile.</td>
+</tr>
+<tr>
+<td><code>init --robot-host</code>, <code>--robot-type</code>, <code>--camera ROLE=SERIAL</code></td>
+<td>The robot and cameras. <code>--camera</code> is repeatable.</td>
+</tr>
+<tr>
+<td><code>init --planner NAME</code>, <code>--profile NAME</code></td>
+<td>The planner, and the profile to make active.</td>
+</tr>
+<tr>
+<td><code>doctor -p</code>, <code>--profile</code></td>
+<td>Check another profile.</td>
+</tr>
+<tr>
+<td><code>doctor --no-hardware</code></td>
+<td>Skip the robot, camera and perception-server probes.</td>
+</tr>
+</tbody>
+</table>
+<p>Sessions: <a href="/tandem/docs/collecting/#collecting"><code>collect</code></a>, <a href="/tandem/docs/planning/#planning-from-a-photo"><code>plan</code></a> and <a href="/tandem/docs/web-ui/"><code>ui</code></a> have their flags in
+their sections. So do <a href="/tandem/docs/reviewing/#reviewing-and-exporting"><code>traj</code></a> and <a href="/tandem/docs/reviewing/#exporting"><code>export</code></a>.</p>
+<h2 id="profiles">Profiles</h2>
+<p><code>tandem profile list|show|use|edit|path|delete|create|migrate</code> manages <a href="/tandem/docs/configuration/#profiles">profiles</a>,
+one YAML file each.</p>
+<table>
+<thead>
+<tr>
+<th>flag</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create NAME --prompt "..."</code></td>
+<td>A new profile: the paper's settings with your task.</td>
+</tr>
+<tr>
+<td><code>create NAME --from PROFILE</code></td>
+<td>A copy of another profile.</td>
+</tr>
+<tr>
+<td><code>create --use</code>, <code>--force</code></td>
+<td>Make it active; replace a profile of that name (its trajectories are kept).</td>
+</tr>
+<tr>
+<td><code>show --planner</code></td>
+<td>Show only what the planner receives.</td>
+</tr>
+<tr>
+<td><code>delete --purge</code>, <code>-y</code></td>
+<td>Also delete its trajectories; skip the confirmation.</td>
+</tr>
+</tbody>
+</table>
+<p><code>edit</code> opens the file in <code>$EDITOR</code> and validates it on save. <code>migrate</code> moves
+<a href="/tandem/docs/configuration/#older-profiles">older profiles</a>.</p>
+<h2 id="rig">Rig</h2>
+<p><code>tandem rig show|set|edit|path</code> manages <a href="/tandem/docs/configuration/#the-rig">the robot, camera and calibration settings</a>.
+<code>set KEY VALUE</code> takes one dotted key, such as <code>robot.host</code>, and <code>null</code> removes it. <code>path --calibration</code> prints
+where the extrinsics file is.</p>
+<h2 id="planners-and-executors">Planners and executors</h2>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>what it does and its flags</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>planners list</code>, <code>info NAME</code></td>
+<td>Every planner and its state; one planner's needs, pinned vs installed commits, goal language and settings. <code>-p/--profile</code>.</td>
+</tr>
+<tr>
+<td><code>planners install NAME</code></td>
+<td>Build or update its <a href="/tandem/docs/configuration/#the-planner-runtime">runtime</a>. <code>--sources DIR</code> (<a href="/tandem/docs/configuration/#offline-install">offline</a>), <code>--force</code> (refetch and rebuild), <code>-y/--yes</code>.</td>
+</tr>
+<tr>
+<td><code>planners remove NAME</code></td>
+<td>Delete its runtime only.</td>
+</tr>
+<tr>
+<td><code>planners use NAME</code></td>
+<td>Make a profile plan with it (<a href="/tandem/docs/configuration/#planner-settings">settings</a>). <code>-p/--profile</code>, <code>-o/--option KEY=VALUE</code> (repeatable), <code>--default</code> (new profiles too).</td>
+</tr>
+<tr>
+<td><code>planners default NAME</code></td>
+<td>Set only the planner new profiles get.</td>
+</tr>
+<tr>
+<td><code>planners bundle NAME --out DIR</code></td>
+<td>Save its pinned sources for an <a href="/tandem/docs/configuration/#offline-install">offline install</a>. <code>--only SOURCE</code> and <code>--from SOURCE=PATH</code> (a local checkout), both repeatable; <code>--archive</code> (also <code>DIR.tar.gz</code>).</td>
+</tr>
+<tr>
+<td><code>planners new NAME</code></td>
+<td>Scaffold <a href="/tandem/docs/adding-a-planner/#quick-start">your own planner</a>. <code>--sidecar</code>, <code>--dir DIR</code>.</td>
+</tr>
+<tr>
+<td><code>executors list</code>, <code>use NAME</code></td>
+<td>Human executors and readiness; set a profile's (<a href="/tandem/docs/adding-a-human-executor/#choosing-one">choosing one</a>). <code>-p/--profile</code>.</td>
+</tr>
+<tr>
+<td><code>executors install teleop</code>, <code>remove teleop</code></td>
+<td>Build (or delete) the teleop driver's runtime; install also turns teleop on. <code>install --force</code> (refetch, rebuild), <code>--sources DIR</code>, <code>-y/--yes</code>; <code>remove -y</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Planner states are <code>installed</code>, <code>not installed</code>, <code>outdated</code> (built at commits other than the pinned ones),
+<code>no runtime needed</code> and <code>broken</code>. Executor states are <code>ready</code>, <code>needs setup</code> and <code>broken</code>. Each says why when
+it isn't ready, and <code>●</code> marks the profile's choice.</p>
+<h2 id="settings-and-runtime">Settings and runtime</h2>
+<p><code>tandem config list|get|set|edit|path|set-gemini-key|set-hf-token</code> manages
+<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">tandem's settings</a>. <code>set KEY VALUE</code> takes one dotted key,
+such as <code>ui.port</code>. The <code>set-*</code> commands store a credential typed at a prompt, or read it with <code>--stdin</code>.
+<code>set-gemini-key --key KEY</code> also works, but leaves the key in your shell history.</p>
+<p><code>tandem runtime status|build|shell|python|run|clean|path</code> works on the active profile's planner runtime.
+<code>--planner NAME</code> or <code>-p/--profile</code> picks another.</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>runtime<span class="w"> </span>run<span class="w"> </span>viz-calibration<span class="w"> </span>--camera<span class="w"> </span>external<span class="w">   </span><span class="c1"># a planner script, run with your rig settings</span>
+</code></pre></div>
+<ul>
+<li><code>run</code> and <code>shell</code> run the planner's own scripts with your <a href="/tandem/docs/configuration/#the-rig">rig</a> settings. <code>--raw</code>
+  uses the planner's stock config instead.</li>
+<li>tandem's options (<code>--planner</code>, <code>-p</code>, <code>--raw</code>) go before the script's name, and the script's own after it.
+  <code>--</code> still works.</li>
+<li><code>build</code> builds or repairs the runtime (<code>--force</code> refetches, plus <code>--env-only</code> and <code>--sources DIR</code>).
+  <code>python</code> prints the interpreter, and <code>clean</code> deletes the runtime (<code>-y</code> skips the confirmation).</li>
+</ul>
+<h2 id="servers">Servers</h2>
+<p><code>tandem servers install|status|start|stop</code> manages the helper servers the planner calls: <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s <a href="https://github.com/SamratSahoo/M2T2/tree/TANDEM">M2T2</a> (grasps)
+and <a href="https://github.com/SamratSahoo/FoundationStereo/tree/TANDEM">FoundationStereo</a> (depth), at the URLs in <a href="/tandem/docs/configuration/#tiptop-options">the rig</a>. <code>tandem init</code> builds
+them, and <code>tandem collect</code> starts any that are down and stops the ones it started when it ends.</p>
+<table>
+<thead>
+<tr>
+<th>command</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>servers install</code></td>
+<td>Build their runtimes. <code>--force</code> (refetch, rebuild), <code>--sources DIR</code>, <code>-y/--yes</code>.</td>
+</tr>
+<tr>
+<td><code>servers status</code></td>
+<td>Whether each is installed and answering, and whether tandem started it. <code>--json</code>.</td>
+</tr>
+<tr>
+<td><code>servers start [NAME]</code></td>
+<td>Start those that are down, wait for each to load, and leave them running.</td>
+</tr>
+<tr>
+<td><code>servers stop [NAME]</code></td>
+<td>Stop the ones tandem started, such as after a crashed session.</td>
+</tr>
+</tbody>
+</table>
+<p><code>NAME</code> is <code>m2t2</code> or <code>foundation_stereo</code>. tandem never starts a server whose URL points at another machine.
+Each server's log is <code>server-&lt;name&gt;.log</code> (<a href="/tandem/docs/data/#logs-and-session-files">logs</a>).</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/concepts/"><span>Previous</span>Concepts</a><a class="next" href="/tandem/docs/data/"><span>Next</span>Data format</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#setup">Setup</a></li><li><a href="#profiles">Profiles</a></li><li><a href="#rig">Rig</a></li><li><a href="#planners-and-executors">Planners and executors</a></li><li><a href="#settings-and-runtime">Settings and runtime</a></li><li><a href="#servers">Servers</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

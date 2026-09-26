@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data format · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/" class="active" aria-current="page">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="data-format">Data format</h1>
+<p>This page describes what a trial leaves on disk, and where tandem writes its logs. Paths are the Linux defaults
+(<a href="/tandem/docs/configuration/#tandem-settings-and-credentials">moving them</a>). For the terms used here, see
+<a href="/tandem/docs/concepts/">Concepts</a>.</p>
+<h2 id="reading-an-episode">Reading an episode</h2>
+<div class="hl"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">ep</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~/tandem-data/trajectories/my-task/success/2026-09-25_14-03-12"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">ep</span> <span class="o">/</span> <span class="s2">"_meta.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">ep</span> <span class="o">/</span> <span class="s2">"robot_state.npz"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">"instruction"</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">"n_frames"</span><span class="p">],</span> <span class="s2">"frames at"</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">],</span> <span class="s2">"fps"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"joint_position"</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>          <span class="c1"># (F, 7)</span>
+
+<span class="c1"># Who did each phase, and did its camera checks pass?</span>
+<span class="n">hitl</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">ep</span> <span class="o">/</span> <span class="s2">"hitl.json"</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+<span class="k">for</span> <span class="n">phase</span> <span class="ow">in</span> <span class="n">hitl</span><span class="p">[</span><span class="s2">"phases"</span><span class="p">]:</span>
+    <span class="n">verdicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="s2">"satisfied"</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">hitl</span><span class="p">[</span><span class="s2">"verifications"</span><span class="p">]</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"phase"</span><span class="p">)</span> <span class="o">==</span> <span class="n">phase</span><span class="p">[</span><span class="s2">"index"</span><span class="p">]]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">phase</span><span class="p">[</span><span class="s2">"index"</span><span class="p">],</span> <span class="n">phase</span><span class="p">[</span><span class="s2">"executor"</span><span class="p">],</span> <span class="n">phase</span><span class="p">[</span><span class="s2">"description"</span><span class="p">],</span> <span class="n">verdicts</span><span class="p">)</span>
+
+<span class="c1"># The frame shown 4.2 s into the videos (merged episodes have video_time).</span>
+<span class="n">frame</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">"video_time"</span><span class="p">],</span> <span class="mf">4.2</span><span class="p">))</span>
+</code></pre></div>
+<h2 id="episode-layout">Episode layout</h2>
+<p>Each trial is one directory, under <code>success/</code> or <code>failure/</code>:</p>
+<div class="hl"><pre><span></span><code>~/tandem-data/trajectories/&lt;profile&gt;/&lt;status&gt;/&lt;YYYY-MM-DD_HH-MM-SS&gt;/
+├── external_cam.mp4  external_cam_2.mp4  hand_cam.mp4   exterior 1, exterior 2 (optional), wrist
+├── robot_state.npz        per-frame arrays
+├── _meta.json             lineage, timing, and which leg and phase each frame belongs to
+├── hitl.json              the phase record
+├── vlm/                   model queries
+├── tiptop_plan.json, …    the primary leg's other files
+└── segments/NN_&lt;source&gt;_&lt;leg dir&gt;/   the raw legs, in order
+</code></pre></div>
+<p>The videos and arrays join every leg of the trial in order. The episode takes the
+<a href="/tandem/docs/concepts/">primary leg</a>'s directory name, its <code>_meta.json</code>, and its other files except <code>*.log</code>. For <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>
+those are <code>tiptop_plan.json</code>, <code>metadata.json</code>, <code>rgb.png</code> and <code>perception/</code>.</p>
+<p>A trial with a single leg is not merged: the leg is the episode. The format is the same as hitl-tamp-vla's. To
+review and export episodes, see <a href="/tandem/docs/reviewing/">Reviewing and exporting</a>.</p>
+<h2 id="robot_statenpz"><code>robot_state.npz</code></h2>
+<p>The file has one row per frame. The per-leg arrays are listed in
+<a href="/tandem/docs/adding-a-planner/#the-recording-contract">the recording contract</a>. An episode may also have:</p>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th>shape</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>video_time</code></td>
+<td><code>[F]</code> float64</td>
+<td>Merged episodes only: the frame's time in the joined videos, in seconds.</td>
+</tr>
+<tr>
+<td><code>action_joint_velocity</code></td>
+<td><code>[F,7]</code></td>
+<td>The <a href="https://droid-dataset.github.io/">DROID</a> joint-velocity action, if any leg recorded it (TiPToP does). For legs without it, teleop and policy legs copy <code>cmd_joint_velocity</code>, and planner legs get <code>5 × (cmd_joint_position − joint_position)</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>To match frames to video in a merged episode, use <code>video_time</code>. Don't use <code>frame_time</code>, which keeps the gaps
+between legs. In a single leg, frame <em>i</em> sits <code>(frame_time[i] − record_start) / (record_stop − record_start)</code> of
+the way through each video.</p>
+<p>The arrays the export uses are listed in <a href="/tandem/docs/reviewing/#exporting">Exporting</a>.</p>
+<h2 id="_metajson"><code>_meta.json</code></h2>
+<div class="hl"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"trajectory_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f9c0a1b7d2e4c55"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"planner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tiptop"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"place the bread inside the box"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"n_frames"</span><span class="p">:</span><span class="w"> </span><span class="mi">912</span><span class="p">,</span><span class="w"> </span><span class="nt">"fps"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"cameras"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"exterior_image_1_left"</span><span class="p">:</span><span class="w"> </span><span class="s2">"external_cam.mp4"</span><span class="p">,</span><span class="w"> </span><span class="nt">"wrist_image_left"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hand_cam.mp4"</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"segments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tamp"</span><span class="p">,</span><span class="w">   </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-25_14-03-12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"video_start"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w">  </span><span class="nt">"video_stop"</span><span class="p">:</span><span class="w"> </span><span class="mf">31.4</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teleop"</span><span class="p">,</span><span class="w"> </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-25_14-03-50"</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"video_start"</span><span class="p">:</span><span class="w"> </span><span class="mf">31.4</span><span class="p">,</span><span class="w"> </span><span class="nt">"video_stop"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.8</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>A merged episode's <code>_meta.json</code> is the primary leg's, with the keys below set. A single-leg episode keeps its
+own (<a href="/tandem/docs/adding-a-planner/#the-recording-contract">per-leg keys</a>).</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trajectory_id</code></td>
+<td>Shared by every leg of the trial.</td>
+</tr>
+<tr>
+<td><code>planner</code>, <code>instruction</code></td>
+<td>The planner and the task (the language label). The session adds them if missing, and adds <code>planner</code> only on a planner's leg. <code>tandem traj open</code> picks its viewer by <code>planner</code>.</td>
+</tr>
+<tr>
+<td><code>source</code>, <code>segment_source</code>, <code>video_aligned</code></td>
+<td><code>"trajectory"</code>, <code>null</code>, <code>true</code>.</td>
+</tr>
+<tr>
+<td><code>n_frames</code>, <code>fps</code>, <code>total_video_frames</code></td>
+<td>Rows in <code>robot_state.npz</code>, the frame rate, and the frames in each joined video.</td>
+</tr>
+<tr>
+<td><code>record_start</code>, <code>record_stop</code></td>
+<td>Epoch seconds: the first leg's start and the last leg's stop.</td>
+</tr>
+<tr>
+<td><code>cameras</code></td>
+<td>Dataset key → video: <code>exterior_image_1_left</code> → <code>external_cam.mp4</code>, <code>exterior_image_2_left</code> → <code>external_cam_2.mp4</code>, <code>wrist_image_left</code> → <code>hand_cam.mp4</code>.</td>
+</tr>
+<tr>
+<td><code>n_phases</code></td>
+<td>Set only if every leg that states it agrees and all ran one plan.</td>
+</tr>
+<tr>
+<td><code>segments[]</code></td>
+<td>One entry per leg, in order (below).</td>
+</tr>
+<tr>
+<td><code>cameras_dropped</code>, <code>legs_skipped</code></td>
+<td>What was left out: videos only some legs had, and legs without <code>robot_state.npz</code>.</td>
+</tr>
+<tr>
+<td><code>frames_trimmed</code></td>
+<td>Leg → camera → trailing frames cut to even out that leg's videos.</td>
+</tr>
+<tr>
+<td><code>proportional_fallback_legs</code></td>
+<td>Legs with no usable recording window. Their frames are spread evenly over their videos.</td>
+</tr>
+<tr>
+<td><code>action_convention</code>, <code>action_notes</code></td>
+<td>Set with <code>action_joint_velocity</code>: <code>"droid_joint_velocity"</code>, and leg → a note for each leg whose action was recomputed or could not be.</td>
+</tr>
+</tbody>
+</table>
+<p>Each <code>segments[k]</code> has:</p>
+<ul>
+<li><code>source</code> (<code>tamp</code>, <code>teleop</code> or <code>policy</code>), <code>timestamp</code> (the leg's directory name), <code>n_frames</code> and <code>n_video_frames</code>.</li>
+<li><code>video_start</code> and <code>video_stop</code> (seconds into the joined videos), and <code>record_start</code> and <code>record_stop</code>.</li>
+<li>If the leg stated them: <code>phase_index</code>, <code>phase_description</code>, <code>n_phases</code> and <code>config_id</code> (teleop: <code>teleop/teleop</code>).
+  <code>phase_index</code> and <code>phase_description</code> never appear at the top level.</li>
+<li>After a <code>replan</code>: <code>plan_generation</code> (0 is the first plan).</li>
+</ul>
+<p>A conjoined robot leg gets the first phase it covers. Its <code>phase_description</code> joins the covered phases'
+descriptions with <code>;</code>.</p>
+<h2 id="hitljson"><code>hitl.json</code></h2>
+<p>This file is written when phase planning is on and the trial has a plan. It goes into the primary leg, then
+beside the merged episode. A trial stopped at the label prompt keeps it in its primary leg in <code>eval/</code>.</p>
+<p>A trimmed example, for a trial where the robot moves the bread and a person closes the lid:</p>
+<div class="hl"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"put the bread in the box and close it"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"trajectory_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f9c0a1b7d2e4c55"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"planner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tiptop"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"human_executor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teleop"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"outcome"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w"> </span><span class="nt">"excluded"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"failure_stage"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"filed_under"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"invented_predicates"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IsClosed"</span><span class="p">,</span><span class="w"> </span><span class="nt">"types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"surface"</span><span class="p">],</span><span class="w"> </span><span class="nt">"instructions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Is the lid of {0} closed?"</span><span class="p">}],</span>
+<span class="w">    </span><span class="nt">"unrepresented"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">"coverage"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"clause"</span><span class="p">:</span><span class="w"> </span><span class="s2">"put the bread in the box"</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nt">"clause"</span><span class="p">:</span><span class="w"> </span><span class="s2">"close it"</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"phases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"executor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"robot"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Put the bread in the box"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"atoms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"On(bread, box)"</span><span class="p">],</span><span class="w"> </span><span class="nt">"goal"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"predicate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"on"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"bread"</span><span class="p">,</span><span class="w"> </span><span class="s2">"box"</span><span class="p">]}],</span>
+<span class="w">     </span><span class="nt">"planning_seconds"</span><span class="p">:</span><span class="w"> </span><span class="mf">41.2</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"executor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"human"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Close the box"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"atoms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"IsClosed(box)"</span><span class="p">],</span><span class="w"> </span><span class="nt">"instructions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Close the box's lid."</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"carried_out"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"attempt"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"carried_out_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"teleop"</span><span class="p">,</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"done"</span><span class="p">,</span><span class="w"> </span><span class="nt">"leg_recorded"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"n_frames"</span><span class="p">:</span><span class="w"> </span><span class="mi">440</span><span class="p">}]}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"verifications"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"atom"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IsClosed(box)"</span><span class="p">,</span><span class="w"> </span><span class="nt">"statement"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Is the lid of box closed?"</span><span class="p">,</span><span class="w"> </span><span class="nt">"holds"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"expected"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"satisfied"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"effect"</span><span class="p">,</span><span class="w"> </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The lid is down."</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"phase_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="top-level-keys">Top-level keys</h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instruction</code>, <code>trajectory_id</code>, <code>planner</code>, <code>human_executor</code></td>
+<td>The task as planned, the trial id, the planner, and <code>hitl.human_executor</code>.</td>
+</tr>
+<tr>
+<td><code>outcome</code>, <code>excluded</code></td>
+<td><code>success</code>, <code>failure</code>, <code>excluded</code> or <code>aborted</code>. <code>excluded</code> is <code>outcome == "excluded"</code>.</td>
+</tr>
+<tr>
+<td><code>failure_stage</code></td>
+<td><code>invention</code>, <code>tamp_planning</code>, <code>tamp_execution</code>, <code>verification</code>, <code>human_policy</code> or <code>null</code>. It is always the loop's, whatever the label.</td>
+</tr>
+<tr>
+<td><code>filed_under</code></td>
+<td><code>success</code>, <code>failure</code>, or <code>null</code> while in <code>eval/</code>. A relabel rewrites it.</td>
+</tr>
+<tr>
+<td><code>outcome_reason</code></td>
+<td>What was wrong, when the loop ended the trial.</td>
+</tr>
+<tr>
+<td><code>overruled</code></td>
+<td>Set after <code>tandem traj relabel --force</code> files a settled trial under <code>success/</code> (<code>outcome</code> then reads <code>success</code>). It holds the loop's <code>{outcome, excluded, failure_stage, by}</code> (<a href="/tandem/docs/reviewing/#reviewing-and-exporting">rules</a>).</td>
+</tr>
+<tr>
+<td><code>plan_generation</code>, <code>leg_plan_generations</code></td>
+<td>0, plus one per <code>replan</code>. After a replan, leg directory → its plan.</td>
+</tr>
+<tr>
+<td><code>superseded_plans[]</code></td>
+<td>Plans a <code>replan</code> replaced, oldest first, as they stood (without filing keys), plus <code>plan_generation</code> and <code>superseded_because</code>. <code>[]</code> if none.</td>
+</tr>
+<tr>
+<td><code>initially_true</code></td>
+<td>Invented atoms true on the first image (<code>hitl.classify_initial</code>), else <code>[]</code>.</td>
+</tr>
+<tr>
+<td><code>provenance</code></td>
+<td>Who produced each part, in words (below).</td>
+</tr>
+<tr>
+<td><code>handed_over_phases</code></td>
+<td>Robot phases the planner couldn't plan, given to a person (<code>on_robot_phase_failure: teleop</code>).</td>
+</tr>
+<tr>
+<td><code>phase_index</code></td>
+<td>How far the trial got. It equals the phase count if the plan finished.</td>
+</tr>
+</tbody>
+</table>
+<p><code>provenance</code> has <code>phases_and_their_order</code>, <code>phase_sub_goals</code>, <code>invented_predicates</code> and <code>human_instructions</code> (the
+model), <code>robot_phases</code> (the planner), <code>who_does_what</code> (tandem), and <code>human_steps</code> (the intended executor; each
+phase's <code>carried_out</code> says who actually did it). <code>human_operators</code> and <code>robot_operators</code> are <code>{by, signatures}</code>,
+with signatures written <code>Name(param: type)</code>.</p>
+<h3 id="specification"><code>specification</code></h3>
+<p>The proposal's reading of the instruction.</p>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>invented_predicates[]</code></td>
+<td><code>{name, types, instructions}</code>. <code>instructions</code> is the classifier sentence, with <code>{0}</code>, <code>{1}</code>, … for arguments.</td>
+</tr>
+<tr>
+<td><code>human_operators[]</code></td>
+<td><code>{phase, name, args, signature, instance, preconditions, add_effects, delete_effects}</code> for each human phase with an operator. Load one with <code>tandem.planning.structs.HumanOperator.from_json</code>.</td>
+</tr>
+<tr>
+<td><code>surfaces[]</code>, <code>movables[]</code></td>
+<td>The object types in the task.</td>
+</tr>
+<tr>
+<td><code>unrepresented[]</code></td>
+<td><code>{clause, reason}</code> for each clause the plan leaves out.</td>
+</tr>
+<tr>
+<td><code>coverage[]</code></td>
+<td><code>{clause, phase}</code> for each clause. <code>phase</code> is <code>-1</code> if left out.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="checks"><code>checks</code></h3>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>human_preconditions</code>, <code>human_effects</code>, <code>tamp_preconditions</code>, <code>tamp_effects</code>, <code>plan_effects</code>, <code>verify_enforced</code>, <code>precondition_enforced</code>, <code>verify_final_phase</code></td>
+<td>The <code>hitl</code> switches as configured.</td>
+</tr>
+<tr>
+<td><code>initial_state_classified</code></td>
+<td>Whether the first image was classified.</td>
+</tr>
+<tr>
+<td><code>plan_effects_rechecked</code>, <code>plan_effects_warning</code></td>
+<td>Whether the contract check re-ran on the first image, and its finding (or <code>null</code>).</td>
+</tr>
+<tr>
+<td><code>unchecked_phases[]</code></td>
+<td>Phases accepted without a verdict.</td>
+</tr>
+<tr>
+<td><code>unrecorded_human_phases[]</code></td>
+<td>Human phases with no leg, and so no segment.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phasesk"><code>phases[k]</code></h3>
+<p>Every phase has <code>index</code>, <code>executor</code>, <code>description</code>, <code>atoms</code> and <code>planned_by</code>. The rest depends on the kind:</p>
+<table>
+<thead>
+<tr>
+<th>kind</th>
+<th>extra keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Robot</td>
+<td><code>goal</code> (the atoms given to the planner, in its spelling) and <code>goal_description</code>. Once planned: <code>planning_seconds</code>, <code>plan_reused</code>, <code>task_plan</code> (the operator sequence, if reported), and <code>covers_phases</code> (if one plan covered several).</td>
+</tr>
+<tr>
+<td>Human</td>
+<td><code>instructions</code> and <code>operator</code>. Once run, <code>carried_out[]</code> has <code>{attempt, carried_out_by, status, leg_recorded, n_frames}</code> per attempt. <code>carried_out_by</code> is the executor, or <code>by_hand</code> (with <code>status: null</code>) if "done" came with no executor (<a href="/tandem/docs/adding-a-human-executor/#humanphaseresult">status values</a>).</td>
+</tr>
+<tr>
+<td>Handed to a person</td>
+<td>A human phase without <code>operator</code>, plus <code>proposed_executor: "robot"</code>, <code>handed_over_because</code> and <code>instructions_by: "tandem"</code>.</td>
+</tr>
+<tr>
+<td>Any</td>
+<td><code>unchecked</code> (why), if its check could not run or had nothing a camera can judge.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="verificationsk"><code>verifications[k]</code></h3>
+<p>One entry per camera verdict, failing ones included: <code>{atom, statement, holds, expected, satisfied, role, reason,
+phase}</code>. <code>role</code> is <code>effect</code>, <code>effect (deleted)</code> or <code>precondition</code>.</p>
+<p><strong>Read <code>satisfied</code>.</strong> <code>holds</code> is what the model saw and <code>expected</code> is what the plan wanted, so
+<code>satisfied == (holds == expected)</code>. For a delete effect, <code>holds: true</code> is the failure.</p>
+<p>Only the attempt that settled a phase is kept. For an excluded trial, those are the verdicts it was excluded on.
+Earlier attempts are in the <code>human_phase_verified</code> events.</p>
+<h2 id="vlm"><code>vlm/</code></h2>
+<div class="hl"><pre><span></span><code>vlm/
+├── 001_task-plan_input.png
+├── 001_task-plan_output.png
+├── 002_classify-LidClosed-red_bin_input.png
+├── 002_classify-LidClosed-red_bin_output.png
+└── index.jsonl
+</code></pre></div>
+<p>This directory holds every model query of the trial. It is written when phase planning is on and
+<code>hitl.save_vlm_io</code> is true (the default): first into the session directory, then copied into the episode when it is
+filed. Each query leaves:</p>
+<ul>
+<li><code>NNN_&lt;label&gt;_input.png</code>: the image sent.</li>
+<li><code>NNN_&lt;label&gt;_output.png</code>: that image above the answer. It is marked REJECTED if tandem rejected the answer, or
+  CACHED if it was replayed from <code>hitl.cache_path</code>.</li>
+<li>An <code>index.jsonl</code> line with <code>seq</code>, <code>label</code>, <code>attempt</code>, <code>model</code>, <code>input_image</code>, <code>output_image</code>, <code>rejected</code> (why, or
+  <code>null</code>), <code>cached</code>, <code>prompt</code> and <code>response</code>.</li>
+</ul>
+<p>The labels are <code>task plan</code> (the proposal), <code>classify &lt;atom&gt;</code> (a camera check), and <code>detect objects</code> (<code>tandem plan</code>
+without <code>--object</code>). A retry adds <code>_attempt&lt;N&gt;</code>. <code>NNN</code> continues from the directory's highest number, so nothing
+is overwritten.</p>
+<h2 id="the-events-file">The events file</h2>
+<div class="hl"><pre><span></span><code><span class="p">{</span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rollout_saved"</span><span class="p">,</span><span class="w"> </span><span class="nt">"ts"</span><span class="p">:</span><span class="w"> </span><span class="mf">1790270037.40</span><span class="p">,</span><span class="w"> </span><span class="nt">"dir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…/eval/2026-09-25_14-03-12"</span><span class="p">,</span><span class="w"> </span><span class="nt">"n_frames"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"human_phase_verified"</span><span class="p">,</span><span class="w"> </span><span class="nt">"ts"</span><span class="p">:</span><span class="w"> </span><span class="mf">1790270101.12</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"attempt"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"ok"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"verdicts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">…</span><span class="p">]}</span>
+<span class="p">{</span><span class="nt">"event"</span><span class="p">:</span><span class="w"> </span><span class="s2">"trial_outcome"</span><span class="p">,</span><span class="w"> </span><span class="nt">"ts"</span><span class="p">:</span><span class="w"> </span><span class="mf">1790270110.87</span><span class="p">,</span><span class="w"> </span><span class="nt">"outcome"</span><span class="p">:</span><span class="w"> </span><span class="s2">"excluded"</span><span class="p">,</span><span class="w"> </span><span class="nt">"failure_stage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"verification"</span><span class="p">,</span><span class="w"> </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"…"</span><span class="p">}</span>
+</code></pre></div>
+<p>A session appends one JSON line per event to
+<code>~/.local/state/tandem/sessions/&lt;profile&gt;/&lt;session id&gt;/events.jsonl</code>. A sidecar planner writes to it too. The web
+UI streams each event on <code>/api/sessions/{id}/stream</code>, adding <code>"type": "event"</code> and <code>"at": &lt;ts&gt;</code>.</p>
+<h3 id="from-the-phase-loop">From the phase loop</h3>
+<table>
+<thead>
+<tr>
+<th>event</th>
+<th>payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rollout_start</code></td>
+<td><code>dir</code>, <code>phase_index</code>, <code>n_phases</code>; also <code>movables</code> and <code>return_home</code> if they were passed to the planner</td>
+</tr>
+<tr>
+<td><code>rollout_saved</code></td>
+<td><code>dir</code>, <code>n_frames</code></td>
+</tr>
+<tr>
+<td><code>phase_complete</code></td>
+<td><code>phase_index</code> (the next one), <code>n_phases</code>: more phases remain</td>
+</tr>
+<tr>
+<td><code>phase_plan_failed</code></td>
+<td><code>reason</code>, <code>policy</code> (<code>on_robot_phase_failure</code>), <code>phase_index</code> (<code>null</code> with phase planning off)</td>
+</tr>
+<tr>
+<td><code>instruction_not_fully_represented</code></td>
+<td><code>unrepresented</code>: <code>[{clause, reason}]</code></td>
+</tr>
+<tr>
+<td><code>awaiting_human_phase</code></td>
+<td><code>description</code>, <code>instructions</code>, <code>expected</code> (in words), <code>expected_atoms</code> and <code>expected_deleted_atoms</code> (must, or must no longer, hold after), <code>phase_index</code>, <code>n_phases</code>, <code>is_last_phase</code>, <code>operator</code></td>
+</tr>
+<tr>
+<td><code>human_phase_refused</code></td>
+<td><code>phase_index</code>, <code>executor</code>, <code>reason</code>: while recording, an answer with no leg was turned down</td>
+</tr>
+<tr>
+<td><code>human_phase_by_hand</code></td>
+<td><code>phase_index</code>, <code>attempt</code>: "done" with no executor was accepted, with no leg</td>
+</tr>
+<tr>
+<td><code>human_leg_ended</code></td>
+<td><code>executor</code>, <code>status</code>, <code>n_frames</code>, <code>dir</code>, <code>phase_index</code></td>
+</tr>
+<tr>
+<td><code>human_phase_verified</code></td>
+<td><code>phase_index</code>, <code>attempt</code>, <code>ok</code> (<code>true</code>, <code>false</code>, or <code>null</code> if not judged, with <code>skipped</code> or <code>unchecked</code> saying why), <code>verdicts</code></td>
+</tr>
+<tr>
+<td><code>phase_preconditions_checked</code></td>
+<td><code>phase_index</code>, <code>description</code>, <code>what</code> (<code>human phase</code> or <code>robot leg</code>), <code>ok</code>, <code>enforced</code>, <code>verdicts</code>; <code>unchecked</code> if the check could not run</td>
+</tr>
+<tr>
+<td><code>phase_effects_checked</code></td>
+<td>The same, for a robot leg's effects (<code>enforced</code> is always <code>false</code>)</td>
+</tr>
+<tr>
+<td><code>teleop_handoff_warning</code></td>
+<td><code>message</code>: the planner could not release the robot</td>
+</tr>
+<tr>
+<td><code>trial_outcome</code></td>
+<td><code>trajectory_id</code>, <code>outcome</code>, <code>failure_stage</code>, <code>excluded</code>, <code>reason</code>, <code>phase_index</code>: only when the loop ended the trial</td>
+</tr>
+</tbody>
+</table>
+<h3 id="from-the-session">From the session</h3>
+<p>Below, <em>trial summary</em> means <code>trajectory_id</code>, <code>outcome</code>, <code>excluded</code>, <code>filed_under</code>, <code>failure_stage</code>, <code>reason</code> and
+<code>labeled</code>.</p>
+<table>
+<thead>
+<tr>
+<th>event</th>
+<th>payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session_start</code>, <code>session_end</code>, <code>awaiting_task</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td><code>awaiting_label</code></td>
+<td><code>dir</code></td>
+</tr>
+<tr>
+<td><code>labeled</code>, <code>trial_excluded</code></td>
+<td><code>dir</code> and the trial summary; <code>labeled</code> adds <code>success</code></td>
+</tr>
+<tr>
+<td><code>trial_filed</code></td>
+<td><code>dir</code> and the trial summary: the trial failed part-way or was aborted, and was filed unlabeled</td>
+</tr>
+<tr>
+<td><code>trial_unlabeled</code></td>
+<td><code>dir</code> and the trial summary: the session stopped at the label prompt</td>
+</tr>
+<tr>
+<td><code>rollout_discarded</code></td>
+<td>The trial summary: nothing was recorded</td>
+</tr>
+<tr>
+<td><code>rollout_aborted</code></td>
+<td>Nothing after a preempt; <code>reason</code> if the session is stopping; <code>error</code> if the attempt failed</td>
+</tr>
+<tr>
+<td><code>teleop_switch_pending</code></td>
+<td>None: the operator asked for the arm, which is handed over at the next plan-step boundary</td>
+</tr>
+<tr>
+<td><code>teleop_handoff_start</code>, <code>awaiting_teleop_resume</code> (<code>trajectory_id</code>), <code>teleop_handoff_done</code></td>
+<td>A hand-off, from release to return</td>
+</tr>
+</tbody>
+</table>
+<h3 id="session-summary">Session summary</h3>
+<p>A session's live state. The web UI gets it from <code>GET /api/sessions/{id}</code>, and <code>tandem collect</code> saves it in
+<code>session-&lt;id&gt;.json</code>. The common fields are below; there are more.</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code>, <code>profile</code>, <code>task</code></td>
+<td>The session.</td>
+</tr>
+<tr>
+<td><code>state</code>, <code>error</code>, <code>end_reason</code></td>
+<td>Where it is (<code>warming</code>, <code>rolling</code>, <code>awaiting_task</code>, <code>awaiting_human_phase</code>, <code>teleop_handoff</code>, <code>awaiting_label</code>, <code>stopped</code>, <code>failed</code>, …), and how it ended.</td>
+</tr>
+<tr>
+<td><code>labeled</code>, <code>success</code>, <code>excluded</code>, <code>aborted</code>, <code>target</code></td>
+<td>Trial counts, and the target (<code>--episodes</code>, else <code>task.target_episodes</code>).</td>
+</tr>
+<tr>
+<td><code>last_trial</code>, <code>rollouts[]</code></td>
+<td>The last attempt's trial summary, and every trial so far (<code>{dir, id, started_at, n_frames, status, success}</code>).</td>
+</tr>
+<tr>
+<td><code>human_phase</code>, <code>phase_progress</code></td>
+<td>The phase on screen (<code>description</code>, <code>instructions</code>, <code>expected</code>, <code>attempt</code>, <code>missing</code>, …), and <code>[phase index, n_phases]</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="logs-and-session-files">Logs and session files</h2>
+<table>
+<thead>
+<tr>
+<th>path</th>
+<th>what it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.local/state/tandem/logs/session-&lt;id&gt;.json</code></td>
+<td>Written when <code>tandem collect</code> ends (not for web UI sessions): <code>summary</code> (the <a href="#session-summary">session summary</a>) and <code>logs</code> (the last 4,000 log lines).</td>
+</tr>
+<tr>
+<td><code>~/.local/state/tandem/sessions/&lt;profile&gt;/&lt;id&gt;/events.jsonl</code></td>
+<td><a href="#the-events-file">The events file</a>.</td>
+</tr>
+<tr>
+<td><code>…/&lt;id&gt;/vlm/&lt;trajectory id&gt;/</code></td>
+<td>Each trial's <a href="#vlm">model queries</a>. This is the only copy if the trial recorded nothing.</td>
+</tr>
+<tr>
+<td><code>…/&lt;id&gt;/perception/&lt;leg dir&gt;/</code></td>
+<td>Perception passes that recorded nothing, moved out of <code>eval/</code>. TiPToP's <code>metadata.json</code> there has the planning result and failure reason.</td>
+</tr>
+<tr>
+<td><code>…/&lt;id&gt;/teleop/leg-*/teleop-events.jsonl</code></td>
+<td>Teleop driver events, one directory per hand-off.</td>
+</tr>
+<tr>
+<td><code>~/.local/state/tandem/logs/server-&lt;name&gt;.log</code></td>
+<td>A perception server tandem started (<code>m2t2</code>, <code>foundation_stereo</code>), appended per start. Its pid is in <code>~/.local/state/tandem/servers/&lt;name&gt;.pid</code> while it runs.</td>
+</tr>
+<tr>
+<td><code>~/.local/state/tandem/logs/export.log</code></td>
+<td><code>tandem export lerobot</code>'s log, appended on each run.</td>
+</tr>
+<tr>
+<td><code>~/.local/state/tandem/logs/runtime-build-&lt;YYYYMMDD-HHMMSS&gt;.log</code></td>
+<td>One per runtime build (<code>tandem planners install</code>, <code>tandem runtime build</code>, <code>tandem init</code>).</td>
+</tr>
+<tr>
+<td><code>~/tandem-data/exports/&lt;owner&gt;/&lt;name&gt;/</code></td>
+<td>Exported datasets, or <code>--out DIR</code> (<a href="/tandem/docs/reviewing/#exporting">exporting</a>).</td>
+</tr>
+<tr>
+<td><code>~/tandem-data/trajectories/&lt;profile&gt;/.merge-&lt;trajectory id&gt;/</code></td>
+<td>A merge in progress. If one is left behind, the next <code>tandem traj merge</code> says how to move its legs back.</td>
+</tr>
+</tbody>
+</table>
+<p>A trial that failed at <code>invention</code> usually has no legs. Only its events file and its session <code>vlm/</code> and
+<code>perception/</code> directories remain.</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/commands/"><span>Previous</span>Command reference</a><a class="next" href="/tandem/docs/troubleshooting/"><span>Next</span>Troubleshooting</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#reading-an-episode">Reading an episode</a></li><li><a href="#episode-layout">Episode layout</a></li><li><a href="#robot_statenpz">robot_state.npz</a></li><li><a href="#_metajson">_meta.json</a></li><li><a href="#hitljson">hitl.json</a></li><li class="sub"><a href="#top-level-keys">Top-level keys</a></li><li class="sub"><a href="#specification">specification</a></li><li class="sub"><a href="#checks">checks</a></li><li class="sub"><a href="#phasesk">phases[k]</a></li><li class="sub"><a href="#verificationsk">verifications[k]</a></li><li><a href="#vlm">vlm/</a></li><li><a href="#the-events-file">The events file</a></li><li class="sub"><a href="#from-the-phase-loop">From the phase loop</a></li><li class="sub"><a href="#from-the-session">From the session</a></li><li class="sub"><a href="#session-summary">Session summary</a></li><li><a href="#logs-and-session-files">Logs and session files</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

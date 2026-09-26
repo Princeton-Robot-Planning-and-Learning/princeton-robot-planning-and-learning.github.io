@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Concepts · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/" class="active" aria-current="page">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="concepts">Concepts</h1>
+<p>Terms used throughout these docs.</p>
+<h2 id="tasks-and-setup">Tasks and setup</h2>
+<ul>
+<li><strong>profile</strong>: one task, kept in one YAML file (<code>~/tandem-data/profiles/&lt;name&gt;.yml</code> by default). It holds the
+  prompt, the phase-planning settings and the planner's settings. Its trajectories go in
+  <code>~/tandem-data/trajectories/&lt;name&gt;/</code>. <code>tandem init</code> adds the paper's five tasks as profiles.</li>
+<li><strong>rig</strong>: the robot, camera and calibration settings for this workstation, in <code>~/.config/tandem/rig.yml</code>. All
+  profiles use the same rig.</li>
+</ul>
+<h2 id="phase-planning">Phase planning</h2>
+<ul>
+<li><strong>phase planning</strong>: splitting an instruction into an ordered list of robot and human phases. It is on when a
+  profile sets <code>hitl.enabled: true</code>.</li>
+<li><strong>phase</strong>: one step, plus the <strong>atoms</strong> that must hold after it. An atom is a predicate applied to objects,
+  such as <code>On(bread, plate)</code>. A <strong>robot phase</strong> becomes a goal for the planner. A <strong>human phase</strong> goes to a
+  human executor.</li>
+<li><strong>proposal</strong>: the model's list of phases. <strong>Repair</strong> sends a proposal that fails a check back to the model,
+  with the reason.</li>
+<li><strong>invented predicate</strong>: a predicate the model adds because the planner's goal language lacks it, such as
+  <code>IsOpen(box)</code>. A camera check judges it.</li>
+<li><strong>magic operator</strong>: a human phase's preconditions, add effects and delete effects. For example, opening a box
+  might need <code>Closed(box)</code> and add <code>IsOpen(box)</code>.</li>
+<li><strong>camera check</strong>: a vision-language model judging, from one image, whether an atom holds.</li>
+</ul>
+<h2 id="trials-and-recordings">Trials and recordings</h2>
+<ul>
+<li><strong>human executor</strong>: whatever carries out a human phase. Only <code>teleop</code>, a person driving the arm, ships with
+  tandem. A <strong>hand-off</strong> lends the executor the arm and then takes it back.</li>
+<li><strong>perception pass</strong>: one <code>perceive</code> call, which names the objects in the scene. One runs before each robot leg.</li>
+<li><strong>trial</strong>: one attempt at a task. All its legs share a 16-hex-character <code>trajectory_id</code>.</li>
+<li><strong>leg</strong>: one continuous recording, made either by the planner (one or more robot phases) or by a human executor.</li>
+<li><strong>conjoined</strong>: consecutive robot phases planned as one goal and recorded as one leg. See
+  <code>hitl.conjoin_robot_phases</code>.</li>
+<li><strong>primary leg</strong>: a trial's first planner leg, or its first leg if no planner leg exists. The episode takes its
+  directory name and files.</li>
+<li><strong>episode</strong>: a filed trial. Its legs are merged into one directory in <code>success/</code> or <code>failure/</code>. A trial with
+  one leg is that leg. Only <code>success/</code> is <a href="/tandem/docs/reviewing/#exporting">exported</a>.</li>
+<li><strong>trajectory</strong>: an episode, or a leg not yet merged, in a profile's <code>trajectories/</code>. <code>tandem traj</code> lists them.</li>
+<li><strong>settled</strong>: ended by tandem rather than labeled by you: excluded, aborted, or failed part-way. Settled trials
+  are filed in <code>failure/</code> without a label.</li>
+<li><strong>excluded</strong>: settled because a camera check failed under <code>hitl.on_verification_failure: exclude</code> (the
+  default). This is usually a human phase that still failed after its retries.</li>
+</ul>
+<h2 id="planners">Planners</h2>
+<ul>
+<li><strong>runtime</strong>: a planner's pinned sources, and usually a <a href="https://pixi.sh">pixi</a> environment, built by <code>tandem planners install</code>.</li>
+<li><strong>sidecar</strong>: a planner running as a subprocess that tandem drives over JSON lines, inside its runtime if it
+  has one.</li>
+<li><strong>DATAFARM</strong>: <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a> <code>tamp</code> motion costs (a VAE manifold and RND novelty) that make planned motion resemble
+  <a href="https://droid-dataset.github.io/">DROID</a> teleop motion.</li>
+</ul>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/configuration/"><span>Previous</span>Configuration</a><a class="next" href="/tandem/docs/commands/"><span>Next</span>Command reference</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#tasks-and-setup">Tasks and setup</a></li><li><a href="#phase-planning">Phase planning</a></li><li><a href="#trials-and-recordings">Trials and recordings</a></li><li><a href="#planners">Planners</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

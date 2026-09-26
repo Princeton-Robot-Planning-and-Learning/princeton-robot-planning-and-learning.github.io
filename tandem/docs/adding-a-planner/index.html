@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Adding a planner · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/" class="active" aria-current="page">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="adding-a-planner">Adding a planner</h1>
+<p>A planner is a Python package that tells tandem three things: what is in the scene (<code>perceive</code>), how to
+reach one goal (<code>plan</code>), and how to run that plan on the robot while recording it (<code>execute</code>). tandem does
+everything else: splitting the task into phases, teleop, checking a person's work and merging the legs.</p>
+<p>Working examples: <code>src/tandem/planners/tiptop/</code> (the built-in planner) and <code>tests/toy_planner.py</code>.</p>
+<h2 id="quick-start">Quick start</h2>
+<p>Generate a package, install it where tandem runs, and run its tests:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>new<span class="w"> </span>shelfbot<span class="w">          </span><span class="c1"># creates ./tandem-shelfbot (--dir to change)</span>
+<span class="nb">cd</span><span class="w"> </span>tandem-shelfbot
+pipx<span class="w"> </span>inject<span class="w"> </span>tandem-tamp<span class="w"> </span>--editable<span class="w"> </span>.<span class="w"> </span>pytest<span class="w">    </span><span class="c1"># if tandem came from pipx</span>
+python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w">                               </span><span class="c1"># passes as generated</span>
+tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>shelfbot<span class="w">                   </span><span class="c1"># the active profile now plans with it</span>
+</code></pre></div>
+<p>The generated planner plans in a stand-in world, so its tests pass before you write any real code.
+<code>planners new</code> prints the install command for your setup. With uv use
+<code>uv tool install --reinstall git+https://github.com/SamratSahoo/TANDEM.git --with-editable . --with pytest</code>,
+and in a virtualenv use <code>pip install -e ".[test]"</code>.</p>
+<p>Then:</p>
+<ol>
+<li>Fill in the <code>TODO</code>s in the generated README, in order, keeping <code>pytest</code> green.</li>
+<li>Once <code>execute</code> records real legs, set <code>records_legs = True</code> in the test.</li>
+<li>Check that <code>tandem plan --planner shelfbot --image workspace.png "&lt;task&gt;"</code> splits a real task into
+    phases your planner can do (<a href="/tandem/docs/planning/#planning-from-a-photo">Planning from a photo</a>).</li>
+<li>Run <code>tandem collect --no-execute</code>. It perceives and plans without moving the robot.</li>
+</ol>
+<p>Use <code>tandem planners new NAME --sidecar</code> if the planner needs its own environment (torch, CUDA, a camera
+SDK). See <a href="#sidecars">Sidecars</a>.</p>
+<p><code>tandem planners list</code> should now show <code>shelfbot</code> as <code>no runtime needed</code>. <code>tandem planners info shelfbot</code>
+shows what tandem knows about it. What <code>planners use</code> changes in a profile is in
+<a href="/tandem/docs/configuration/#planner-settings">Planner settings</a>.</p>
+<h3 id="names">Names</h3>
+<p>A planner's name uses lowercase letters, digits, <code>_</code> and <code>-</code>, and starts with a letter.</p>
+<h2 id="a-minimal-planner">A minimal planner</h2>
+<p>This is the whole shape of a planner, trimmed from the scaffold. It can move a block onto a tray.</p>
+<div class="hl"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem.planners</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Capabilities</span><span class="p">,</span> <span class="n">ExecuteResult</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">Planner</span><span class="p">,</span> <span class="n">PlannerInfo</span><span class="p">,</span> <span class="n">PlanResult</span><span class="p">,</span> <span class="n">Predicate</span><span class="p">,</span> <span class="n">SceneView</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ON</span> <span class="o">=</span> <span class="n">Predicate</span><span class="p">(</span><span class="s2">"On"</span><span class="p">,</span> <span class="p">(</span><span class="n">Parameter</span><span class="p">(</span><span class="s2">"obj"</span><span class="p">,</span> <span class="s2">"movable"</span><span class="p">),</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"place"</span><span class="p">,</span> <span class="s2">"surface"</span><span class="p">)))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ShelfBot</span><span class="p">(</span><span class="n">Planner</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">PlannerInfo</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"shelfbot"</span><span class="p">,</span> <span class="n">display_name</span><span class="o">=</span><span class="s2">"ShelfBot"</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="s2">"Puts things on trays."</span><span class="p">)</span>
+    <span class="n">CAPABILITIES</span> <span class="o">=</span> <span class="n">Capabilities</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"shelfbot"</span><span class="p">,</span>                                <span class="c1"># must equal info.name</span>
+        <span class="n">goal_predicates</span><span class="o">=</span><span class="p">{</span><span class="s2">"On"</span><span class="p">:</span> <span class="n">ON</span><span class="p">},</span>                     <span class="c1"># what a robot phase's goal may say</span>
+        <span class="n">robot_description</span><span class="o">=</span><span class="s2">"move an object onto a surface"</span><span class="p">,</span>
+        <span class="n">goal_predicate_wire_names</span><span class="o">=</span><span class="p">{</span><span class="s2">"On"</span><span class="p">:</span> <span class="s2">"on"</span><span class="p">},</span>         <span class="c1"># how plan() receives it</span>
+        <span class="n">achievable_predicates</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="s2">"On"</span><span class="p">}),</span>
+        <span class="n">reserved_predicate_names</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="s2">"On"</span><span class="p">}),</span>
+        <span class="n">movable_type</span><span class="o">=</span><span class="s2">"movable"</span><span class="p">,</span>
+        <span class="n">surface_type</span><span class="o">=</span><span class="s2">"surface"</span><span class="p">,</span>
+        <span class="n">predicate_descriptions</span><span class="o">=</span><span class="p">{</span><span class="s2">"On"</span><span class="p">:</span> <span class="s2">"</span><span class="si">{0}</span><span class="s2"> is resting on top of </span><span class="si">{1}</span><span class="s2">"</span><span class="p">},</span>
+        <span class="n">checkable_predicates</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="s2">"On"</span><span class="p">}),</span>         <span class="c1"># a camera can judge On from a photo</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">perceive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">task_hint</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">reset_arm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">open_gripper</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">scene_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">SceneView</span><span class="p">(</span>
+            <span class="n">object_labels</span><span class="o">=</span><span class="p">(</span><span class="s2">"block"</span><span class="p">,</span> <span class="s2">"tray"</span><span class="p">),</span>
+            <span class="n">table_label</span><span class="o">=</span><span class="s2">"table"</span><span class="p">,</span>
+            <span class="n">surface_labels</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="s2">"tray"</span><span class="p">}),</span>
+            <span class="n">scene_id</span><span class="o">=</span><span class="n">scene_id</span><span class="p">,</span>
+            <span class="n">rgb_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"perception_rgb.png"</span><span class="p">),</span>   <span class="c1"># write a real image here</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene_id</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">surfaces</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">(),</span> <span class="n">movables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_home</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">save_dir</span><span class="p">,</span> <span class="n">reuse_skeleton</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">:</span>                               <span class="c1"># e.g. GoalAtom("on", ("block", "tray"))</span>
+            <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">predicate</span> <span class="o">!=</span> <span class="s2">"on"</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">PlanResult</span><span class="p">(</span><span class="n">ok</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">failure_reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"cannot plan </span><span class="si">{</span><span class="n">atom</span><span class="o">.</span><span class="n">predicate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PlanResult</span><span class="p">(</span><span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">planning_seconds</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">plan_handle</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">8</span><span class="p">],</span>
+                          <span class="n">task_plan</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Place(</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">goal</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plan_handle</span><span class="p">,</span> <span class="n">leg</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">should_stop</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># ... run the plan and record robot_state.npz and the camera clips ...</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"trajectory_id"</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">trajectory_id</span><span class="p">,</span> <span class="s2">"segment_source"</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">segment_source</span><span class="p">,</span>
+                <span class="s2">"instruction"</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">instruction</span><span class="p">,</span> <span class="s2">"record_start"</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s2">"record_stop"</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span>
+                <span class="s2">"fps"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">"cameras"</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">phase_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">phase_index</span><span class="o">=</span><span class="n">leg</span><span class="o">.</span><span class="n">phase_index</span><span class="p">,</span> <span class="n">n_phases</span><span class="o">=</span><span class="n">leg</span><span class="o">.</span><span class="n">n_phases</span><span class="p">,</span>
+                        <span class="n">phase_description</span><span class="o">=</span><span class="n">leg</span><span class="o">.</span><span class="n">phase_description</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"_meta.json"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">meta</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ExecuteResult</span><span class="p">(</span><span class="n">ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_frames</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rollout_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">save_dir</span><span class="p">))</span>
+</code></pre></div>
+<p>The rest of this page is the reference for each part.</p>
+<h2 id="the-protocol">The protocol</h2>
+<p>A session calls a planner's verbs in this order:</p>
+<div class="hl"><pre><span></span><code>factory.create(ctx) → require_ready() → warm()
+    → ( perceive() → plan() → execute() )*       robot legs
+    → release_hardware() … reacquire_hardware()   around every human leg
+    → home() → close()                            when the session stops
+</code></pre></div>
+<p>Subclass <a href="#the-planner-base-class"><code>Planner</code></a>, not <code>tandem.planners.base.TampBackend</code>. <code>Planner</code> supplies
+every verb except <code>perceive</code>, <code>plan</code> and <code>execute</code>.</p>
+<p>If a verb raises, the trial ends at that verb's stage. <code>perceive</code> and <code>plan</code> fail at <code>tamp_planning</code>, and
+<code>execute</code> fails at <code>tamp_execution</code>.</p>
+<table>
+<thead>
+<tr>
+<th>verb</th>
+<th>what it must do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capabilities()</code></td>
+<td>Return the capabilities. It must be static and cheap.</td>
+</tr>
+<tr>
+<td><code>require_ready()</code></td>
+<td>Raise <code>RuntimeNotReady</code> naming what is missing.</td>
+</tr>
+<tr>
+<td><code>warm()</code></td>
+<td>Open cameras, connect the robot and build solvers. It runs again after a verb raises, so it must be a no-op when already warm.</td>
+</tr>
+<tr>
+<td><code>perceive(*, task_hint, save_dir, reset_arm=True, open_gripper=False)</code> → <code>SceneView</code></td>
+<td>Look at the scene. <code>task_hint</code> is the whole instruction and only steers detection.</td>
+</tr>
+<tr>
+<td><code>plan(scene_id, goal, *, surfaces=frozenset(), movables=None, return_home=True, save_dir, reuse_skeleton=None)</code> → <code>PlanResult</code></td>
+<td>Plan one goal. If it can't, return <code>ok=False</code> with a <code>failure_reason</code> instead of raising.</td>
+</tr>
+<tr>
+<td><code>execute(plan_handle, leg, *, save_dir, should_stop=None)</code> → <code>ExecuteResult</code></td>
+<td>Run the plan and record one leg of <code>leg.trajectory_id</code> (<a href="#the-recording-contract">contract</a>). <code>ok=False</code> ends the trial at <code>tamp_execution</code>.</td>
+</tr>
+<tr>
+<td><code>capture_frame(*, camera="external")</code></td>
+<td>Save one RGB frame from <code>camera</code> (set by <code>hitl.verification_camera</code>) and return its path.</td>
+</tr>
+<tr>
+<td><code>release_hardware()</code></td>
+<td>Block until the robot and cameras are free for a person.</td>
+</tr>
+<tr>
+<td><code>reacquire_hardware()</code></td>
+<td>Take them back, wherever the person left the arm.</td>
+</tr>
+<tr>
+<td><code>home()</code></td>
+<td>Park the arm. Don't open the gripper.</td>
+</tr>
+<tr>
+<td><code>close()</code></td>
+<td>Release everything. It must be safe to call twice, and before <code>warm</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Notes on the arguments:</p>
+<ul>
+<li><code>reset_arm</code> is true only on an attempt's first leg. Never park an arm a person just handed back.</li>
+<li><code>open_gripper</code> is true only on the first leg after a human phase. Open the hand and move nothing else.</li>
+<li><code>goal</code> is a list of <code>GoalAtom(predicate, args)</code> in the wire spelling (for example <code>on</code>).</li>
+<li><code>surfaces</code> is fixed for the whole task.</li>
+</ul>
+<h3 id="sceneview"><code>SceneView</code></h3>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>object_labels</code></td>
+<td>Every object seen, except the table.</td>
+</tr>
+<tr>
+<td><code>table_label</code></td>
+<td>The support surface. Defaults to <code>table</code>.</td>
+</tr>
+<tr>
+<td><code>surface_labels</code></td>
+<td>The objects that are surfaces.</td>
+</tr>
+<tr>
+<td><code>scene_id</code></td>
+<td>An opaque id that tandem passes back to <code>plan</code>.</td>
+</tr>
+<tr>
+<td><code>rgb_path</code></td>
+<td>An image of the scene. tandem splits the task and checks robot-leg preconditions from it. Without it, proposing a plan fails and the trial ends at <code>invention</code>.</td>
+</tr>
+<tr>
+<td><code>detected_goal</code></td>
+<td>The planner's own reading of the instruction as <code>GoalAtom</code>s. It is the leg's goal when phase planning is off.</td>
+</tr>
+</tbody>
+</table>
+<p>Labels may change between perception passes. tandem rebinds its plan to the new labels.</p>
+<h3 id="planresult"><code>PlanResult</code></h3>
+<p>Every field must be JSON-safe.</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ok</code>, <code>failure_reason</code></td>
+<td>Whether it planned, and why not.</td>
+</tr>
+<tr>
+<td><code>planning_seconds</code></td>
+<td>How long planning took.</td>
+</tr>
+<tr>
+<td><code>plan_handle</code></td>
+<td>An opaque id that tandem passes back to <code>execute</code>.</td>
+</tr>
+<tr>
+<td><code>task_plan</code></td>
+<td>The operators with object arguments, e.g. <code>("Pick(bread)", "Place(bread, plate)")</code>. It goes into <code>hitl.json</code> and is never parsed.</td>
+</tr>
+<tr>
+<td><code>artifacts</code></td>
+<td>Role → path of each file written.</td>
+</tr>
+<tr>
+<td><code>skeleton</code>, <code>skeleton_reused</code></td>
+<td>Used only with <code>supports_skeleton_reuse</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="capabilities">Capabilities</h2>
+<p>Capabilities are everything phase planning knows about your planner. They are checked when the class is
+defined. <a href="#a-minimal-planner">A minimal planner</a> shows the required fields. A planner usually adds a few
+more, as the scaffold does:</p>
+<div class="hl"><pre><span></span><code><span class="n">CAPABILITIES</span> <span class="o">=</span> <span class="n">Capabilities</span><span class="p">(</span>
+    <span class="o">...</span><span class="p">,</span>                               <span class="c1"># the required fields, as in the minimal planner</span>
+    <span class="n">exclusive_arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">"On"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>     <span class="c1"># an object rests on one thing at a time</span>
+    <span class="n">moved_arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">"On"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>         <span class="c1"># On's first argument is the object that moves</span>
+    <span class="n">robot_operators</span><span class="o">=</span><span class="p">(</span><span class="s2">"Place(?obj: movable, ?place: surface)"</span><span class="p">,),</span>
+    <span class="n">one_pick_per_object</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">supports_return_home</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>         <span class="c1"># only once plan() honours return_home=False</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>When a proposed phase breaks one of these rules, tandem sends it back to the model to repair ("repaired"
+below).</p>
+<table>
+<thead>
+<tr>
+<th>field</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td>Must equal <code>info.name</code>.</td>
+</tr>
+<tr>
+<td><code>goal_predicates</code></td>
+<td>Name → <code>Predicate(name, (Parameter(name, type), …))</code>, most important first. Robot phases can use only these.</td>
+</tr>
+<tr>
+<td><code>robot_description</code></td>
+<td>Required. One abstract sentence saying what the robot does.</td>
+</tr>
+<tr>
+<td><code>goal_predicate_wire_names</code></td>
+<td>How <code>plan(goal=)</code> spells each predicate, e.g. <code>{"On": "on"}</code>. Unlisted predicates are ones the planner supplies itself: they are dropped from goals, and a robot phase with only those is repaired.</td>
+</tr>
+<tr>
+<td><code>achievable_predicates</code></td>
+<td>What the planner's operators can make true, including every goal predicate. A robot phase asking for more is repaired.</td>
+</tr>
+<tr>
+<td><code>reserved_predicate_names</code></td>
+<td>Names the model may not invent, including every goal predicate.</td>
+</tr>
+<tr>
+<td><code>movable_type</code>, <code>surface_type</code></td>
+<td>The only two object types, and they must differ. Every goal-predicate and operator parameter uses one of them.</td>
+</tr>
+<tr>
+<td><code>moved_arguments</code></td>
+<td>Predicate → position of the moved object (<code>{"On": 0}</code>), which must be a <code>movable_type</code> parameter. Used for <code>movables=</code>, conjoining and wasted-move warnings.</td>
+</tr>
+<tr>
+<td><code>exclusive_arguments</code></td>
+<td>Predicate → the argument that can appear in only one atom at a time (<code>{"On": 0}</code>). It gives a free delete effect. A phase with two atoms in one slot is repaired.</td>
+</tr>
+<tr>
+<td><code>predicate_descriptions</code></td>
+<td>Templates shown to the operator and the camera check, e.g. <code>"{0} is resting on top of {1}"</code>. Use <code>{0}</code>, <code>{1}</code>, … within the arity, and <code>{{</code> for a literal brace.</td>
+</tr>
+<tr>
+<td><code>checkable_predicates</code></td>
+<td>Goal predicates a camera can judge from one photo. Invented predicates are always checkable.</td>
+</tr>
+<tr>
+<td><code>robot_operators</code></td>
+<td>Operator signatures, for the record only, e.g. <code>Pick(?obj: movable)</code>. They may use only the declared types.</td>
+</tr>
+<tr>
+<td><code>prompt_fragments</code></td>
+<td>Prompt paragraphs by slot: <code>placement_semantics</code>, <code>precondition_vocabulary</code>, <code>delete_effect_example</code>, <code>work_division</code>, <code>intermediate_state_example</code>, <code>robot_phase_rules</code>. Missing slots get generic text.</td>
+</tr>
+<tr>
+<td><code>one_pick_per_object</code></td>
+<td>A plan picks each object at most once. Defaults to <code>True</code>, the safe choice.</td>
+</tr>
+<tr>
+<td><code>initial_state_is_clean</code></td>
+<td>Every goal starts from the same clean state, which allows conjoining. Defaults to <code>False</code>. Set it only if the solver guarantees it.</td>
+</tr>
+<tr>
+<td><code>supports_movable_restriction</code></td>
+<td><code>plan(movables=)</code> is honoured: only those objects are picked and the rest are obstacles. A goal that moves another object returns <code>ok=False</code>. Needs <code>moved_arguments</code>.</td>
+</tr>
+<tr>
+<td><code>supports_return_home</code></td>
+<td><code>plan(return_home=False)</code> is honoured: the arm ends where the last operation leaves it. tandem uses this on every leg but the task's last.</td>
+</tr>
+<tr>
+<td><code>supports_cooperative_stop</code></td>
+<td><code>execute</code> polls <code>should_stop</code> between steps. Without it, a preempt aborts the trial once the leg ends.</td>
+</tr>
+<tr>
+<td><code>supports_skeleton_reuse</code></td>
+<td><code>plan</code> can reuse a previous <code>PlanResult.skeleton</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>tandem passes <code>movables</code>, <code>return_home</code> and <code>should_stop</code> only when the matching capability is declared.
+So <code>plan</code> may leave <code>movables</code> or <code>return_home</code> out of its signature if it doesn't declare them.</p>
+<p><strong>Conjoining</strong> (<code>hitl.conjoin_robot_phases</code>) plans consecutive robot phases as one goal from one
+perception pass. The atoms are sorted, so the proposal's order between them is lost. It needs
+<code>initial_state_is_clean</code>. It stops before a phase that moves an object again (with <code>one_pick_per_object</code>)
+or refills an <code>exclusive_arguments</code> slot.</p>
+<h2 id="the-planner-base-class">The Planner base class</h2>
+<p><code>tandem.planners.Planner</code> is an abstract base class, and it is also its own factory: the registry holds the
+class itself.</p>
+<table>
+<thead>
+<tr>
+<th>class attribute</th>
+<th>required</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>info</code></td>
+<td>yes</td>
+<td><code>PlannerInfo(name, display_name, summary, homepage, requires, sources)</code>, shown by <code>tandem planners list</code> and <code>info</code>. <code>requires</code> is free text. <code>sources</code> defaults to the recipe's.</td>
+</tr>
+<tr>
+<td><code>CAPABILITIES</code></td>
+<td>yes</td>
+<td>See <a href="#capabilities">Capabilities</a>.</td>
+</tr>
+<tr>
+<td><code>recipe</code></td>
+<td>no</td>
+<td>A <a href="#a-runtime-recipe"><code>RuntimeRecipe</code></a>. <code>None</code> means pure Python.</td>
+</tr>
+<tr>
+<td><code>OPTIONS</code></td>
+<td>no</td>
+<td>The task's settings: each key of a profile's <code>planner.options</code>, with a one-line description.</td>
+</tr>
+<tr>
+<td><code>RIG_OPTIONS</code></td>
+<td>no</td>
+<td>Settings for this workstation, shared by all profiles: each key of <code>planners.&lt;name&gt;</code> in <a href="/tandem/docs/configuration/#the-rig">rig.yml</a>, with a one-line description. A key can't be in both.</td>
+</tr>
+</tbody>
+</table>
+<p>A bad declaration raises one <code>TandemError</code> at import that lists every problem. For a shared base class,
+pass <code>abstract=True</code> (<code>class MyBase(Planner, abstract=True)</code>). It is not checked and can't be registered.</p>
+<p>What you get without writing it:</p>
+<table>
+<thead>
+<tr>
+<th>member</th>
+<th>default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>warm</code>, <code>close</code>, <code>home</code>, <code>release_hardware</code>, <code>reacquire_hardware</code></td>
+<td>Do nothing.</td>
+</tr>
+<tr>
+<td><code>require_ready</code></td>
+<td>Checks that the recipe's runtime is installed.</td>
+</tr>
+<tr>
+<td><code>capture_frame</code>, <code>move_to_joints</code></td>
+<td>Raise <code>UnsupportedVerb</code>. A session won't start without <code>capture_frame</code> when phase planning is on with <code>hitl.check_human_effects</code>, <code>check_human_preconditions</code> or <code>check_tamp_effects</code>.</td>
+</tr>
+<tr>
+<td><code>create(ctx)</code></td>
+<td>Runs <code>validate_options(ctx.options)</code> and <code>validate_rig_options(ctx.rig_options)</code>, then <code>cls(ctx)</code>.</td>
+</tr>
+<tr>
+<td><code>runtime_env(*, rig, settings=None)</code></td>
+<td>Returns <code>{}</code>. It is what <code>tandem runtime run</code> and <code>shell</code> add to the environment of the planner's own scripts. <a href="https://github.com/SamratSahoo/tiptop/tree/TANDEM">TiPToP</a>'s writes a <code>tiptop.yml</code> from the rig and points <code>$TIPTOP_CONFIG</code> at it.</td>
+</tr>
+<tr>
+<td><code>replay(rollout_dir, *, settings=None)</code></td>
+<td>Raises <code>UnsupportedVerb</code>, so <code>tandem traj open</code> isn't available.</td>
+</tr>
+<tr>
+<td><code>services(settings=None)</code></td>
+<td>Not defined, so the planner runs no helper servers. Define it to return servers such as TiPToP's <a href="https://github.com/SamratSahoo/M2T2/tree/TANDEM">M2T2</a> and <a href="https://github.com/SamratSahoo/FoundationStereo/tree/TANDEM">FoundationStereo</a>, each with <code>name</code>, <code>title</code>, <code>runtime(settings)</code> (a <code>RecipeRuntime</code>), <code>url()</code>, <code>local()</code>, <code>healthy()</code>, <code>started_pid()</code>, <code>log_path</code>, <code>start()</code> and <code>stop()</code>. <code>tandem init</code> builds their runtimes and <code>tandem servers</code> manages them; the planner starts them for a session itself (TiPToP's backend does it in <code>warm</code> and <code>perceive</code>).</td>
+</tr>
+<tr>
+<td><code>runtime(settings)</code>, <code>runtime_root(settings)</code></td>
+<td>The runtime at <code>~/.local/share/tandem/runtimes/&lt;name&gt;</code> (or <code>$TANDEM_RUNTIMES_DIR</code>). <code>None</code> without a recipe.</td>
+</tr>
+</tbody>
+</table>
+<p>Inside a planner you can use:</p>
+<table>
+<thead>
+<tr>
+<th>attribute</th>
+<th>what it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>self.ctx</code></td>
+<td>The session's <code>BackendContext</code>: <code>profile</code>, <code>session_dir</code>, <code>output_dir</code>, <code>execute</code>, <code>record</code>, <code>on_log</code>, <code>options</code>, <code>settings</code>, <code>session_id</code>, <code>task</code>, <code>events_file</code>, <code>runtime_dir</code>, <code>rig</code>, <code>rig_options</code>.</td>
+</tr>
+<tr>
+<td><code>self.options</code></td>
+<td>The validated task settings.</td>
+</tr>
+<tr>
+<td><code>self.rig_options</code></td>
+<td>The validated machine settings.</td>
+</tr>
+<tr>
+<td><code>self.rig</code></td>
+<td>The rig: <code>robot.host</code>, <code>robot.type</code>, <code>cameras</code>, <code>calibration_file()</code>.</td>
+</tr>
+<tr>
+<td><code>self.log(text)</code></td>
+<td>Writes a line to the session log.</td>
+</tr>
+</tbody>
+</table>
+<p>Any <code>tandem.planners.base.BackendFactory</code> also works in place of a <code>Planner</code> subclass. It needs <code>info</code>,
+<code>capabilities()</code>, <code>create(ctx)</code> and <code>runtime(settings)</code>, plus any optional hooks. TiPToP is built this way.</p>
+<h2 id="sidecars">Sidecars</h2>
+<p>Use a sidecar when the planner needs torch, CUDA kernels, a camera SDK or a robot client. The planner then
+runs as a script in its own interpreter, and tandem talks to it over JSON lines. <code>tandem planners new NAME
+--sidecar</code> generates both halves.</p>
+<p>The tandem half declares the planner and says which script to launch:</p>
+<div class="hl"><pre><span></span><code><span class="c1"># tandem_armsim/planner.py -- runs in tandem's process; keep it light</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem.planners</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlannerInfo</span><span class="p">,</span> <span class="n">SidecarPlanner</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ArmSim</span><span class="p">(</span><span class="n">SidecarPlanner</span><span class="p">):</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">PlannerInfo</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"armsim"</span><span class="p">,</span> <span class="n">display_name</span><span class="o">=</span><span class="s2">"ArmSim"</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="s2">"..."</span><span class="p">)</span>
+    <span class="n">CAPABILITIES</span> <span class="o">=</span> <span class="n">CAPABILITIES</span>      <span class="c1"># as for any planner</span>
+    <span class="n">SIDECAR</span> <span class="o">=</span> <span class="s2">"sidecar.py"</span>           <span class="c1"># next to this module</span>
+    <span class="n">recipe</span> <span class="o">=</span> <span class="kc">None</span>                    <span class="c1"># its runtime; None runs the script with tandem's interpreter</span>
+    <span class="n">TIMEOUTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"warm"</span><span class="p">:</span> <span class="mf">600.0</span><span class="p">}</span>       <span class="c1"># seconds, overriding the defaults below</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warm_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># The sidecar can't read the rig, so send it what it needs.</span>
+        <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">warm_args</span><span class="p">(),</span> <span class="s2">"host"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rig</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">rig_options</span><span class="p">}</span>
+</code></pre></div>
+<p>The sidecar half is the planner itself, with one method per verb:</p>
+<div class="hl"><pre><span></span><code><span class="c1"># tandem_armsim/sidecar.py -- runs in the planner's own environment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem_sidecar</span><span class="w"> </span><span class="kn">import</span> <span class="n">log</span><span class="p">,</span> <span class="n">serve</span>
+
+<span class="c1"># isort: split</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">World</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">warm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">execute</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">planner_specific</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>                 <span class="c1"># heavy imports go here, not at the top</span>
+        <span class="n">log</span><span class="p">(</span><span class="s2">"armsim: warm"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">perceive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">task_hint</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">reset_arm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">open_gripper</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"scene_id"</span><span class="p">:</span> <span class="s2">"s1"</span><span class="p">,</span> <span class="s2">"object_labels"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"block"</span><span class="p">,</span> <span class="s2">"tray"</span><span class="p">],</span> <span class="s2">"table_label"</span><span class="p">:</span> <span class="s2">"table"</span><span class="p">,</span>
+                <span class="s2">"surface_labels"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"tray"</span><span class="p">],</span> <span class="s2">"rgb_path"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">save_dir</span><span class="si">}</span><span class="s2">/perception_rgb.png"</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">scene_id</span><span class="p">,</span> <span class="n">goal</span><span class="p">,</span> <span class="n">surfaces</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="n">movables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_home</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">reuse_skeleton</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># goal looks like [{"predicate": "at", "args": ["block", "tray"]}]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"planning_seconds"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">"plan_handle"</span><span class="p">:</span> <span class="s2">"p1"</span><span class="p">,</span>
+                <span class="s2">"task_plan"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Move(block, tray)"</span><span class="p">]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">plan_handle</span><span class="p">,</span> <span class="n">leg</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">):</span>
+        <span class="c1"># record the leg and write _meta.json (see the recording contract)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"ok"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"n_frames"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"rollout_dir"</span><span class="p">:</span> <span class="n">save_dir</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">capture_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">camera</span><span class="o">=</span><span class="s2">"external"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"path"</span><span class="p">:</span> <span class="s2">"/tmp/frame.png"</span><span class="p">}</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">serve</span><span class="p">(</span><span class="n">World</span><span class="p">()))</span>
+</code></pre></div>
+<p>Rules for the script:</p>
+<ul>
+<li><strong>Don't print to stdout.</strong> tandem uses stdout to talk to the sidecar. Importing <code>tandem_sidecar</code> redirects
+  stdout to stderr, which goes to the session log, so import it first and put <code># isort: split</code> after it.</li>
+<li><strong>Import heavy libraries inside <code>warm()</code>.</strong> Then a library that fails to import shows up as a failed
+  warm-up with its error, instead of a sidecar that never starts. The conformance kit checks the import order.</li>
+<li><strong>Import only <code>tandem_sidecar</code> from tandem.</strong> It is one standard-library file (Python 3.8+), and tandem puts
+  it on the script's <code>PYTHONPATH</code>.</li>
+<li><strong>Append to <code>PYTHONPATH</code>; don't replace it.</strong> If your <a href="https://pixi.sh">pixi</a> environment sets <code>PYTHONPATH</code> (for example in
+  <code>[activation.env]</code>), the sidecar dies with <code>No module named 'tandem_sidecar'</code>. To run a sidecar by hand,
+  put tandem's <code>planners/sidecar_kit</code> directory on <code>PYTHONPATH</code> yourself.</li>
+</ul>
+<p>Each method takes keyword arguments and returns a JSON-safe dict. <code>capture_frame</code> returns <code>{"path": ...}</code>.
+A verb with no method gets <code>Planner</code>'s default. A sidecar missing <code>perceive</code>, <code>plan</code> or <code>execute</code> is refused
+at <code>warm</code>. If a method raises, tandem reports <code>"&lt;verb&gt; failed -- &lt;Type&gt;: &lt;message&gt;"</code> and puts the traceback
+in the session log. The wire protocol is documented in the docstring of
+<code>src/tandem/planners/sidecar_kit/tandem_sidecar.py</code>.</p>
+<h3 id="what-tandem-does-with-a-sidecar">What tandem does with a sidecar</h3>
+<table>
+<thead>
+<tr>
+<th>behaviour</th>
+<th>detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Launch</td>
+<td>Runs the runtime's <code>python</code> with <code>pixi run</code> (or tandem's interpreter without a runtime), from the runtime's working directory, in its own process group.</td>
+</tr>
+<tr>
+<td>Optional arguments</td>
+<td><code>movables</code>, <code>return_home</code> and <code>reuse_skeleton</code> are sent only when declared. Passing an undeclared one is an error.</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>Logs and stderr go to the session log. Events go to the events file (through <code>on_event</code>).</td>
+</tr>
+<tr>
+<td>Crash or timeout</td>
+<td>tandem sends SIGTERM, then SIGKILL, to the process group. The trial ends at that verb's stage, and the next <code>warm()</code> restarts the sidecar.</td>
+</tr>
+<tr>
+<td>Cooperative stop</td>
+<td>If declared, tandem polls <code>should_stop</code> and signals the sidecar through the file named in <code>TANDEM_SIDECAR_STOP_FILE</code>.</td>
+</tr>
+<tr>
+<td><code>close</code></td>
+<td>Asks the sidecar to quit, then ends its process group, helpers included.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="default-timeouts">Default timeouts</h3>
+<table>
+<thead>
+<tr>
+<th>verb</th>
+<th>seconds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>warm</code></td>
+<td>900</td>
+</tr>
+<tr>
+<td><code>perceive</code></td>
+<td>300</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>900</td>
+</tr>
+<tr>
+<td><code>execute</code></td>
+<td>1800</td>
+</tr>
+<tr>
+<td><code>capture_frame</code>, <code>home</code>, <code>release_hardware</code>, <code>reacquire_hardware</code></td>
+<td>180</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sidecarplanner-methods-you-can-override"><code>SidecarPlanner</code> methods you can override</h3>
+<table>
+<thead>
+<tr>
+<th>method</th>
+<th>what it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>launch_command</code></td>
+<td>The command that starts the sidecar.</td>
+</tr>
+<tr>
+<td><code>launch_cwd</code></td>
+<td>Its working directory.</td>
+</tr>
+<tr>
+<td><code>launch_env</code></td>
+<td>Its environment.</td>
+</tr>
+<tr>
+<td><code>warm_args</code></td>
+<td>What <code>warm</code> sends. Defaults to <code>output_dir</code>, <code>execute</code> and <code>record</code>.</td>
+</tr>
+<tr>
+<td><code>on_event</code></td>
+<td>What happens to each event the sidecar sends.</td>
+</tr>
+<tr>
+<td><code>call(verb, **args)</code></td>
+<td>Not an override: calls a sidecar-only verb.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-tandem_sidecar-kit">The <code>tandem_sidecar</code> kit</h3>
+<table>
+<thead>
+<tr>
+<th>function</th>
+<th>what it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>serve(handlers, verbs=None, on_exit=None)</code></td>
+<td>Answers requests until tandem says quit or closes stdin, then calls <code>on_exit</code> or the <code>close</code> handler. <code>handlers</code> is an object with one method per verb, or a verb → callable mapping.</td>
+</tr>
+<tr>
+<td><code>log(message, level="info")</code></td>
+<td>Writes to the session log. Safe from any thread.</td>
+</tr>
+<tr>
+<td><code>event(name, **fields)</code></td>
+<td>Sends an event. The fields can't be named <code>id</code>, <code>log</code> or <code>event</code>.</td>
+</tr>
+<tr>
+<td><code>should_stop()</code></td>
+<td>True once tandem asks for a cooperative stop.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a-runtime-recipe">A runtime recipe</h2>
+<p>A planner that needs more than pip declares its runtime as data. <code>tandem planners install NAME</code> builds it,
+<code>tandem planners list</code> shows whether it is current, and <code>tandem planners remove NAME</code> deletes it. Here is a
+recipe with one pinned source, a pixi environment and one build step:</p>
+<div class="hl"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tandem.planners</span><span class="w"> </span><span class="kn">import</span> <span class="n">BuildStep</span><span class="p">,</span> <span class="n">PixiEnvironment</span><span class="p">,</span> <span class="n">RuntimeRecipe</span><span class="p">,</span> <span class="n">Source</span><span class="p">,</span> <span class="n">SourcePin</span>
+
+<span class="n">RECIPE</span> <span class="o">=</span> <span class="n">RuntimeRecipe</span><span class="p">(</span>
+    <span class="n">planner</span><span class="o">=</span><span class="s2">"myplanner"</span><span class="p">,</span>                     <span class="c1"># must equal info.name</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"MyPlanner"</span><span class="p">,</span>
+    <span class="n">sources</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">Source</span><span class="p">(</span>
+            <span class="n">SourcePin</span><span class="p">(</span><span class="s2">"mysolver"</span><span class="p">,</span> <span class="s2">"https://github.com/me/mysolver.git"</span><span class="p">,</span>
+                      <span class="s2">"4db8f92c1e0a4b1f9d2e3c4b5a6978877665544a"</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="s2">"main"</span><span class="p">),</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">"pixi.toml"</span><span class="p">,</span>              <span class="c1"># a file that exists only in a complete tree</span>
+        <span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">environment</span><span class="o">=</span><span class="n">PixiEnvironment</span><span class="p">(</span><span class="n">manifest</span><span class="o">=</span><span class="s2">"mysolver/pixi.toml"</span><span class="p">),</span>
+    <span class="n">steps</span><span class="o">=</span><span class="p">(</span>
+        <span class="n">BuildStep</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"kernels"</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">"build-kernels"</span><span class="p">,</span> <span class="n">produces</span><span class="o">=</span><span class="p">(</span><span class="s2">"mysolver/build/*.so"</span><span class="p">,),</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s2">"compiling the CUDA kernels"</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyPlanner</span><span class="p">(</span><span class="n">Planner</span><span class="p">):</span>
+    <span class="n">recipe</span> <span class="o">=</span> <span class="n">RECIPE</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p>TiPToP's full recipe is <code>src/tandem/planners/tiptop/recipe.py</code>. What it installs is described in
+<a href="/tandem/docs/configuration/#the-planner-runtime">The planner runtime</a>.</p>
+<table>
+<thead>
+<tr>
+<th>part</th>
+<th>fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RuntimeRecipe</code></td>
+<td><code>planner</code> (equals <code>info.name</code>), <code>title</code>, <code>sources</code>, <code>environment</code>, <code>steps</code>, <code>assets</code>, <code>notes</code>.</td>
+</tr>
+<tr>
+<td><code>Source</code></td>
+<td><code>SourcePin(name, url, commit, ref=)</code>; <code>trim</code>: paths deleted after fetching; <code>patches</code>: applied in order, and a failure stops the install; <code>marker</code>: a path present only in a complete tree; <code>persistent</code>: directories written at run time that are kept across tree replacements.</td>
+</tr>
+<tr>
+<td><code>PixiEnvironment</code></td>
+<td><code>manifest</code>: the planner's pixi manifest and lock, inside a source; <code>home</code>: where the environment lives, default <code>env</code>, outside every tree; <code>env</code>: environment variables.</td>
+</tr>
+<tr>
+<td><code>BuildStep</code></td>
+<td><code>name</code>; <code>task</code> (a task in the manifest); <code>env</code>; <code>produces</code>: globs that exist once it has run; <code>description</code>; <code>optional</code>: the runtime works without it, so a failure doesn't fail the install and shows as a note; <code>requires</code>: absolute paths it needs, such as an SDK's installer, and it is skipped until they exist; <code>missing</code>: what won't work meanwhile, and the fix. TiPToP's ZED step uses the last three.</td>
+</tr>
+<tr>
+<td><code>Asset</code></td>
+<td><code>(source, dest)</code>: a file from your package copied into the runtime.</td>
+</tr>
+</tbody>
+</table>
+<p>How it behaves:</p>
+<ul>
+<li><strong>Pins</strong> are full 40-character commits. <code>ref</code> (the branch) is shown by <code>tandem planners info</code> and
+  <code>tandem runtime status</code>, but never compared.</li>
+<li><strong>Fetching</strong> is a shallow <code>git fetch</code> and <code>git archive</code> of the commit. If that fails it tries the <code>ref</code>
+  branch, then GitHub's archive without git. The result is always checked against the pin.</li>
+<li><strong>Layout:</strong> one directory per source, plus <code>env/</code> (the environment, linked as <code>.pixi</code> beside the
+  manifest), <code>cache/</code> (the <code>persistent</code> directories) and <code>.tandem-runtime.json</code> (what is installed).</li>
+<li><strong>Moving a pin</strong> replaces that tree without re-solving the environment. <code>persistent</code> directories survive.
+  The installer never deletes a git checkout, and replaces unlisted trees only where <code>.tandem-runtime.json</code>
+  exists.</li>
+<li><strong>Status</strong> compares <code>.tandem-runtime.json</code> with the recipe. A moved pin shows <code>outdated</code>, with the command
+  to rebuild.</li>
+</ul>
+<p>Other details:</p>
+<ul>
+<li><strong>Placeholders</strong> work in <code>env</code> values: <code>{root}</code>, <code>{source:NAME}</code> (a tree's path), <code>{commit:NAME}</code>, and
+  <code>{version:NAME}</code>. <code>{version:NAME}</code> is the commit as a PEP 440 version (<code>0.0.0+g4db8f92</code>), for packages
+  that take their version from git.</li>
+<li><strong>Offline installs</strong> use <code>--sources DIR</code>, <code>$TANDEM_PLANNER_SOURCES</code> or <code>tandem planners bundle</code>
+  (<a href="/tandem/docs/configuration/#offline-install">Offline install</a>).</li>
+<li><strong><a href="https://ffmpeg.org">ffmpeg</a>:</strong> merging legs uses the environment's <code>bin/ffmpeg</code>, or the one on <code>PATH</code>.</li>
+</ul>
+<h2 id="options-and-doctor-rows">Options and doctor rows</h2>
+<p>A planner has two kinds of settings. Task settings live in each profile's <code>planner.options</code> and are declared
+in <code>OPTIONS</code>. Machine settings, such as a server's address or a robot's ports, live in rig.yml under
+<code>planners.&lt;name&gt;</code> and are declared in <code>RIG_OPTIONS</code>.</p>
+<div class="hl"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem.core.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TandemError</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Options</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">):</span>
+    <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">scene_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyPlanner</span><span class="p">(</span><span class="n">Planner</span><span class="p">):</span>
+    <span class="n">OPTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"speed"</span><span class="p">:</span> <span class="s2">"arm speed, 0-1"</span><span class="p">,</span> <span class="s2">"scene_file"</span><span class="p">:</span> <span class="s2">"the scene to load"</span><span class="p">}</span>
+    <span class="n">RIG_OPTIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"server_url"</span><span class="p">:</span> <span class="s2">"the solver server's address"</span><span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="n">_Options</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">options</span> <span class="ow">or</span> <span class="p">{}))</span>           <span class="c1"># a ValidationError is reported by key</span>
+        <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">scene_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TandemError</span><span class="p">(</span><span class="s2">"planner.options.scene_file is required"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">opts</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"json"</span><span class="p">)</span>          <span class="c1"># plain data only</span>
+</code></pre></div>
+<p>People set them like this:</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>planners<span class="w"> </span>use<span class="w"> </span>myplanner<span class="w"> </span>--option<span class="w"> </span><span class="nv">scene_file</span><span class="o">=</span>kitchen.yml<span class="w">   </span><span class="c1"># a task setting</span>
+tandem<span class="w"> </span>rig<span class="w"> </span><span class="nb">set</span><span class="w"> </span>planners.myplanner.server_url<span class="w"> </span>http://HOST:9000<span class="w"> </span><span class="c1"># a machine setting</span>
+</code></pre></div>
+<p>tandem calls <code>validate_options(options)</code> when a profile loads, and <code>validate_rig_options(options)</code> when the
+rig is read. The defaults refuse any key that isn't declared, suggest the nearest one, and say which file a
+misplaced key belongs in. If you override either one, it must:</p>
+<ul>
+<li>Accept its own output, because the result is validated again on every read.</li>
+<li>Return plain data: string-keyed mappings, lists, strings, numbers, booleans and <code>None</code>. Use
+  <code>model_dump(mode="json")</code>, never <code>Path</code>, <code>Enum</code> or numpy values.</li>
+<li>Raise <code>TandemError</code> or <code>ValueError</code> (pydantic's <code>ValidationError</code> counts). tandem reports it under
+  <code>planner.options.</code> or <code>planners.&lt;name&gt;.</code>.</li>
+</ul>
+<p>To make a setting required, refuse <code>{}</code> with a <code>TandemError</code> naming it. Put a machine setting in
+<code>validate_rig_options</code> and a task setting in <code>validate_options</code>. <code>tandem init</code> fills a planner's machine
+settings with whatever <code>validate_rig_options({})</code> returns.</p>
+<h3 id="what-people-see">What people see</h3>
+<p><code>describe_options(profile, *, settings=None)</code> returns an <code>OptionsView</code> with <code>summary</code>, <code>sections</code>,
+<code>receives</code>, <code>receives_note</code> and <code>warnings</code>. <code>tandem profile show</code>, the web editor and the session header show
+it. By default it lists each option as set. <code>tandem profile show NAME --planner</code> prints <code>receives</code>, which is
+exactly what the planner gets.</p>
+<h3 id="doctor-rows">Doctor rows</h3>
+<p><code>doctor_checks(profile, *, settings=None, probe_hardware=True)</code> adds rows to <code>tandem doctor</code>. It returns
+<code>tandem.core.probe.Check(name, state, detail, hint, group)</code> rows, and by default returns none.</p>
+<ul>
+<li><code>state</code> is <code>probe.OK</code>, <code>WARN</code>, <code>FAIL</code> or <code>SKIP</code>.</li>
+<li>With <code>profile=None</code> (the preflight of <code>tandem init</code>), check only the machine.</li>
+<li>With <code>probe_hardware=False</code> (<code>--no-hardware</code>), touch no network or bus.</li>
+<li>A FAIL stops a session. It also stops <code>tandem init</code> before it builds the runtime (interactively, it asks).</li>
+<li>tandem already reports the runtime, so don't repeat it.</li>
+</ul>
+<h2 id="registering-it">Registering it</h2>
+<p>The scaffold registers the planner with an entry point in <code>pyproject.toml</code>:</p>
+<div class="hl"><pre><span></span><code><span class="k">[project.entry-points.</span><span class="s2">"tandem.planners"</span><span class="k">]</span>
+<span class="n">arm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tandem_arm.planner:ArmPlanner"</span><span class="w">     </span><span class="c1"># a Planner subclass, or any BackendFactory</span>
+</code></pre></div>
+<p>Then select it with <code>tandem planners use arm</code>, or <code>planner: {backend: arm}</code> in a profile.
+<code>tandem planners default arm</code> makes it the planner new profiles get (<a href="/tandem/docs/commands/">Commands</a>).</p>
+<p>tandem looks up a name in this order, and the first match wins:</p>
+<ol>
+<li><code>tandem.register_backend(name, factory)</code> (alias <code>register_planner</code>), called at runtime. <code>factory</code> may be
+    a lazily imported <code>"module:attribute"</code> string. A taken name is an error unless you pass <code>replace=True</code>.</li>
+<li>The built-in planner, TiPToP.</li>
+<li>The <code>tandem.planners</code> entry point.</li>
+</ol>
+<p><code>tandem planners list</code>, <code>info</code> and profile loading all import plugins. Keep the entry-point module light,
+and import torch and robot clients in <code>warm()</code> or a sidecar.</p>
+<p>When something goes wrong:</p>
+<ul>
+<li>A plugin that fails to import is listed as <code>broken</code>, with its error. Everything else still works, and a
+  profile naming it still loads, with its options unchecked.</li>
+<li>A plugin shadowed by a registered or built-in planner is listed with the reason.</li>
+<li>Two installed packages claiming the same name is an error.</li>
+</ul>
+<h2 id="the-recording-contract">The recording contract</h2>
+<p><code>execute</code> records one leg of trial <code>leg.trajectory_id</code>. tandem's merge orders a trial's legs by their
+recording windows and joins them into one episode. When <code>leg.record</code> is set, <code>save_dir</code> must hold three
+things: <code>_meta.json</code>, <code>robot_state.npz</code> and the camera clips.</p>
+<div class="hl"><pre><span></span><code>save_dir/
+├── _meta.json
+├── robot_state.npz
+├── external_cam.mp4     external_cam_2.mp4 and hand_cam.mp4 too, if recorded
+└── ...                  anything else is the planner's own
+</code></pre></div>
+<p><strong><code>_meta.json</code>:</strong></p>
+<div class="hl"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"trajectory_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3f9c0a1b2d4e5f60"</span><span class="p">,</span><span class="w"> </span><span class="nt">"segment_source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tamp"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"place the bread inside the box"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"phase_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"n_phases"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"phase_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"put the bread in the box"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"record_start"</span><span class="p">:</span><span class="w"> </span><span class="mf">1790270001.2</span><span class="p">,</span><span class="w"> </span><span class="nt">"record_stop"</span><span class="p">:</span><span class="w"> </span><span class="mf">1790270037.4</span><span class="p">,</span><span class="w"> </span><span class="nt">"fps"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"cameras"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"exterior_image_1_left"</span><span class="p">:</span><span class="w"> </span><span class="s2">"external_cam.mp4"</span><span class="p">,</span><span class="w"> </span><span class="nt">"wrist_image_left"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hand_cam.mp4"</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>key</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trajectory_id</code>, <code>segment_source</code></td>
+<td>Copied from <code>leg</code> (<code>"tamp"</code> for a planner leg). The merge finds the leg by them.</td>
+</tr>
+<tr>
+<td><code>instruction</code></td>
+<td><code>leg.instruction</code>: the whole task, which becomes the dataset's language label.</td>
+</tr>
+<tr>
+<td><code>phase_index</code>, <code>n_phases</code>, <code>phase_description</code></td>
+<td>Copied from <code>leg</code> when <code>leg.phase_index</code> is not <code>None</code>.</td>
+</tr>
+<tr>
+<td><code>record_start</code>, <code>record_stop</code></td>
+<td>Epoch seconds. Legs are ordered by them.</td>
+</tr>
+<tr>
+<td><code>fps</code></td>
+<td>Frames per second.</td>
+</tr>
+<tr>
+<td><code>cameras</code></td>
+<td>Dataset key → clip file, e.g. <code>{"exterior_image_1_left": "external_cam.mp4"}</code>.</td>
+</tr>
+<tr>
+<td><code>plan_file</code> (optional)</td>
+<td>The saved plan's bare file name (default <code>tiptop_plan.json</code>), for <code>tandem traj show</code> and the web UI.</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>robot_state.npz</code></strong> holds each array in <code>tandem.core.merge.STATE_KEYS</code>, one row per frame, and optionally
+<code>action_joint_velocity</code> (<code>[F,7]</code>). Nothing else may be in it. <code>cmd_*</code> arrays are commanded values and the
+rest are measured.</p>
+<table>
+<thead>
+<tr>
+<th>array</th>
+<th>shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>joint_position</code>, <code>cmd_joint_position</code>, <code>cmd_joint_velocity</code></td>
+<td><code>[F,7]</code></td>
+</tr>
+<tr>
+<td><code>gripper_position</code></td>
+<td><code>[F]</code>, in <code>[0,1]</code></td>
+</tr>
+<tr>
+<td><code>cmd_gripper</code></td>
+<td><code>[F]</code>, binary. <a href="/tandem/docs/reviewing/#exporting">The export</a> skips an episode where it isn't.</td>
+</tr>
+<tr>
+<td><code>frame_time</code></td>
+<td><code>[F]</code>, wall-clock time, float64</td>
+</tr>
+</tbody>
+</table>
+<p>Record measured arrays from the robot, not copies of the commands. Otherwise a policy trained on the data
+learns to echo its commands.</p>
+<p><strong>Camera clips:</strong> every clip that <code>cameras</code> names must exist, and there must be at least one even if
+<code>cameras</code> names none. Name each one <code>external_cam.mp4</code>, <code>external_cam_2.mp4</code> or <code>hand_cam.mp4</code>, whatever its
+dataset key. Only those names are merged, viewed and exported. Only cameras that every leg recorded are
+joined.</p>
+<p><code>tandem.core.trajectories.is_complete(leg_dir)</code> checks a leg against this contract. Any other files belong to
+the planner, and the merge copies the first planner leg's into the episode. The merged layout is in
+<a href="/tandem/docs/data/#episode-layout">Episode layout</a>.</p>
+<p>Edge cases:</p>
+<ul>
+<li>Write <code>_meta.json</code> even when execution fails part-way or records nothing (<code>n_frames=0</code>, as the scaffold
+  does). Otherwise the leg becomes an episode of its own. Always return <code>rollout_dir</code> (usually <code>save_dir</code>)
+  and <code>n_frames</code>.</li>
+<li>Return <code>ExecuteResult(stopped_early=True)</code> when you honoured a cooperative stop (a preempt or a session
+  stop). The leg then never advances the plan, whatever <code>ok</code> says. After a preempt the trial is filed as
+  aborted. A stop nobody asked for is a <code>tamp_execution</code> failure.</li>
+</ul>
+<h2 id="the-conformance-kit">The conformance kit</h2>
+<p><code>tandem.planners.testing</code> runs the whole protocol against your planner with no GPU, robot or session. Your
+package's test subclasses it:</p>
+<div class="hl"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tandem.planners.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlannerConformance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tandem_arm.planner</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArmPlanner</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestArmPlanner</span><span class="p">(</span><span class="n">PlannerConformance</span><span class="p">):</span>
+    <span class="n">planner</span> <span class="o">=</span> <span class="n">ArmPlanner</span>          <span class="c1"># a Planner subclass, a BackendFactory or a registered name</span>
+    <span class="n">records_legs</span> <span class="o">=</span> <span class="kc">True</span>           <span class="c1"># False checks only the _meta.json stamp</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>                  <span class="c1"># its planner.options</span>
+    <span class="n">rig_options</span> <span class="o">=</span> <span class="p">{}</span>              <span class="c1"># its machine settings (rig.yml planners.&lt;name&gt;)</span>
+    <span class="n">task_hint</span> <span class="o">=</span> <span class="s2">"put one thing where it belongs"</span>
+</code></pre></div>
+<p>It tests the declarations, options, machine settings, doctor rows, sidecar script, lifecycle and every verb.
+With <code>records_legs</code>, it also tests the recording. It skips anything the planner doesn't declare or ship.</p>
+<p>The backend is always built for a stand-in machine (<code>stand_in_rig</code>): the default arm at 172.16.0.2, a hand
+camera and an external camera, and no extrinsics. It never reads your rig.yml. So a planner that
+reads <code>self.rig.robot.host</code> runs, and the tests don't depend on the machine.</p>
+<p>Two switches hold the planner to what phase planning needs. Both are on by default, and the scaffold passes
+both with stand-in images. Turn one off only for a planner that is never run with phase planning.</p>
+<table>
+<thead>
+<tr>
+<th>switch</th>
+<th>requires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>phase_planning = True</code></td>
+<td>Every scene's <code>rgb_path</code> opens as an image.</td>
+</tr>
+<tr>
+<td><code>verifies_human_phases = True</code></td>
+<td><code>capture_frame(camera="external")</code> returns an image.</td>
+</tr>
+</tbody>
+</table>
+<p>Hooks to override:</p>
+<table>
+<thead>
+<tr>
+<th>hook</th>
+<th>use it to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rig(tmp_path)</code></td>
+<td>Test against a different stand-in rig.</td>
+</tr>
+<tr>
+<td><code>goal(scene, caps)</code></td>
+<td>Supply a plannable goal when the kit can't guess one.</td>
+</tr>
+<tr>
+<td><code>make_backend(tmp_path)</code></td>
+<td>Build the backend differently.</td>
+</tr>
+</tbody>
+</table>
+<p>Each check is also a plain function that raises <code>ConformanceError</code>: <code>check_declarations</code>, <code>check_protocol</code>,
+<code>check_scene</code>, <code>check_plan_result</code>, <code>check_leg</code> and <code>check_sidecar_script</code>.</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/troubleshooting/"><span>Previous</span>Troubleshooting</a><a class="next" href="/tandem/docs/adding-a-human-executor/"><span>Next</span>Adding a human executor</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#quick-start">Quick start</a></li><li class="sub"><a href="#names">Names</a></li><li><a href="#a-minimal-planner">A minimal planner</a></li><li><a href="#the-protocol">The protocol</a></li><li class="sub"><a href="#sceneview">SceneView</a></li><li class="sub"><a href="#planresult">PlanResult</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#the-planner-base-class">The Planner base class</a></li><li><a href="#sidecars">Sidecars</a></li><li class="sub"><a href="#what-tandem-does-with-a-sidecar">What tandem does with a sidecar</a></li><li class="sub"><a href="#default-timeouts">Default timeouts</a></li><li class="sub"><a href="#sidecarplanner-methods-you-can-override">SidecarPlanner methods you can override</a></li><li class="sub"><a href="#the-tandem_sidecar-kit">The tandem_sidecar kit</a></li><li><a href="#a-runtime-recipe">A runtime recipe</a></li><li><a href="#options-and-doctor-rows">Options and doctor rows</a></li><li class="sub"><a href="#what-people-see">What people see</a></li><li class="sub"><a href="#doctor-rows">Doctor rows</a></li><li><a href="#registering-it">Registering it</a></li><li><a href="#the-recording-contract">The recording contract</a></li><li><a href="#the-conformance-kit">The conformance kit</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>

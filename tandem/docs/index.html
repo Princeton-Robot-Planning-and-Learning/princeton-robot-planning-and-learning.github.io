@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TANDEM documentation · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="home">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="tandem-documentation">TANDEM documentation</h1>
+<p class="lead">TANDEM collects demonstrations for fine-tuning vision-language-action (VLA) models. A vision-language model splits each task into a sequence of phases, robot and human, in whatever order and number the task needs. The robot does its phases with task and motion planning (TAMP), and a person teleoperates the rest, only where the planner can't.</p>
+
+<div class="home-buttons">
+  <a class="btn primary" href="/tandem/docs/installation/">Install TANDEM</a>
+  <a class="btn" href="/tandem/docs/getting-started/">Your first collection</a>
+  <a class="btn" href="/tandem/">Read the paper</a>
+</div>
+
+<h2 id="quick-start">Quick start</h2>
+<p>On the robot workstation:</p>
+<div class="hl"><pre><span></span><code>pipx<span class="w"> </span>install<span class="w"> </span>git+https://github.com/SamratSahoo/TANDEM.git
+tandem<span class="w"> </span>init<span class="w">          </span><span class="c1"># builds the planner and perception servers, asks for the robot and cameras</span>
+tandem<span class="w"> </span>doctor<span class="w">        </span><span class="c1"># every check, with what to do about it</span>
+tandem<span class="w"> </span>collect<span class="w">       </span><span class="c1"># collect trials of the active task</span>
+</code></pre></div>
+<p><a href="/tandem/docs/installation/">Installation</a> covers what the workstation and robot need first.</p>
+<h2 id="documentation">Documentation</h2>
+<div class="cards">
+  <a class="card" href="/tandem/docs/installation/"><span class="step">Getting started</span><div class="card-title">Installation</div><p>What you need, installing TANDEM and running <code>tandem init</code> on the robot workstation.</p></a>
+  <a class="card" href="/tandem/docs/robot/"><span class="step">Getting started</span><div class="card-title">Robot setup</div><p>DROID's server and TiPToP's shim on the NUC, step by step.</p></a>
+  <a class="card" href="/tandem/docs/perception-servers/"><span class="step">Getting started</span><div class="card-title">Perception servers</div><p>M2T2 and FoundationStereo, built by <code>tandem init</code> and started by each session.</p></a>
+  <a class="card" href="/tandem/docs/cameras/"><span class="step">Getting started</span><div class="card-title">Cameras and calibration</div><p>Camera serials, and the extrinsics each camera needs before collecting.</p></a>
+  <a class="card" href="/tandem/docs/teleop/"><span class="step">Getting started</span><div class="card-title">Teleoperation</div><p>The VR teleop driver's environment, which tandem builds for you.</p></a>
+  <a class="card" href="/tandem/docs/getting-started/"><span class="step">Getting started</span><div class="card-title">Your first collection</div><p>Choose a task, check the plan, collect, review and export.</p></a>
+  <a class="card" href="/tandem/docs/collecting/"><span class="step">User guide</span><div class="card-title">Collecting</div><p>The keys at each step, human phases, hand-offs and labels.</p></a>
+  <a class="card" href="/tandem/docs/configuration/"><span class="step">User guide</span><div class="card-title">Configuration</div><p>Profiles, phase planning, the rig, TiPToP's options and tandem's own settings.</p></a>
+  <a class="card" href="/tandem/docs/commands/"><span class="step">Reference</span><div class="card-title">Command reference</div><p>Every <code>tandem</code> command and flag.</p></a>
+  <a class="card" href="/tandem/docs/data/"><span class="step">Reference</span><div class="card-title">Data format</div><p>What a trial leaves on disk: videos, robot state, the phase record and logs.</p></a>
+  <a class="card" href="/tandem/docs/troubleshooting/"><span class="step">Reference</span><div class="card-title">Troubleshooting</div><p>Common problems, each with the fix first.</p></a>
+  <a class="card" href="/tandem/docs/adding-a-planner/"><span class="step">Extending TANDEM</span><div class="card-title">Adding a planner</div><p>Bring your own task and motion planner, in process or as a sidecar.</p></a>
+</div>
+
+<h2 id="citation">Citation</h2>
+<div class="hl"><pre><span></span><code><span class="nc">@misc</span><span class="p">{</span><span class="nl">sahoo2026tandem</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{{TANDEM}: Task and Motion Planning with As-Needed Demonstrations for Efficient</span>
+<span class="s">            Vision-Language-Action Model Fine-tuning}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Sahoo, Samrat and Ji, Liang and Silver, Tom and Huang, Yixuan}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{2026}</span>
+<span class="p">}</span>
+</code></pre></div>
+    </article>
+    <nav class="pager" aria-label="Pages"><span></span><a class="next" href="/tandem/docs/installation/"><span>Next</span>Installation</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>
