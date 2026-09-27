@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web UI · TANDEM docs</title>
+  <meta name="description" content="How to install TANDEM, set up a robot, and collect demonstrations for VLA fine-tuning with task and motion planning and as-needed teleoperation." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27><rect width=%2732%27 height=%2732%27 fill=%27%2317181a%27/><rect x=%275%27 y=%2711%27 width=%2710%27 height=%2710%27 fill=%27white%27/><rect x=%2718%27 y=%2712%27 width=%278%27 height=%278%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/tandem/docs/static/docs.css" />
+  <link rel="stylesheet" href="/tandem/docs/static/highlight.css" />
+</head>
+<body class="page">
+
+<nav class="top">
+  <div class="bar">
+    <button class="menu" type="button" aria-label="Show the list of pages" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    </button>
+    <a class="brand" href="/tandem/">Tandem</a>
+    <a class="section" href="/tandem/docs/">Docs</a>
+    <div class="search">
+      <input type="search" placeholder="Search the docs" aria-label="Search the docs" autocomplete="off" spellcheck="false" />
+      <kbd>/</kbd>
+      <div class="results" role="listbox" hidden></div>
+    </div>
+    <a class="link" href="/tandem/">Paper</a>
+    <a class="link" href="https://github.com/SamratSahoo/TANDEM">GitHub</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar" aria-label="Pages">
+    <a class="side-home" href="/tandem/docs/">Home</a>
+    <div class="side-group"><div class="side-hd">Getting started</div><ul>
+<li><a href="/tandem/docs/installation/">Installation</a></li>
+<li><a href="/tandem/docs/robot/">Robot setup</a></li>
+<li><a href="/tandem/docs/perception-servers/">Perception servers</a></li>
+<li><a href="/tandem/docs/cameras/">Cameras and calibration</a></li>
+<li><a href="/tandem/docs/teleop/">Teleoperation</a></li>
+<li><a href="/tandem/docs/getting-started/">Your first collection</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">User guide</div><ul>
+<li><a href="/tandem/docs/collecting/">Collecting</a></li>
+<li><a href="/tandem/docs/planning/">Planning from a photo</a></li>
+<li><a href="/tandem/docs/reviewing/">Reviewing and exporting</a></li>
+<li><a href="/tandem/docs/web-ui/" class="active" aria-current="page">Web UI</a></li>
+<li><a href="/tandem/docs/configuration/">Configuration</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Reference</div><ul>
+<li><a href="/tandem/docs/concepts/">Concepts</a></li>
+<li><a href="/tandem/docs/commands/">Command reference</a></li>
+<li><a href="/tandem/docs/data/">Data format</a></li>
+<li><a href="/tandem/docs/troubleshooting/">Troubleshooting</a></li>
+</ul></div>
+<div class="side-group"><div class="side-hd">Extending TANDEM</div><ul>
+<li><a href="/tandem/docs/adding-a-planner/">Adding a planner</a></li>
+<li><a href="/tandem/docs/adding-a-human-executor/">Adding a human executor</a></li>
+</ul></div>
+  </aside>
+
+  <main class="doc">
+    <article class="content">
+<h1 id="web-ui">Web UI</h1>
+<p>The web UI does everything the terminal does, plus video review of every trajectory.</p>
+<div class="hl"><pre><span></span><code>tandem<span class="w"> </span>ui<span class="w">                    </span><span class="c1"># http://127.0.0.1:8787, or the next free port</span>
+tandem<span class="w"> </span>ui<span class="w"> </span>--port<span class="w"> </span><span class="m">9000</span><span class="w"> </span>--no-open
+</code></pre></div>
+<p>The UI needs no Node, CDN, GPU or robot. <code>ui.host</code>, <code>ui.port</code> and <code>ui.open_browser</code> set its defaults. Ctrl-C
+lets running sessions park the arm and finish merging. A second Ctrl-C quits at once and leaves the arm where
+it is.</p>
+<ul>
+<li><strong>Trajectories:</strong> click a plot to seek every video. A merged trajectory's ribbon shows who drove each
+  stretch. Shaded bands mark the frames π₀.₅-DROID's training drops as idle.</li>
+<li><strong>Collect:</strong> the same controls as the terminal. Anything the plan leaves out is shown before the arm moves,
+  and you can review the trial right at the label prompt.</li>
+<li><strong>Profiles:</strong> the paper's five and your own. You can create one from a task or as a copy, edit it, and see
+  what its planner receives.</li>
+<li><strong>Settings:</strong> the rig (robot, cameras, calibration, each planner's machine settings), credentials, paths,
+  catalogs, runtime status and <code>tandem doctor</code>.</li>
+</ul>
+<p>Flags: <code>-p/--port</code>, <code>--host</code>, <code>--no-open</code>, and <code>--profile</code> (open on a profile and make it active).</p>
+<h2 id="http-api">HTTP API</h2>
+<div class="hl"><pre><span></span><code>curl<span class="w"> </span>http://127.0.0.1:8787/api/rig
+curl<span class="w"> </span>-X<span class="w"> </span>PATCH<span class="w"> </span>http://127.0.0.1:8787/api/rig<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-d<span class="w"> </span><span class="s1">'{"robot.host": "NUC_ADDRESS", "cameras.external_2": null}'</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>route</th>
+<th>returns or does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /api/planners[/{name}]</code>, <code>GET /api/executors</code></td>
+<td>Same as <code>planners list\|info --json</code> and <code>executors list --json</code>. Add <code>?profile=P</code> for another profile.</td>
+</tr>
+<tr>
+<td><code>POST /api/planners/{name}/use\|default</code>, <code>POST /api/executors/{name}/use</code></td>
+<td>Same as <code>planners use</code> (optional body: <code>profile</code>, <code>options</code>), <code>planners default</code> and <code>executors use</code> (optional body: <code>profile</code>).</td>
+</tr>
+<tr>
+<td><code>GET /api/profiles/{name}</code></td>
+<td>The profile, plus <code>planner_view.receives</code> (as <code>profile show --planner</code>). Each card in <code>GET /api/profiles</code> has a <code>planner_summary</code> line.</td>
+</tr>
+<tr>
+<td><code>POST /api/profiles</code></td>
+<td>Same as <code>profile create</code>. Body <code>{name, prompt}</code> uses the paper's settings; <code>{name, from}</code> copies a profile (<code>prompt</code> optional). <code>POST /api/profiles/builtin</code> adds the paper's five, as <code>init</code> does.</td>
+</tr>
+<tr>
+<td><code>GET /api/rig</code>, <code>PATCH /api/rig</code></td>
+<td>Same as <code>rig show --json</code>, and <code>rig set</code> for several keys at once.</td>
+</tr>
+<tr>
+<td><code>GET /api/sessions/{id}</code></td>
+<td>The <a href="/tandem/docs/data/#session-summary">session summary</a> and its last 500 log lines.</td>
+</tr>
+<tr>
+<td><code>GET /api/media/{profile}/{id}/{file}</code></td>
+<td>A trajectory video, served with HTTP Range. A proxy in front must pass <code>Range</code> headers.</td>
+</tr>
+</tbody>
+</table>
+<p>The API can't install a planner. Each catalog row includes the <code>install_command</code> to run instead.</p>
+    </article>
+    <nav class="pager" aria-label="Pages"><a class="prev" href="/tandem/docs/reviewing/"><span>Previous</span>Reviewing and exporting</a><a class="next" href="/tandem/docs/configuration/"><span>Next</span>Configuration</a></nav>
+    <footer>
+      <span>TANDEM · Princeton Robot Planning and Learning</span>
+      <a href="#">Back to top</a>
+    </footer>
+  </main>
+
+  <aside class="toc" aria-label="On this page">
+    <div class="toc-hd">On this page</div><ul class="toc-list"><li><a href="#http-api">HTTP API</a></li></ul>
+  </aside>
+</div>
+
+<script src="/tandem/docs/static/search-index.js" defer></script>
+<script src="/tandem/docs/static/docs.js" defer></script>
+</body>
+</html>
